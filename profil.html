@@ -1,54 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Profil</title>
-  <style>
-    body{font-family:system-ui;background:#ffd400;margin:0;text-align:center}
-    #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff;margin:16px auto}
-    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:#222;color:#fff;text-decoration:none;margin:8px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffd400;
+            text-align: center;
+            padding: 20px;
+        }
+        img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            background: #fff;
+            margin-top: 10px;
+        }
+        .buttons {
+            margin: 15px;
+        }
+        .buttons a {
+            display: inline-block;
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .buttons a:hover {
+            background: #555;
+        }
+    </style>
 </head>
 <body>
-  <a class="btn" href="login.html">← Kullanıcı değiştir</a>
-  <a class="btn" href="index.html">Ana sayfa</a>
-  <h2 id="status">1) Sayfa yüklendi</h2>
-  <img id="photo" alt="">
-  <p id="out"></p>
 
-  <script>
-  (async () => {
+<div class="buttons">
+    <a href="login.html">← Kullanıcı değiştir</a>
+    <a href="index.html">Ana sayfa</a>
+</div>
+
+<h2 id="status">Yükleniyor...</h2>
+<img id="photo" src="" alt="Profil Fotoğrafı">
+<div id="out"></div>
+
+<script>
+(async () => {
     try {
-      const s = msg => document.getElementById('status').textContent = msg;
-      s('2) URL okunuyor…');
-      const idStr = new URLSearchParams(location.search).get('id');
-      const idNum = Number(idStr);
-      if (!idNum) { s('HATA: id parametresi yok veya sayı değil'); return; }
+        // URL'den id parametresini al
+        const params = new URLSearchParams(location.search);
+        const id = Number(params.get('id'));
+        if (!id) {
+            document.getElementById('status').textContent = "Geçersiz ID!";
+            return;
+        }
 
-      s('3) JSON fetch başlıyor…');
-      // JSON aynı klasörde: profil.html ile aynı yerde
-      const res = await fetch('kullanicilar.json?v=' + Date.now(), { cache: 'no-store' });
-      document.getElementById('out').textContent = 'fetch status=' + res.status;
-      if (!res.ok) { s('HATA: JSON açılamadı'); return; }
+        // JSON dosyasını getir
+        const res = await fetch('kullanicilar.json', { cache: 'no-store' });
+        if (!res.ok) {
+            document.getElementById('status').textContent = "JSON yüklenemedi! (" + res.status + ")";
+            return;
+        }
 
-      s('4) JSON parse ediliyor…');
-      const users = await res.json();
+        const users = await res.json();
+        const user = users.find(u => Number(u.id) === id);
 
-      s('5) Kullanıcı aranıyor (id=' + idNum + ')…');
-      const u = users.find(x => Number(x.id) === idNum);
-      if (!u) { s('HATA: Kullanıcı bulunamadı'); return; }
+        if (!user) {
+            document.getElementById('status').textContent = "Kullanıcı bulunamadı!";
+            return;
+        }
 
-      s('6) Profil dolduruluyor…');
-      document.getElementById('photo').src = u.profilFoto;
-      document.getElementById('out').textContent =
-        Ad: ${u.ad} | Konum: ${u.konum} | Pi: ${u.piBakiyesi};
-      s('✓ Bitti');
+        // Verileri ekrana yaz
+        document.getElementById('status').textContent = user.ad;
+        document.getElementById('photo').src = user.profilFoto;
+        document.getElementById('out').innerHTML = `
+            <p>Konum: ${user.konum}</p>
+            <p>Pi Bakiyesi: ${user.PiBakiyesi}</p>
+        `;
     } catch (e) {
-      document.getElementById('status').textContent = 'HATA: ' + e.message;
-      console.error(e);
+        document.body.innerHTML = <pre>Hata: ${e.message}</pre>;
+        console.error(e);
     }
-  })();
-  </script>
+})();
+</script>
+
 </body>
 </html>
+  
