@@ -1,43 +1,20 @@
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Giriş | Yarım Kalan Hikayeler</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <h1>Kullanıcı Seç</h1>
-    <p>Demo: Giriş yapmak için bir kullanıcıya tıkla.</p>
-  </header>
-
-  <main>
-    <section id="user-list" class="grid"></section>
-  </main>
-
-  <script>
-  (async () => {
-    try {
-      // >> DİKKAT: Dosya adı birebir böyle olmalı
-      const res = await fetch('kullanicilar.json'); 
-      if (!res.ok) throw new Error('JSON yüklenemedi');
-      const users = await res.json();
-
-      const list = document.getElementById('user-list');
-      list.innerHTML = users.map(u => `
-        <a class="card" href="profil.html?id=${encodeURIComponent(u.id)}">
-          <img src="${u.photo}" alt="${u.name}">
-          <h3>${u.name}</h3>
-          <small>${(u.routes||[]).join(' • ')}</small>
-        </a>
-      `).join('');
-    } catch (e) {
-      document.getElementById('user-list').innerHTML =
-        '<p>Liste yüklenemedi. Dosya adı: <b>kullanicilar.json</b> mı?</p>';
-      console.error(e);
-    }
-  })();
-  </script>
-</body>
-</html>
+<script>
+(async()=>{
+  try{
+    const res = await fetch('kullanicilar.json');
+    const users = await res.json();
+    const list = document.getElementById('user-list');
+    list.innerHTML = users.map(u => `
+      <a class="card" href="profil.html?id=${u.id}">
+        <img src="${u.profilFoto}" alt="${u.ad}">
+        <h3>${u.ad}</h3>
+        <small>${u.konum}</small>
+      </a>
+    `).join('');
+  }catch(e){
+    document.getElementById('user-list').innerHTML =
+      '<p>Liste yüklenemedi (kullanicilar.json).</p>';
+    console.error(e);
+  }
+})();
+</script>
