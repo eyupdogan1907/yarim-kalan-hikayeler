@@ -1,20 +1,47 @@
 <!doctype html>
 <html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Profil2 Test</title>
-  <style>
-    body{font-family:system-ui;background:#ffd400;text-align:center;margin:0}
-    #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff}
-  </style>
-  <script defer>
-  window.addEventListener('DOMContentLoaded', async () => {
-    const status = document.getElementById('status');
-    const out    = document.getElementById('out');
-    try {
-      const params = new URLSearchParams(location.search);
-      const idStr = params.get('id');
-      status.textContent = 'URL id=' + idStr;
-      const id = Number(idStr);
-      if (!id) { out.textContent = 'ID yok (p…
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profil2 Test</title>
+<body style="font-family:system-ui;background:#ffd400;text-align:center">
+<h2 id="status">Yükleniyor...</h2>
+<img id="photo" style="width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff">
+<div id="out"></div>
+
+<script>
+(async () => {
+  try {
+    const params = new URLSearchParams(location.search);
+    const id = Number(params.get('id'));
+
+    if (!id) {
+      document.getElementById('status').textContent = 'URL id yok (profil2.html?id=1)';
+      return;
+    }
+
+    // JSON dosyasının tam URL'si
+    const res = await fetch('https://eyupdogan1907.github.io/yarim-kalan-hikayeler/kullanicilar.json', { cache: 'no-store' });
+    if (!res.ok) {
+      document.getElementById('status').textContent = 'JSON status = ' + res.status;
+      return;
+    }
+
+    const users = await res.json();
+    const u = users.find(x => Number(x.id) === id);
+    if (!u) {
+      document.getElementById('out').textContent = 'Kullanıcı bulunamadı';
+      return;
+    }
+
+    document.getElementById('status').textContent = 'Kullanıcı: ' + u.ad;
+    document.getElementById('photo').src = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/' + u.profilFoto;
+    document.getElementById('out').textContent = Konum: ${u.konum} | Pi: ${u.PiBakiyesi};
+
+  } catch (e) {
+    document.body.innerHTML = <pre style="text-align:left;padding:16px">${e.message}</pre>;
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
