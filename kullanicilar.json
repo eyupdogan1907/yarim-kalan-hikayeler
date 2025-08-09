@@ -1,16 +1,4 @@
 [
-  {
-    "id": 1,
-    "ad": "Ayşe",
-    "konum": "İstanbul",
-    "piBakiyesi": 3.14,
-    "profilFoto": "assets/ayse.jpg"
-  },
-  {
-    "id": 2,
-    "ad": "Mehmet",
-    "konum": "İstanbul",
-    "piBakiyesi": 2.71,
-    "profilFoto": "assets/mehmet.jpg"
-  }
+  { "id": 1, "ad": "Ayşe",   "konum": "İstanbul", "piBakiyesi": 3.14, "profilFoto": "assets/ayse.jpg" },
+  { "id": 2, "ad": "Mehmet", "konum": "İstanbul", "piBakiyesi": 2.71, "profilFoto": "assets/mehmet.jpg" }
 ]
