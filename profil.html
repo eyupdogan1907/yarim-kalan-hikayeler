@@ -1,51 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Profil Sayfası</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h1 style="text-align: center;">Merhaba 👋</h1>
-  <p style="text-align: center;">Pi ile giriş başarılı! Burada karşılaştığın kişileri göreceksin.</p>
+<script>
+function q(name){ return new URLSearchParams(location.search).get(name); }
+(async()=>{
+  const id = Number(q('id'));
+  const users = await (await fetch('kullanicilar.json')).json();
+  // id eşleşmesi (kısa formatta id sayı)
+  let u = users.find(x => Number(x.id) === id);
+  if(!u){ document.body.innerHTML='<p style="text-align:center">Kullanıcı bulunamadı</p>'; return; }
 
-  <h2 style="text-align: center;">Profil Sayfası</h2>
-  <div style="text-align: center;">
-    <img id="profilePhoto" src="" alt="Profil Fotoğrafı" style="border-radius: 50%; width: 150px; height: 150px; object-fit: cover;">
-    <h3 id="userName"></h3>
-    <p id="userBio"></p>
-    <p id="userRoutes"></p>
-  </div>
+  // Kısa ↔ Uzun alan eşlemesi
+  const name  = u.name || u.ad || 'Bilinmiyor';
+  const photo = u.photo || u.profilFoto || '';
+  const bio   = u.bio   || '';                 // kısa formatta yok
+  const loc   = u.konum || '';                 // kısa formatta var
 
-  <div style="text-align: center; margin-top: 20px;">
-    <a href="index.html">
-      <button class="login-btn">Geri Dön</button>
-    </a>
-  </div>
-
-  <script>
-    function getParam(name) {
-      return new URLSearchParams(window.location.search).get(name);
-    }
-
-    async function loadProfile() {
-      const id = getParam('id');
-      const res = await fetch('kullanicilar.json');
-      const users = await res.json();
-      const user = users.find(u => u.id === id);
-
-      if (!user) {
-        document.querySelector('h1').textContent = "Kullanıcı bulunamadı";
-        return;
-      }
-
-      document.getElementById('profilePhoto').src = user.photo;
-      document.getElementById('userName').textContent = Kullanıcı Adı: ${user.name};
-      document.getElementById('userBio').textContent = user.bio || "";
-      document.getElementById('userRoutes').textContent = "Rotalar: " + (user.routes || []).join(' • ');
-    }
-
-    loadProfile();
-  </script>
-</body>
-</html>
+  document.getElementById('profilePhoto').src = photo;
+  document.getElementById('userName').textContent = Kullanıcı Adı: ${name};
+  document.getElementById('userBio').textContent  = bio || (loc ? Konum: ${loc} : '');
+})();
+</script>
