@@ -11,10 +11,10 @@
 
   <h2 style="text-align: center;">Profil Sayfası</h2>
   <div style="text-align: center;">
-    <img src="https://i.pravatar.cc/150?img=5" alt="Profil Fotoğrafı" style="border-radius: 50%; width: 150px; height: 150px;">
-    <h3>Kullanıcı Adı: Ayşe</h3>
-    <p>Pi Bakiyesi: 3.14 π</p>
-    <p>Konum: İstanbul</p>
+    <img id="profilePhoto" src="" alt="Profil Fotoğrafı" style="border-radius: 50%; width: 150px; height: 150px; object-fit: cover;">
+    <h3 id="userName"></h3>
+    <p id="userBio"></p>
+    <p id="userRoutes"></p>
   </div>
 
   <div style="text-align: center; margin-top: 20px;">
@@ -22,5 +22,30 @@
       <button class="login-btn">Geri Dön</button>
     </a>
   </div>
+
+  <script>
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+
+    async function loadProfile() {
+      const id = getParam('id');
+      const res = await fetch('kullanicilar.json');
+      const users = await res.json();
+      const user = users.find(u => u.id === id);
+
+      if (!user) {
+        document.querySelector('h1').textContent = "Kullanıcı bulunamadı";
+        return;
+      }
+
+      document.getElementById('profilePhoto').src = user.photo;
+      document.getElementById('userName').textContent = Kullanıcı Adı: ${user.name};
+      document.getElementById('userBio').textContent = user.bio || "";
+      document.getElementById('userRoutes').textContent = "Rotalar: " + (user.routes || []).join(' • ');
+    }
+
+    loadProfile();
+  </script>
 </body>
 </html>
