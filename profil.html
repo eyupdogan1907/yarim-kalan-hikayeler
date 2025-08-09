@@ -20,23 +20,19 @@ function qp(n){return new URLSearchParams(location.search).get(n);}
 (async()=>{
   try{
     const id = Number(qp('id'));
-    if(!id){ document.body.innerHTML = '<p style="text-align:center;margin:40px">ID parametresi yok: profil.html?id=1</p>'; return; }
-
+    if(!id){ location.href='login.html'; return; }
     const res = await fetch('kullanicilar.json',{cache:'no-store'});
-    if(!res.ok) throw new Error('JSON bulunamadı');
     const users = await res.json();
-
     const u = users.find(x => Number(x.id) === id);
-    if(!u){ document.body.innerHTML = '<p style="text-align:center;margin:40px">Kullanıcı bulunamadı.</p>'; return; }
-
+    if(!u){ location.href='login.html'; return; }
     document.getElementById('name').textContent = Kullanıcı: ${u.ad};
-    document.getElementById('photo').src       = u.profilFoto || '';
+    document.getElementById('photo').src       = u.profilFoto;
     document.getElementById('photo').alt       = u.ad;
-    document.getElementById('loc').textContent = Konum: ${u.konum || '-'};
-    document.getElementById('bal').textContent = (u.piBakiyesi!=null) ? Pi Bakiyesi: ${u.piBakiyesi} π : '';
-  }catch(err){
-    document.body.innerHTML = '<p style="text-align:center;margin:40px">Profil yüklenemedi.</p>';
-    console.error(err);
+    document.getElementById('loc').textContent = Konum: ${u.konum};
+    document.getElementById('bal').textContent = Pi Bakiyesi: ${u.piBakiyesi} π;
+  }catch(e){
+    console.error(e);
+    location.href='login.html';
   }
 })();
 </script>
