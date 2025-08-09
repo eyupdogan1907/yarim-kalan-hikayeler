@@ -1,14 +1,37 @@
+<!doctype html><html lang="tr"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Giriş | Yarım Kalan Hikayeler</title>
+<style>
+  body{font-family:system-ui;margin:0;background:#ffd400}
+  header{text-align:center;padding:24px}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));padding:16px}
+  .card{display:block;text-decoration:none;color:#111;background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+  .card img{width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:8px;display:block}
+  .card h3{margin:6px 0 2px;font-weight:700}
+  .card small{color:#666}
+</style>
+<header>
+  <h1>Kullanıcı Seç</h1>
+  <p>Demo: Giriş yapmak için bir kullanıcıya tıkla.</p>
+</header>
 <section id="user-list" class="grid"></section>
+
 <script>
 (async()=>{
-  const res = await fetch('kullanicilar.json');
-  const users = await res.json();
-  document.getElementById('user-list').innerHTML = users.map(u => `
-    <a class="card" href="profil.html?id=${u.id}">
-      <img src="${u.profilFoto}" alt="${u.ad}">
-      <h3>${u.ad}</h3>
-      <small>${u.konum}</small>
-    </a>
-  `).join('');
+  try{
+    const res = await fetch('kullanicilar.json',{cache:'no-store'});
+    const users = await res.json();
+    document.getElementById('user-list').innerHTML = users.map(u=>`
+      <a class="card" href="profil.html?id=${u.id}">
+        <img src="${u.profilFoto}" alt="${u.ad}">
+        <h3>${u.ad}</h3>
+        <small>${u.konum}</small>
+      </a>
+    `).join('');
+  }catch(e){
+    document.getElementById('user-list').innerHTML = '<p>Liste yüklenemedi.</p>';
+    console.error(e);
+  }
 })();
 </script>
+</html>
