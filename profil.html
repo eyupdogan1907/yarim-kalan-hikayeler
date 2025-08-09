@@ -1,40 +1,43 @@
-<!doctype html><html lang="tr"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html><html lang="tr"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Profil</title>
-<link rel="stylesheet" href="style.css">
-</head><body>
-<nav style="padding:12px"><a href="login.html">← Kullanıcı değiştir</a></nav>
-
-<main style="max-width:680px;margin:auto;text-align:center">
-  <img id="profilePhoto" alt="Profil" style="width:150px;height:150px;object-fit:cover;border-radius:50%;margin:16px auto;display:block">
-  <h2 id="userName"></h2>
-  <p id="userBio"></p>
-  <p id="userExtra"></p>
-  <a href="index.html"><button class="login-btn">Ana sayfaya dön</button></a>
+<style>
+  body{font-family:system-ui;margin:0;background:#ffd400}
+  main{max-width:680px;margin:32px auto;text-align:center}
+  .btn{display:inline-block;padding:10px 14px;border:0;border-radius:10px;background:#222;color:#fff;font-weight:600;text-decoration:none}
+  #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;display:block;margin:16px auto;background:#fff}
+</style>
+<main>
+  <a href="login.html" class="btn" style="float:left;margin:8px 16px">← Kullanıcı değiştir</a>
+  <h2 id="name">Yükleniyor…</h2>
+  <img id="photo" alt="">
+  <p id="loc"></p>
+  <p id="bal"></p>
+  <p><a class="btn" href="index.html">Ana sayfa</a></p>
 </main>
-
 <script>
 function qp(n){return new URLSearchParams(location.search).get(n);}
 (async()=>{
   try{
     const id = Number(qp('id'));
-    const users = await (await fetch('kullanicilar.json')).json();
-    const u = users.find(x=>Number(x.id)===id);
-    if(!u){ document.getElementById('userName').textContent='Kullanıcı bulunamadı'; return; }
+    if(!id){ document.body.innerHTML = '<p style="text-align:center;margin:40px">ID parametresi yok: profil.html?id=1</p>'; return; }
 
-    const name  = u.ad || u.name || 'Bilinmiyor';
-    const photo = u.profilFoto || u.photo || '';
-    const konum = u.konum || '';
-    const bakiye= (u.piBakiyesi!=null)? Pi Bakiyesi: ${u.piBakiyesi} π : '';
+    const res = await fetch('kullanicilar.json',{cache:'no-store'});
+    if(!res.ok) throw new Error('JSON bulunamadı');
+    const users = await res.json();
 
-    document.getElementById('profilePhoto').src = photo;
-    document.getElementById('userName').textContent = Kullanıcı: ${name};
-    document.getElementById('userBio').textContent  = konum? Konum: ${konum} : '';
-    document.getElementById('userExtra').textContent= bakiye;
-  }catch(e){
-    document.body.innerHTML = '<p style="text-align:center">Profil yüklenemedi.</p>';
-    console.error(e);
+    const u = users.find(x => Number(x.id) === id);
+    if(!u){ document.body.innerHTML = '<p style="text-align:center;margin:40px">Kullanıcı bulunamadı.</p>'; return; }
+
+    document.getElementById('name').textContent = Kullanıcı: ${u.ad};
+    document.getElementById('photo').src       = u.profilFoto || '';
+    document.getElementById('photo').alt       = u.ad;
+    document.getElementById('loc').textContent = Konum: ${u.konum || '-'};
+    document.getElementById('bal').textContent = (u.piBakiyesi!=null) ? Pi Bakiyesi: ${u.piBakiyesi} π : '';
+  }catch(err){
+    document.body.innerHTML = '<p style="text-align:center;margin:40px">Profil yüklenemedi.</p>';
+    console.error(err);
   }
 })();
 </script>
-</body></html>
+</html>
