@@ -1,35 +1,31 @@
-<!doctype html>
-<html lang="tr">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Giriş | Yarım Kalan Hikayeler</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Giriş | Yarım Kalan Hikayeler</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Kullanıcı Seç</h1>
-    <p>Demo: Giriş yapmak için bir kullanıcıya tıkla.</p>
-  </header>
+    <h2 style="text-align: center;">Kullanıcı Seç</h2>
+    <p style="text-align: center;">Demo: Giriş yapmak için bir kullanıcıya tıkla.</p>
 
-  <main>
-    <section id="user-list" class="grid"></section>
-  </main>
+    <div id="user-list" style="text-align: center;"></div>
 
-  <script>
-  async function loadUsers() {
-    const res = await fetch('kullanicilar.json');
-    const users = await res.json();
-    const list = document.getElementById('user-list');
-    list.innerHTML = users.map(u => `
-      <a class="card" href="profil.html?id=${encodeURIComponent(u.id)}">
-        <img src="${u.photo}" alt="${u.name}">
-        <h3>${u.name}</h3>
-        <small>${(u.routes||[]).join(' • ')}</small>
-      </a>
-    `).join('');
-  }
-  loadUsers();
-  </script>
+    <script>
+        fetch('kullanicilar.json')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('user-list');
+                data.forEach(user => {
+                    const btn = document.createElement('button');
+                    btn.textContent = user.name;
+                    btn.style.margin = '10px';
+                    btn.onclick = () => {
+                        window.location.href = profil.html?id=${user.id};
+                    };
+                    container.appendChild(btn);
+                });
+            });
+    </script>
 </body>
 </html>
