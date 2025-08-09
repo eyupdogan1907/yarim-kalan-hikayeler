@@ -1,39 +1,40 @@
 <!doctype html><html lang="tr"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Profil</title>
-<style>
-  body{font-family:system-ui;margin:0;background:#ffd400}
-  main{max-width:680px;margin:32px auto;text-align:center}
-  .btn{display:inline-block;padding:10px 14px;border:0;border-radius:10px;background:#222;color:#fff;font-weight:600;text-decoration:none}
-  #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;display:block;margin:16px auto;background:#fff}
-</style>
-<main>
-  <a href="login.html" class="btn" style="float:left;margin:8px 16px">← Kullanıcı değiştir</a>
-  <h2 id="name">Yükleniyor…</h2>
-  <img id="photo" alt="">
+<title>Profil (debug)</title>
+<body style="font-family:system-ui;background:#ffd400;text-align:center">
+  <p id="status" style="margin:24px">Yükleniyor…</p>
+  <img id="photo" style="width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff">
+  <h2 id="name"></h2>
   <p id="loc"></p>
   <p id="bal"></p>
-  <p><a class="btn" href="index.html">Ana sayfa</a></p>
-</main>
+  <p id="err" style="color:#b00"></p>
+
 <script>
 function qp(n){return new URLSearchParams(location.search).get(n);}
 (async()=>{
   try{
-    const id = Number(qp('id'));
-    if(!id){ location.href='login.html'; return; }
+    const idStr = qp('id'); 
+    document.getElementById('status').textContent = 'URL id=' + idStr;
+    const id = Number(idStr);
+    if(!id){ throw new Error('ID parametresi yok veya sayı değil'); }
+
     const res = await fetch('kullanicilar.json',{cache:'no-store'});
+    document.getElementById('status').textContent += ' | JSON=' + res.status;
+    if(!res.ok) throw new Error('JSON bulunamadı: ' + res.status);
+
     const users = await res.json();
-    const u = users.find(x => Number(x.id) === id);
-    if(!u){ location.href='login.html'; return; }
-    document.getElementById('name').textContent = Kullanıcı: ${u.ad};
-    document.getElementById('photo').src       = u.profilFoto;
-    document.getElementById('photo').alt       = u.ad;
-    document.getElementById('loc').textContent = Konum: ${u.konum};
-    document.getElementById('bal').textContent = Pi Bakiyesi: ${u.piBakiyesi} π;
+    const u = users.find(x=>Number(x.id)===id);
+    if(!u) throw new Error('Kullanıcı bulunamadı: id=' + id);
+
+    document.getElementById('name').textContent  = 'Kullanıcı: ' + (u.ad||'(yok)');
+    document.getElementById('photo').src         = u.profilFoto||'';
+    document.getElementById('loc').textContent   = 'Konum: ' + (u.konum||'-');
+    document.getElementById('bal').textContent   = 'Pi Bakiyesi: ' + (u.piBakiyesi??'-');
+    document.getElementById('status').textContent += ' | OK';
   }catch(e){
+    document.getElementById('err').textContent = 'Hata: ' + e.message;
     console.error(e);
-    location.href='login.html';
   }
 })();
 </script>
-</html>
+</body></html>
