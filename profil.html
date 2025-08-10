@@ -1,69 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Profil</title>
-<style>
-  body{font-family:system-ui;background:#ffd400;text-align:center;margin:0;padding:24px}
-  .btn{display:inline-block;background:#222;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;margin:6px}
-  #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff;margin:16px auto;display:block}
-</style>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kullanıcı Profili</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    img { max-width: 150px; border-radius: 8px; }
+    .btn { display: inline-block; padding: 8px 12px; background: #4CAF50; color: #fff; text-decoration: none; margin: 5px 0; border-radius: 4px; }
+    .btn:hover { background: #45a049; }
+  </style>
+</head>
+<body>
 
-<div>
-  <a class="btn" href="login.html">← Kullanıcı değiştir</a>
-  <a class="btn" href="index.html">Ana sayfa</a>
-  <a class="btn" id="cikis" href="#">Çıkış</a>
-</div>
+  <div id="profile"></div>
 
-<h2 id="name">Yükleniyor…</h2>
-<img id="photo" alt="">
-<p id="loc"></p>
-<p id="bal"></p>
+  <div>
+    <a class="btn" href="login.html">← Kullanıcı değiştir</a>
+    <a class="btn" href="index.html">Ana sayfa</a>
+    <a class="btn" id="cikis" href="#">Çıkış</a>
+  </div>
 
-<script defer>
-(async () => {
-  try {
-    // 1) URL'de id varsa onu, yoksa localStorage'daki seçimi kullan
-    let id = Number(new URLSearchParams(location.search).get('id'));
+  <script>
+  (async () => {
+    const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
+    const res = await fetch(base + 'kullanicilar.json', { cache: 'no-store' });
+    const users = await res.json();
+
+    // URL'den id oku, yoksa localStorage'dan oku
+    const urlParams = new URLSearchParams(window.location.search);
+    let id = urlParams.get('id') || localStorage.getItem('secili_kullanici_id');
+
     if (!id) {
-      const saved = localStorage.getItem('secili_kullanici_id');
-      if (saved) id = Number(saved);
-    }
-    if (!id) {            // hiçbiri yoksa login'e dön
-      location.href = 'login.html';
+      // ID yoksa login'e yönlendir
+      window.location.href = 'login.html';
       return;
     }
 
-    // 2) Veriyi çek
-    const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
-    const res  = await fetch(base + 'kullanicilar.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('JSON yüklenemedi: ' + res.status);
-    const users = await res.json();
+    id = Number(id);
+    const user = users.find(u => u.id === id);
 
-    const u = users.find(x => Number(x.id) === id);
-    if (!u) throw new Error('Kullanıcı bulunamadı');
+    if (!user) {
+      document.getElementById('profile').innerHTML = '<p>Kullanıcı bulunamadı.</p>';
+      return;
+    }
 
-    // 3) Ekrana yaz
-    document.getElementById('name').textContent  = u.ad;
-    document.getElementById('photo').src         = base + u.profilFoto;
-    document.getElementById('photo').alt         = u.ad;
-    document.getElementById('loc').textContent   = 'Konum: ' + (u.konum ?? '-');
-    document.getElementById('bal').textContent   = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
+    document.getElementById('profile').innerHTML = `
+      <h1>${user.ad}</h1>
+      <img src="${base + user.profilFoto}" alt="${user.ad}">
+      <p><strong>Konum:</strong> ${user.konum ?? '-'}</p>
+    `;
 
-    // 4) Karşılaşmaları kaydet fonksiyonun varsa çağır (opsiyonel)
-    if (typeof kaydetKarsilasma === 'function') kaydetKarsilasma(u);
-
-    // 5) Çıkış: seçimi temizle ve login'e dön
-    const btn = document.getElementById('cikis');
-    if (btn) btn.addEventListener('click', (e) => {
-      e.preventDefault();
+    // Çıkış butonu
+    document.getElementById('cikis').addEventListener('click', () => {
       localStorage.removeItem('secili_kullanici_id');
-      location.href = 'login.html';
+      window.location.href = 'login.html';
     });
+  })();
+  </script>
 
-  } catch (e) {
-    document.getElementById('name').textContent = 'Hata: ' + e.message;
-    console.error(e);
-  }
-})();
-</script>
+</body>
+</html>
