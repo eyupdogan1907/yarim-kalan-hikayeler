@@ -5,11 +5,14 @@
   const users = await res.json();
 
   const html = users.map(u => `
-    <a class="card" href="profil.html?id=${u.id}" data-id="${u.id}">
-      <img src="${base + u.profilFoto}" alt="${u.ad}">
-      <h3>${u.ad}</h3>
-      <small>${u.konum ?? '-'}</small>
-    </a>
+<a class="card"
+   href="profil.html?id=${u.id}"
+   data-id="${u.id}"
+   onclick="localStorage.setItem('secili_kullanici_id','${u.id}')">
+  <img src="${base + u.profilFoto}" alt="${u.ad}">
+  <h3>${u.ad}</h3>
+  <small>${u.konum ?? '-'}</small>
+</a>
   `).join('');
 
   const list = document.getElementById('user-list');
