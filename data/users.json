@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "ad": "Ayşe",
+    "konum": "Kadıköy",
+    "profilFoto": "assets/img/ayse.jpg",
+    "bio": "Kitap kurdu, kısa mesafe yolcusu."
+  },
+  {
+    "id": 2,
+    "ad": "Zehra",
+    "konum": "Beşiktaş",
+    "profilFoto": "assets/img/zehra.jpg",
+    "bio": "Güne erken başlayanlardan."
+  },
+  {
+    "id": 3,
+    "ad": "Elif",
+    "konum": "Üsküdar",
+    "profilFoto": "assets/img/elif.jpg",
+    "bio": "Kahve + deniz manzarası = 💙"
+  }
+]
