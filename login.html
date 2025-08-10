@@ -1,52 +1,17 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Yarım Kalan Hikayeler – Giriş (Kullanıcı Seç)</title>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background:#fafafa; }
-    header { padding: 16px 20px; background:#111; color:#fff; }
-    .container { max-width: 960px; margin: 24px auto; padding: 0 16px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-    .card { display:block; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; text-decoration:none; color:#111;
-            transition: transform .12s ease, box-shadow .12s ease; }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
-    .card img { width:100%; height:190px; object-fit:cover; border-radius:10px; background:#f2f2f2; }
-    .card h3 { margin:10px 0 4px; font-size:18px; }
-    .card small { color:#666; }
-    .empty { padding:20px; background:#fff; border:1px dashed #ddd; border-radius:10px; color:#555; }
-  </style>
-</head>
-<body>
-  <header>
-    <strong>Yarım Kalan Hikayeler</strong> — Giriş (Kullanıcı Seç)
-  </header>
+<script>
+  async function init() {
+    const listEl = document.getElementById('user-list');
+    const emptyEl = document.getElementById('empty');
 
-  <main class="container">
-    <div id="user-list" class="grid" aria-live="polite"></div>
-    <div id="empty" class="empty" style="display:none;">Şimdilik kullanıcı bulunamadı.</div>
-  </main>
-
-  <script>
-    // DEMO VERİSİ — İstersen bunu data/users.json veya users.js'e taşıyacağız.
-    // Fotoğraf yollarını projendeki gerçek dosyalara göre güncelle.
-    const users = [
-      { id: 1, ad: "Ayşe", konum: "Kadıköy",  profilFoto: "assets/img/ayse.jpg", bio: "Kitap kurdu, kısa mesafe yolcusu." },
-      { id: 2, ad: "Zehra", konum: "Beşiktaş", profilFoto: "assets/img/zehra.jpg", bio: "Güne erken başlayanlardan." },
-      { id: 3, ad: "Elif",  konum: "Üsküdar",  profilFoto: "assets/img/elif.jpg",  bio: "Kahve + deniz manzarası = 💙" }
-    ];
-
-    (function init() {
-      const listEl = document.getElementById('user-list');
-      const emptyEl = document.getElementById('empty');
+    try {
+      const res = await fetch('data/users.json');
+      const users = await res.json();
 
       if (!Array.isArray(users) || users.length === 0) {
         emptyEl.style.display = 'block';
         return;
       }
 
-      // Kartları çiz
       const html = users.map(u => `
         <a class="card" href="#" data-id="${u.id}">
           <img src="${u.profilFoto}" alt="${u.ad}">
@@ -56,25 +21,20 @@
       `).join('');
       listEl.innerHTML = html;
 
-      // Tıklanınca ID'yi kaydet, sonra profil.html'e git
       listEl.addEventListener('click', (e) => {
         const card = e.target.closest('a.card[data-id]');
         if (!card) return;
         e.preventDefault();
-
         const id = String(card.dataset.id);
-        // LocalStorage’a yaz
         localStorage.setItem('secili_kullanici_id', id);
-
-        // Güvenli: yazıldı mı kontrol edip yönlendirelim
-        if (localStorage.getItem('secili_kullanici_id') === id) {
-          window.location.href = 'profil.html';
-        } else {
-          // Çok nadir: yazılamazsa fallback olarak query param ile gidelim
-          window.location.href = 'profil.html?id=' + encodeURIComponent(id);
-        }
+        window.location.href = 'profil.html';
       });
-    })();
-  </script>
-</body>
-</html>
+    } catch (err) {
+      console.error('Kullanıcı listesi yüklenemedi', err);
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'Kullanıcı verisi yüklenemedi.';
+    }
+  }
+
+  init();
+</script>
