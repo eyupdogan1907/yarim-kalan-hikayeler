@@ -1,63 +1,69 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kullanıcı Profili</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-    img { max-width: 150px; border-radius: 8px; }
-    .btn { display: inline-block; padding: 8px 12px; background: #4CAF50; color: #fff; text-decoration: none; margin: 5px 0; border-radius: 4px; }
-    .btn:hover { background: #45a049; }
-  </style>
-</head>
-<body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profil</title>
+<style>
+  body{font-family:system-ui;background:#ffd400;margin:0;text-align:center;padding:24px}
+  .btn{display:inline-block;background:#222;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;margin:6px}
+  #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff;margin:16px auto;display:block}
+  small{color:#666}
+</style>
 
-  <div id="profile"></div>
+<div>
+  <a class="btn" href="login.html">← Kullanıcı değiştir</a>
+  <a class="btn" href="index.html">Ana sayfa</a>
+  <a class="btn" id="cikis" href="#">Çıkış</a>
+</div>
 
-  <div>
-    <a class="btn" href="login.html">← Kullanıcı değiştir</a>
-    <a class="btn" href="index.html">Ana sayfa</a>
-    <a class="btn" id="cikis" href="#">Çıkış</a>
-  </div>
+<h2 id="status">1) Sayfa yüklendi</h2>
+<img id="photo" alt="">
+<p id="name"></p>
+<p id="loc"></p>
+<p id="bal"></p>
 
-  <script>
-  (async () => {
+<script>
+(async () => {
+  const S = (t) => document.getElementById('status').textContent = t;
+  try {
+    S('2) ID aranıyor…');
+    // URL ?id yoksa localStorage'tan al
+    let id = Number(new URLSearchParams(location.search).get('id'));
+    if (!id) {
+      const saved = localStorage.getItem('secili_kullanici_id');
+      if (saved) id = Number(saved);
+    }
+    if (!id) { S('ID yok → login.html’e yönlendiriliyor…'); location.href='login.html'; return; }
+
+    S('3) JSON çekiliyor…');
     const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
-    const res = await fetch(base + 'kullanicilar.json', { cache: 'no-store' });
+    const res  = await fetch(base + 'kullanicilar.json', { cache:'no-store' });
+    if (!res.ok) { S('JSON yüklenemedi: ' + res.status); return; }
     const users = await res.json();
 
-    // URL'den id oku, yoksa localStorage'dan oku
-    const urlParams = new URLSearchParams(window.location.search);
-    let id = urlParams.get('id') || localStorage.getItem('secili_kullanici_id');
+    S('4) Kullanıcı bulunuyor…');
+    const u = users.find(x => Number(x.id) === id);
+    if (!u) { S('Kullanıcı bulunamadı'); return; }
 
-    if (!id) {
-      // ID yoksa login'e yönlendir
-      window.location.href = 'login.html';
-      return;
-    }
+    // EKRANA BAS
+    document.getElementById('name').textContent = u.ad;
+    document.getElementById('photo').src        = base + u.profilFoto;
+    document.getElementById('photo').alt        = u.ad;
+    document.getElementById('loc').textContent  = 'Konum: ' + (u.konum ?? '-');
+    document.getElementById('bal').textContent  = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
+    S('5) Tamam ✅');
 
-    id = Number(id);
-    const user = users.find(u => u.id === id);
-
-    if (!user) {
-      document.getElementById('profile').innerHTML = '<p>Kullanıcı bulunamadı.</p>';
-      return;
-    }
-
-    document.getElementById('profile').innerHTML = `
-      <h1>${user.ad}</h1>
-      <img src="${base + user.profilFoto}" alt="${user.ad}">
-      <p><strong>Konum:</strong> ${user.konum ?? '-'}</p>
-    `;
-
-    // Çıkış butonu
-    document.getElementById('cikis').addEventListener('click', () => {
+    // ÇIKIŞ
+    document.getElementById('cikis').addEventListener('click', (e)=>{
+      e.preventDefault();
       localStorage.removeItem('secili_kullanici_id');
-      window.location.href = 'login.html';
+      location.href='login.html';
     });
-  })();
-  </script>
 
-</body>
+  } catch (e) {
+    console.error(e);
+    S('Hata: ' + e.message);
+  }
+})();
+</script>
 </html>
