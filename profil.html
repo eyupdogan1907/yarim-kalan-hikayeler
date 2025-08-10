@@ -1,74 +1,98 @@
 <!doctype html>
 <html lang="tr">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Profil</title>
-<style>
-  body{font-family:system-ui;background:#ffd400;margin:0;text-align:center;padding:24px}
-  .btn{display:inline-block;background:#222;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;margin:6px}
-  #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff;margin:16px auto;display:block}
-  small{color:#666}
-</style>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Profil</title>
+  <style>
+    body{font-family:system-ui;background:#ffd400;margin:0;text-align:center;padding:24px}
+    .btn{display:inline-block;background:#222;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;margin:6px}
+    #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff;margin:16px auto;display:block}
+    small{color:#666}
+    pre{white-space:pre-wrap;text-align:left;background:#fff;padding:12px;border-radius:8px;max-width:680px;margin:16px auto}
+  </style>
+</head>
+<body>
 
-<div>
-  <a class="btn" href="login.html">← Kullanıcı değiştir</a>
-  <a class="btn" href="index.html">Ana sayfa</a>
-  <a class="btn" id="cikis" href="#">Çıkış</a>
-</div>
+  <div>
+    <a class="btn" href="login.html">← Kullanıcı değiştir</a>
+    <a class="btn" href="index.html">Ana sayfa</a>
+    <a class="btn" id="cikis" href="#">Çıkış</a>
+  </div>
 
-<h2 id="status">1) Sayfa yüklendi</h2>
-<img id="photo" alt="">
-<p id="name"></p>
-<p id="loc"></p>
-<p id="bal"></p>
+  <h2 id="status">1) Sayfa yüklendi</h2>
+  <img id="photo" alt="">
+  <p id="name"></p>
+  <p id="loc"></p>
+  <p id="bal"></p>
+  <div id="debug"></div>
 
-<script>
-(async () => {
-  const S = (t) => document.getElementById('status').textContent = t;
+  <script defer>
+    // Her adımı hem ekrana hem console'a yazan yardımcı
+    const setStatus = (t) => {
+      try { document.getElementById('status').textContent = t; } catch(_) {}
+      console.log('[STATUS]', t);
+    };
+    // Sayfada bir JS hatası olursa göze batır
+    window.onerror = (msg, src, line, col, err) => {
+      const box = document.getElementById('debug');
+      if (box) box.innerHTML = <pre>HATA: ${msg}\nKaynak: ${src}\nSatır: ${line}:${col}\n${err?.stack||''}</pre>;
+    };
 
-  // 1) ID’yi bul: önce URL, yoksa localStorage
-  let id = Number(new URLSearchParams(location.search).get('id'));
-  if (!id) {
-    const saved = localStorage.getItem('secili_kullanici_id');
-    if (saved) id = Number(saved);
-  }
+    (async () => {
+      try {
+        setStatus('2) ID aranıyor…');
 
-  // 2) ID yoksa ekranda mesaj göster, 1 sn sonra login’e gönder
-  if (!id) {
-    S('ID yok. Giriş sayfasına yönlendiriliyor…');
-    setTimeout(() => location.href = 'login.html', 900);
-    return;
-  }
+        // URL ?id yoksa localStorage
+        let id = Number(new URLSearchParams(location.search).get('id'));
+        if (!id) {
+          const saved = localStorage.getItem('secili_kullanici_id');
+          if (saved) id = Number(saved);
+        }
 
-  try {
-    // 3) JSON’u çek ve kullanıcıyı göster
-    const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
-    const res  = await fetch(base + 'kullanicilar.json', { cache:'no-store' });
-    if (!res.ok) { S('JSON yüklenemedi: ' + res.status); return; }
-    const users = await res.json();
+        if (!id) {
+          setStatus('ID yok. 1 sn sonra giriş sayfasına gidiliyor…');
+          setTimeout(() => location.href = 'login.html', 900);
+          return;
+        }
 
-    const u = users.find(x => Number(x.id) === id);
-    if (!u) { S('Kullanıcı bulunamadı'); return; }
+        setStatus('3) JSON çekiliyor…');
+        const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
+        const res  = await fetch(base + 'kullanicilar.json', { cache:'no-store' });
+        if (!res.ok) { setStatus('JSON yüklenemedi: ' + res.status); return; }
 
-    document.getElementById('name').textContent = u.ad;
-    document.getElementById('photo').src  = base + u.profilFoto;
-    document.getElementById('photo').alt  = u.ad;
-    document.getElementById('loc').textContent = 'Konum: ' + (u.konum ?? '-');
-    document.getElementById('bal').textContent = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
-    S('5) Tamam ✅');
-  } catch (e) {
-    console.error(e);
-    S('Hata: ' + e.message);
-  }
+        const users = await res.json();
+        console.log('users:', users);
 
-  // 4) Çıkış butonu
-  document.getElementById('cikis').addEventListener('click', (e)=>{
-    e.preventDefault();
-    localStorage.removeItem('secili_kullanici_id');
-    location.href='login.html';
-  });
-})();
-</script>
+        setStatus('4) Kullanıcı bulunuyor…');
+        const u = users.find(x => Number(x.id) === id);
+        if (!u) { setStatus('Kullanıcı bulunamadı'); return; }
+
+        // Ekrana yaz
+        document.getElementById('name').textContent = u.ad;
+        document.getElementById('photo').src  = base + u.profilFoto;
+        document.getElementById('photo').alt  = u.ad;
+        document.getElementById('loc').textContent = 'Konum: ' + (u.konum ?? '-');
+        document.getElementById('bal').textContent = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
+
+        setStatus('5) Tamam ✅');
+
+        // Çıkış
+        document.getElementById('cikis').addEventListener('click', (e)=>{
+          e.preventDefault();
+          localStorage.removeItem('secili_kullanici_id');
+          location.href='login.html';
+        });
+      } catch (e) {
+        console.error(e);
+        const box = document.getElementById('debug');
+        if (box) box.innerHTML = <pre>${e.stack||e}</pre>;
+        setStatus('Hata oluştu');
+      }
+    })();
+  </script>
+</body>
+</html>
     
 
  
