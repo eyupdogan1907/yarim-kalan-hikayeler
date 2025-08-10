@@ -1,61 +1,90 @@
-<script>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yarım Kalan Hikayeler – Profil</title>
+  <style>
+    :root{--border:#eee;--muted:#666}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fafafa;color:#111}
+    header{padding:16px 20px;background:#111;color:#fff;display:flex;gap:12px;align-items:center}
+    header a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:6px 10px;border-radius:8px}
+    .container{max-width:920px;margin:24px auto;padding:0 16px}
+    .box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .error{background:#fff3f3;border-color:#ffd2d2;color:#7a1111}
+    .hero{display:grid;grid-template-columns:1fr 1.4fr}
+    .hero img{width:100%;height:100%;object-fit:cover;min-height:260px;background:#f2f2f2;border-radius:14px 0 0 14px}
+    .bio{padding:0 16px}
+    h1{margin:0 0 6px}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{cursor:pointer;border:1px solid var(--border);background:#111;color:#fff;border-radius:10px;padding:10px 14px}
+    @media (max-width:720px){.hero{grid-template-columns:1fr}.hero img{border-radius:14px 14px 0 0}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="login.html">← Geri</a>
+    <strong>Yarım Kalan Hikayeler</strong> — Profil
+  </header>
+
+  <main class="container" id="app">
+    <div class="box">Yükleniyor…</div>
+  </main>
+
+  <script>
   function getQueryId() {
     const m = location.search.match(/[?&]id=(\d+)/);
     return m ? m[1] : null;
   }
-
   function resolveSelectedId() {
     let id = localStorage.getItem('secili_kullanici_id');
     if (id) return id;
     id = getQueryId();
-    if (id) {
-      localStorage.setItem('secili_kullanici_id', String(id));
-      return id;
-    }
+    if (id) { localStorage.setItem('secili_kullanici_id', String(id)); return id; }
     return null;
   }
-
-  async function init() {
+  function renderError(msg) {
     const app = document.getElementById('app');
-    const id = resolveSelectedId();
-    if (!id) {
-      app.innerHTML = <div class="error">Seçili kullanıcı yok. <a href="login.html">Giriş yap</a></div>;
-      return;
-    }
-
-    try {
-      const res = await fetch('data/users.json');
-      const users = await res.json();
-      const user = users.find(u => u.id === Number(id));
-
-      if (!user) {
-        app.innerHTML = <div class="error">Kullanıcı bulunamadı. <a href="login.html">Giriş yap</a></div>;
-        return;
-      }
-
-      // Profil render
-      app.innerHTML = `
-        <section class="card hero">
-          <img src="${user.profilFoto}" alt="${user.ad}">
-          <div class="bio">
-            <h1>${user.ad}</h1>
-            <div class="muted">${user.konum ?? ""}</div>
-            <p>${user.bio ?? ""}</p>
-            <button onclick="localStorage.removeItem('secili_kullanici_id'); location.href='login.html';">Çıkış Yap</button>
+    app.innerHTML = <div class="box error">${msg} <div style="margin-top:10px"><a href="login.html"><button>Girişe dön</button></a></div></div>;
+  }
+  function renderProfile(user) {
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <section class="box hero">
+        <img src="${user.profilFoto}" alt="${user.ad}">
+        <div class="bio">
+          <h1>${user.ad}</h1>
+          <div class="muted">${user.konum ?? ''}</div>
+          <p style="margin-top:12px">${user.bio ?? ''}</p>
+          <div class="row" style="margin-top:16px">
+            <button id="btnCikis">Çıkış yap</button>
           </div>
-        </section>
-      `;
-    } catch (err) {
-      console.error('Profil yüklenemedi', err);
-      app.innerHTML = <div class="error">Veri yüklenemedi. <a href="login.html">Geri dön</a></div>;
-    }
+        </div>
+      </section>
+    `;
+    document.getElementById('btnCikis').addEventListener('click', () => {
+      localStorage.removeItem('secili_kullanici_id'); location.href = 'login.html';
+    });
   }
 
-  init();
-<script>
-(async () => {
-  const res = await fetch('data/users.json');
-  const users = await res.json();
-  console.log('profilde users verisi:', users);
-})();
-</script>
+  (async () => {
+    const id = resolveSelectedId();
+    if (!id) return renderError('Seçili kullanıcı bulunamadı.');
+    try {
+      const res = await fetch('data/users.json');     // başında / yok!
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const users = await res.json();
+      console.log('profilde users verisi:', users);
+      const user = users.find(u => u.id === Number(id));
+      if (!user) return renderError('Kullanıcı bulunamadı.');
+      renderProfile(user);
+    } catch (err) {
+      console.error(err);
+      renderError('users.json yüklenemedi: ' + err.message);
+    }
+  })();
+  </script>
+  <noscript>Bu sayfa için JavaScript gerekir.</noscript>
+</body>
+</html>
