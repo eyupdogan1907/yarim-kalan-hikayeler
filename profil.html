@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Profil</title>
   <style>
     body{font-family:system-ui;background:#ffd400;margin:0;text-align:center;padding:24px}
@@ -28,22 +28,22 @@
   <div id="debug"></div>
 
   <script defer>
-    // Her adımı hem ekrana hem console'a yazan yardımcı
-    const setStatus = (t) => {
-      try { document.getElementById('status').textContent = t; } catch(_) {}
-      console.log('[STATUS]', t);
+    const setStatus = t => { 
+      const el = document.getElementById('status'); 
+      if (el) el.textContent = t; 
+      console.log('[STATUS]', t); 
     };
-    // Sayfada bir JS hatası olursa göze batır
-    window.onerror = (msg, src, line, col, err) => {
+
+    window.onerror = (m, src, line, col, err) => {
       const box = document.getElementById('debug');
-      if (box) box.innerHTML = <pre>HATA: ${msg}\nKaynak: ${src}\nSatır: ${line}:${col}\n${err?.stack||''}</pre>;
+      if (box) box.innerHTML = <pre>HATA: ${m}\nKaynak: ${src}\nSatır: ${line}:${col}\n${err?.stack||''}</pre>;
     };
 
     (async () => {
       try {
         setStatus('2) ID aranıyor…');
 
-        // URL ?id yoksa localStorage
+        // 1) URL ?id varsa onu al, yoksa localStorage'a bak
         let id = Number(new URLSearchParams(location.search).get('id'));
         if (!id) {
           const saved = localStorage.getItem('secili_kullanici_id');
@@ -52,47 +52,56 @@
 
         if (!id) {
           setStatus('ID yok. 1 sn sonra giriş sayfasına gidiliyor…');
-          setTimeout(() => location.href = 'login.html', 900);
+          setTimeout(()=>location.href='login.html', 900);
           return;
         }
 
+        // 2) JSON’u TAM URL ile çek (HTML dönmesini engeller)
         setStatus('3) JSON çekiliyor…');
-        const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
-        const res  = await fetch(base + 'kullanicilar.json', { cache:'no-store' });
-        if (!res.ok) { setStatus('JSON yüklenemedi: ' + res.status); return; }
+        const JSON_URL = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/kullanicilar.json';
+        const res = await fetch(JSON_URL, { cache:'no-store' });
 
-        const users = await res.json();
-        console.log('users:', users);
+        if (!res.ok) {
+          setStatus('JSON yüklenemedi: ' + res.status);
+          return;
+        }
+
+        // 3) İçerik gerçekten JSON mu? (HTML gelirse hata ver)
+        const text = await res.text();
+        if (text.trim().startsWith('<')) {
+          throw new Error('JSON yerine HTML geldi. (Yanlış URL ya da 404)');
+        }
+        const users = JSON.parse(text);
 
         setStatus('4) Kullanıcı bulunuyor…');
         const u = users.find(x => Number(x.id) === id);
         if (!u) { setStatus('Kullanıcı bulunamadı'); return; }
 
-        // Ekrana yaz
+        // 4) Ekrana yaz
         document.getElementById('name').textContent = u.ad;
-        document.getElementById('photo').src  = base + u.profilFoto;
+        document.getElementById('photo').src  = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/' + u.profilFoto;
         document.getElementById('photo').alt  = u.ad;
         document.getElementById('loc').textContent = 'Konum: ' + (u.konum ?? '-');
         document.getElementById('bal').textContent = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
 
         setStatus('5) Tamam ✅');
 
-        // Çıkış
-        document.getElementById('cikis').addEventListener('click', (e)=>{
+        // 5) Çıkış
+        document.getElementById('cikis').addEventListener('click', e=>{
           e.preventDefault();
           localStorage.removeItem('secili_kullanici_id');
           location.href='login.html';
         });
+
       } catch (e) {
         console.error(e);
+        setStatus('Hata oluştu');
         const box = document.getElementById('debug');
         if (box) box.innerHTML = <pre>${e.stack||e}</pre>;
-        setStatus('Hata oluştu');
       }
     })();
   </script>
 </body>
 </html>
-    
 
  
