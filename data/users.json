@@ -3,21 +3,21 @@
     "id": 1,
     "ad": "Ayşe",
     "konum": "Kadıköy",
-    "profilFoto": "assets/img/ayse.jpg",
+    "profilFoto": "https://picsum.photos/seed/ayse/600/400",
     "bio": "Kitap kurdu, kısa mesafe yolcusu."
   },
   {
     "id": 2,
     "ad": "Zehra",
     "konum": "Beşiktaş",
-    "profilFoto": "assets/img/zehra.jpg",
+    "profilFoto": "https://picsum.photos/seed/zehra/600/400",
     "bio": "Güne erken başlayanlardan."
   },
   {
     "id": 3,
     "ad": "Elif",
     "konum": "Üsküdar",
-    "profilFoto": "assets/img/elif.jpg",
+    "profilFoto": "https://picsum.photos/seed/elif/600/400",
     "bio": "Kahve + deniz manzarası = 💙"
   }
 ]
