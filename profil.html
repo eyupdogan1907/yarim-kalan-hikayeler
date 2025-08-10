@@ -27,7 +27,7 @@
 
     // JSON ve resimler aynı siteden: tam yol verelim
     const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
-    const res = await fetch(base + 'kullanicilar.json', { cache: 'no-store' });
+const res = await fetch(base + 'kullanicilar.json', { cache: 'no-store' });
     if (!res.ok) { document.getElementById('name').textContent = 'JSON bulunamadı ('+res.status+')'; return; }
 
     const users = await res.json();
