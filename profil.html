@@ -25,45 +25,50 @@
 <script>
 (async () => {
   const S = (t) => document.getElementById('status').textContent = t;
-  try {
-    S('2) ID aranıyor…');
-    // URL ?id yoksa localStorage'tan al
-    let id = Number(new URLSearchParams(location.search).get('id'));
-    if (!id) {
-      const saved = localStorage.getItem('secili_kullanici_id');
-      if (saved) id = Number(saved);
-    }
-    if (!id) { S('ID yok → login.html’e yönlendiriliyor…'); location.href='login.html'; return; }
 
-    S('3) JSON çekiliyor…');
+  // 1) ID’yi bul: önce URL, yoksa localStorage
+  let id = Number(new URLSearchParams(location.search).get('id'));
+  if (!id) {
+    const saved = localStorage.getItem('secili_kullanici_id');
+    if (saved) id = Number(saved);
+  }
+
+  // 2) ID yoksa ekranda mesaj göster, 1 sn sonra login’e gönder
+  if (!id) {
+    S('ID yok. Giriş sayfasına yönlendiriliyor…');
+    setTimeout(() => location.href = 'login.html', 900);
+    return;
+  }
+
+  try {
+    // 3) JSON’u çek ve kullanıcıyı göster
     const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
     const res  = await fetch(base + 'kullanicilar.json', { cache:'no-store' });
     if (!res.ok) { S('JSON yüklenemedi: ' + res.status); return; }
     const users = await res.json();
 
-    S('4) Kullanıcı bulunuyor…');
     const u = users.find(x => Number(x.id) === id);
     if (!u) { S('Kullanıcı bulunamadı'); return; }
 
-    // EKRANA BAS
     document.getElementById('name').textContent = u.ad;
-    document.getElementById('photo').src        = base + u.profilFoto;
-    document.getElementById('photo').alt        = u.ad;
-    document.getElementById('loc').textContent  = 'Konum: ' + (u.konum ?? '-');
-    document.getElementById('bal').textContent  = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
+    document.getElementById('photo').src  = base + u.profilFoto;
+    document.getElementById('photo').alt  = u.ad;
+    document.getElementById('loc').textContent = 'Konum: ' + (u.konum ?? '-');
+    document.getElementById('bal').textContent = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
     S('5) Tamam ✅');
-
-    // ÇIKIŞ
-    document.getElementById('cikis').addEventListener('click', (e)=>{
-      e.preventDefault();
-      localStorage.removeItem('secili_kullanici_id');
-      location.href='login.html';
-    });
-
   } catch (e) {
     console.error(e);
     S('Hata: ' + e.message);
   }
+
+  // 4) Çıkış butonu
+  document.getElementById('cikis').addEventListener('click', (e)=>{
+    e.preventDefault();
+    localStorage.removeItem('secili_kullanici_id');
+    location.href='login.html';
+  });
 })();
 </script>
-</html>
+    
+
+ 
