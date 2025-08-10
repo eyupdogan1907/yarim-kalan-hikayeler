@@ -1,95 +1,55 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Yarım Kalan Hikayeler – Profil</title>
-  <style>
-    :root { --border:#eee; --muted:#666; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#fafafa; color:#111; }
-    header { padding:16px 20px; background:#111; color:#fff; display:flex; align-items:center; gap:12px; }
-    header a { color:#fff; text-decoration:none; border:1px solid rgba(255,255,255,.3); padding:6px 10px; border-radius:8px; }
-    .container { max-width: 920px; margin: 24px auto; padding: 0 16px; }
-    .card { background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-    .hero { display:grid; grid-template-columns: 1fr 1.4fr; gap: 0; }
-    .hero img { width:100%; height:100%; object-fit:cover; min-height: 260px; background:#f2f2f2; }
-    .bio { padding:18px; }
-    h1 { margin:0 0 4px; font-size:28px; }
-    .muted { color: var(--muted); }
-    .row { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
-    .pill { border:1px solid var(--border); border-radius:999px; padding:6px 10px; background:#fff; }
-    .box { background:#fff; border:1px solid var(--border); border-radius:14px; padding:16px; }
-    .error { padding:16px; background:#fff3f3; border:1px solid #ffd2d2; color:#7a1111; border-radius:12px; }
-    button { cursor:pointer; border:1px solid var(--border); background:#111; color:#fff; border-radius:10px; padding:10px 14px; }
-    @media (max-width: 720px) {
-      .hero { grid-template-columns: 1fr; }
+<script>
+  function getQueryId() {
+    const m = location.search.match(/[?&]id=(\d+)/);
+    return m ? m[1] : null;
+  }
+
+  function resolveSelectedId() {
+    let id = localStorage.getItem('secili_kullanici_id');
+    if (id) return id;
+    id = getQueryId();
+    if (id) {
+      localStorage.setItem('secili_kullanici_id', String(id));
+      return id;
     }
-  </style>
-</head>
-<body>
-  <header>
-    <a href="login.html">← Geri</a>
-    <strong>Yarım Kalan Hikayeler</strong> — Profil
-  </header>
+    return null;
+  }
 
-  <main class="container" id="app">
-    <div class="box muted">Yükleniyor…</div>
-  </main>
-
-  <script>
-    // --- DEMO VERİSİ ---
-    // login.html ile birebir aynı tutalım; sonra ortak bir users.js'e taşıyacağız.
-    const users = [
-      { id: 1, ad: "Ayşe", konum: "Kadıköy",  profilFoto: "assets/img/ayse.jpg", bio: "Kitap kurdu, kısa mesafe yolcusu." },
-      { id: 2, ad: "Zehra", konum: "Beşiktaş", profilFoto: "assets/img/zehra.jpg", bio: "Güne erken başlayanlardan." },
-      { id: 3, ad: "Elif",  konum: "Üsküdar",  profilFoto: "assets/img/elif.jpg",  bio: "Kahve + deniz manzarası = 💙" }
-    ];
-
-    function getQueryId() {
-      const m = location.search.match(/[?&]id=(\d+)/);
-      return m ? m[1] : null;
+  async function init() {
+    const app = document.getElementById('app');
+    const id = resolveSelectedId();
+    if (!id) {
+      app.innerHTML = <div class="error">Seçili kullanıcı yok. <a href="login.html">Giriş yap</a></div>;
+      return;
     }
 
-    function resolveSelectedId() {
-      // 1) localStorage
-      let id = localStorage.getItem('secili_kullanici_id');
-      if (id) return id;
-      // 2) URL ?id=
-      id = getQueryId();
-      if (id) {
-        localStorage.setItem('secili_kullanici_id', String(id));
-        return id;
+    try {
+      const res = await fetch('data/users.json');
+      const users = await res.json();
+      const user = users.find(u => u.id === Number(id));
+
+      if (!user) {
+        app.innerHTML = <div class="error">Kullanıcı bulunamadı. <a href="login.html">Giriş yap</a></div>;
+        return;
       }
-      return null;
-    }
 
-    function renderError(msg, withRedirect=true) {
-      const app = document.getElementById('app');
-      app.innerHTML = `
-        <div class="error">
-          <strong>Bir şeyler eksik.</strong><br>
-          ${msg}
-          <div style="margin-top:12px;">
-            <a href="login.html"><button>Giriş (Kullanıcı Seç)</button></a>
-          </div>
-        </div>
-      `;
-      if (withRedirect) {
-        // 2 sn sonra otomatik yönlendir
-        setTimeout(() => location.href = 'login.html', 2000);
-      }
-    }
-
-    function renderProfile(user) {
-      const app = document.getElementById('app');
+      // Profil render
       app.innerHTML = `
         <section class="card hero">
           <img src="${user.profilFoto}" alt="${user.ad}">
           <div class="bio">
             <h1>${user.ad}</h1>
             <div class="muted">${user.konum ?? ""}</div>
-            <div class="row">
-              <span class="pill">Kullanıcı #${user.id}</span>
-              <span class="pill">Durum: Aktif</span>
-            </div…
- 
+            <p>${user.bio ?? ""}</p>
+            <button onclick="localStorage.removeItem('secili_kullanici_id'); location.href='login.html';">Çıkış Yap</button>
+          </div>
+        </section>
+      `;
+    } catch (err) {
+      console.error('Profil yüklenemedi', err);
+      app.innerHTML = <div class="error">Veri yüklenemedi. <a href="login.html">Geri dön</a></div>;
+    }
+  }
+
+  init();
+</script>
