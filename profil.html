@@ -1,92 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffd400;
-            text-align: center;
-            padding: 20px;
-        }
-        img {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 50%;
-            background: #fff;
-            margin-top: 10px;
-        }
-        .buttons {
-            margin: 15px;
-        }
-        .buttons a {
-            display: inline-block;
-            background: #333;
-            color: white;
-            padding: 10px 15px;
-            margin: 5px;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-        .buttons a:hover {
-            background: #555;
-        }
-    </style>
-</head>
-<body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profil</title>
+<style>
+  body{font-family:system-ui;background:#ffd400;text-align:center;margin:0;padding:24px}
+  .btn{display:inline-block;background:#222;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;margin:6px}
+  #photo{width:150px;height:150px;object-fit:cover;border-radius:50%;background:#fff;margin:16px auto;display:block}
+</style>
 
-<div class="buttons">
-    <a href="login.html">← Kullanıcı değiştir</a>
-    <a href="index.html">Ana sayfa</a>
+<div>
+  <a class="btn" href="login.html">← Kullanıcı değiştir</a>
+  <a class="btn" href="index.html">Ana sayfa</a>
 </div>
 
-<h2 id="status">Yükleniyor...</h2>
-<img id="photo" src="" alt="Profil Fotoğrafı">
-<div id="out"></div>
+<h2 id="name">Yükleniyor…</h2>
+<img id="photo" alt="">
+<p id="loc"></p>
+<p id="bal"></p>
 
-<script>
+<script defer>
 (async () => {
-    try {
-        // URL'den id parametresini al
-        const params = new URLSearchParams(location.search);
-        const id = Number(params.get('id'));
-        if (!id) {
-            document.getElementById('status').textContent = "Geçersiz ID!";
-            return;
-        }
+  try {
+    const id = Number(new URLSearchParams(location.search).get('id'));
+    if (!id) { document.getElementById('name').textContent = 'ID yok'; return; }
 
-        // JSON dosyasını getir
-        const res = await fetch('kullanicilar.json', { cache: 'no-store' });
-        if (!res.ok) {
-            document.getElementById('status').textContent = "JSON yüklenemedi! (" + res.status + ")";
-            return;
-        }
+    // JSON ve resimler aynı siteden: tam yol verelim
+    const base = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/';
+    const res = await fetch(base + 'kullanicilar.json', { cache: 'no-store' });
+    if (!res.ok) { document.getElementById('name').textContent = 'JSON bulunamadı ('+res.status+')'; return; }
 
-        const users = await res.json();
-        const user = users.find(u => Number(u.id) === id);
+    const users = await res.json();
+    const u = users.find(x => Number(x.id) === id);
+    if (!u) { document.getElementById('name').textContent = 'Kullanıcı bulunamadı'; return; }
 
-        if (!user) {
-            document.getElementById('status').textContent = "Kullanıcı bulunamadı!";
-            return;
-        }
-
-        // Verileri ekrana yaz
-        document.getElementById('status').textContent = user.ad;
-        document.getElementById('photo').src = user.profilFoto;
-        document.getElementById('out').innerHTML = `
-            <p>Konum: ${user.konum}</p>
-            <p>Pi Bakiyesi: ${user.PiBakiyesi}</p>
-        `;
-    } catch (e) {
-        document.body.innerHTML = <pre>Hata: ${e.message}</pre>;
-        console.error(e);
-    }
+    document.getElementById('name').textContent = u.ad;
+    document.getElementById('photo').src = base + u.profilFoto;
+    document.getElementById('photo').alt = u.ad;
+    document.getElementById('loc').textContent = 'Konum: ' + (u.konum ?? '-');
+    document.getElementById('bal').textContent = 'Pi Bakiyesi: ' + (u.piBakiyesi ?? '-');
+  } catch (e) {
+    document.getElementById('name').textContent = 'Hata: ' + e.message;
+    console.error(e);
+  }
 })();
 </script>
-
-</body>
 </html>
   
