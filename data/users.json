@@ -1,42 +1,42 @@
 [
   {
     "id": 1,
-    "ad": "Ayşe",
-    "konum": "İstanbul",
-    "profilFoto": "assets/ayse.jpg",
-    "bio": "Kitap kurdu, kısa mesafe yolcusu.",
-    "piBakiyesi": 3.14
+    "name": "Ayşe",
+    "location": "İstanbul",
+    "balance": 3.14,
+    "description": "Kitap kurdu, kısa mesafe yolcusu.",
+    "image": "ayse.png"
   },
   {
     "id": 2,
-    "ad": "Mehmet",
-    "konum": "İstanbul",
-    "profilFoto": "assets/mehmet.jpg",
-    "bio": "Müzik ve kahve molalarını sever.",
-    "piBakiyesi": 2.71
+    "name": "Mehmet",
+    "location": "İstanbul",
+    "balance": 2.71,
+    "description": "Müzik ve kahve molalarını sever.",
+    "image": "mehmet.png"
   },
   {
     "id": 3,
-    "ad": "Zehra",
-    "konum": "Beşiktaş",
-    "profilFoto": "https://picsum.photos/seed/zehra/600/400",
-    "bio": "Güne erken başlayanlardan.",
-    "piBakiyesi": 1.62
+    "name": "Zehra",
+    "location": "Beşiktaş",
+    "balance": 1.62,
+    "description": "Güne erken başlayanlardan.",
+    "image": "zehra.png"
   },
   {
     "id": 4,
-    "ad": "Tuğçe",
-    "konum": "Beyoğlu",
-    "profilFoto": "assets/tugce.png",
-    "bio": "Camilere gitmeyi seviyor.",
-    "piBakiyesi": 0.99
+    "name": "Tuğçe",
+    "location": "Beyoğlu",
+    "balance": 0.99,
+    "description": "Camilere gitmeyi seviyor.",
+    "image": "tugce.png"
   },
   {
     "id": 5,
-    "ad": "Yasemin",
-    "konum": "Şişli",
-    "profilFoto": "assets/yasemin.png",
-    "bio": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
-    "piBakiyesi": 4.2
+    "name": "Yasemin",
+    "location": "Şişli",
+    "balance": 4.2,
+    "description": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
+    "image": "yasemin.png"
   }
 ]
