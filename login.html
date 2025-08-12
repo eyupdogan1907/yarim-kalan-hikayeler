@@ -1,72 +1,65 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Giriş</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        text-align: center;
-    }
-    select, button {
-        padding: 10px;
-        font-size: 16px;
-        margin-top: 10px;
-    }
-    .hint {
-        margin-top: 8px;
-        font-size: 12px;
-        opacity: 0.7;
-    }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Giriş</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;text-align:center;padding:24px}
+    h1{margin-bottom:16px}
+    select,button{font-size:16px;padding:10px 12px;margin-top:8px}
+    .hint{margin-top:10px;font-size:12px;opacity:.7}
+  </style>
 </head>
 <body>
-<h1>Giriş Yap</h1>
-<p>Kullanıcı seç:</p>
-<select id="kullaniciSec"></select><br>
-<button id="girisBtn">Giriş</button>
-<div class="hint">Liste boşsa sayfayı Ctrl+F5 ile yenile.</div>
+  <h1>Giriş Yap</h1>
+  <p>Kullanıcı seç:</p>
+  <select id="kullaniciSec" aria-label="Kullanıcı seçimi"></select><br/>
+  <button id="girisBtn" disabled>Giriş</button>
+  <div class="hint">Liste boşsa sayfayı <b>Ctrl+F5</b> ile yenileyin.</div>
 
-<script>
-(function () {
-    // JSON dosyasının yolu (login.html ana dizindeyse bu doğru)
-    var url = "data/users.json?v=" + Date.now(); // cache-bust
+  <script>
+    (function () {
+      const selectEl = document.getElementById("kullaniciSec");
+      const btn = document.getElementById("girisBtn");
+      const url = "data/users.json?v=" + Date.now(); // cache-bust
 
-    var select = document.getElementById("kullaniciSec");
-    var btn = document.getElementById("girisBtn");
-
-    fetch(url)
-        .then(function (r) {
-            if (!r.ok) throw new Error("JSON yüklenemedi");
-            return r.json();
+      // JSON'u yükle ve seçenekleri doldur
+      fetch(url)
+        .then(r => r.json())
+        .then(users => {
+          if (!Array.isArray(users) || users.length === 0) {
+            throw new Error("Boş kullanıcı listesi");
+          }
+          // Seçenekleri oluştur
+          users.forEach(u => {
+            const opt = document.createElement("option");
+            opt.value = String(u.id);
+            opt.textContent = ${u.ad} (${u.konum});
+            selectEl.appendChild(opt);
+          });
+          // İlk kullanıcı varsayılan seçili
+          selectEl.value = String(users[0].id);
+          btn.disabled = false;
         })
-        .then(function (users) {
-            // Kullanıcıları listeye ekle
-            users.forEach(function (u) {
-                var opt = document.createElement("option");
-                opt.value = String(u.id);
-                opt.textContent = u.ad + " (" + u.konum + ")";
-                select.appendChild(opt);
-            });
-        })
-        .catch(function (err) {
-            console.error("Hata:", err);
-            alert("Kullanıcı listesi yüklenemedi!");
+        .catch(err => {
+          console.error("Liste yüklenemedi:", err);
+          alert("Kullanıcı listesi yüklenemedi. Lütfen JSON yolunu ve biçimini kontrol edin.");
         });
 
-    // Giriş butonu tıklandığında seçilen kullanıcıyı kaydet
-    btn.addEventListener("click", function () {
-        var secilenID = select.value;
-        if (!secilenID) {
-            alert("Lütfen bir kullanıcı seçin.");
-            return;
+      // Giriş tıklandığında profil sayfasına yönlendir
+      btn.addEventListener("click", () => {
+        const id = selectEl.value;
+        if (!id) {
+          alert("Lütfen kullanıcı seçin.");
+          return;
         }
-        localStorage.setItem("secilenKullaniciID", secilenID);
-        window.location.href = "profil.html";
-    });
-})();
-</script>
+        // Seçimi saklamak istersen (opsiyonel):
+        try { localStorage.setItem("secilenKullaniciId", id); } catch (e) {}
+        // Profil sayfasına id ile git
+        window.location.href = profil.html?id=${encodeURIComponent(id)};
+      });
+    })();
+  </script>
 </body>
 </html>
