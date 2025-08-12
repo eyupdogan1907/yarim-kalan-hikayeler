@@ -1,11 +1,11 @@
 [
-{
-  "id": 1,
-  "ad": "Ayşe",
-  "konum": "İstanbul",
-  "profilFoto": "images/ayse.png",
-  "bio": "Kitap kurdu, kısa mesafe yolcusu.",
-  "piBakiyesi": 3.14
+  {
+    "id": 1,
+    "ad": "Ayşe",
+    "konum": "İstanbul",
+    "profilFoto": "images/ayse.png",
+    "bio": "Kitap kurdu, kısa mesafe yolcusu.",
+    "piBakiyesi": 3.14
   },
   {
     "id": 2,
@@ -22,6 +22,30 @@
     "profilFoto": "images/yasemin.png",
     "bio": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
     "piBakiyesi": 2.31
+  },
+  {
+    "id": 4,
+    "ad": "Feyza",
+    "konum": "İstanbul",
+    "profilFoto": "images/feyza.jpg",
+    "bio": "Fotoğraf çekmeyi ve gezmeyi seviyor.",
+    "piBakiyesi": 2.85
+  },
+  {
+    "id": 5,
+    "ad": "Burcu",
+    "konum": "İstanbul",
+    "profilFoto": "images/burcu.jpg",
+    "bio": "Gece hayatını seviyor.",
+    "piBakiyesi": 1.75
+  },
+  {
+    "id": 6,
+    "ad": "Ebru",
+    "konum": "İstanbul",
+    "profilFoto": "images/ebru.jpg",
+    "bio": "Kitap kurdu.",
+    "piBakiyesi": 3.00
   }
 ]
 
