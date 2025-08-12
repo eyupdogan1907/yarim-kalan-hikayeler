@@ -1,57 +1,96 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profil</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-    img { max-width: 200px; border-radius: 10px; margin-bottom: 10px; }
-    .bio { margin: 10px 0; font-style: italic; }
+    body { font-family: Arial, sans-serif; padding: 20px; display:flex; justify-content:center; }
+    .card { width: 420px; padding: 24px; border-radius: 14px; background:#f7f7f8; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.06); }
+    .name { font-size: 34px; font-weight: 800; margin: 0 0 14px; }
+    .avatar { width: 220px; height: 220px; object-fit: cover; border-radius: 16px; display:block; margin: 0 auto 14px; background:#ddd; }
+    .label { font-weight:600; }
+    .meta { margin: 10px 0; }
+    .actions { margin-top: 18px; display:flex; gap:18px; justify-content:center; }
+    a { color:#333; text-decoration: none; }
+    .muted { opacity:.7; font-size:13px; margin-top:10px; }
+    .error { color:#b00020; font-weight:600; }
   </style>
 </head>
 <body>
+  <div class="card" id="card">
+    <div class="name" id="ad">Yükleniyor…</div>
+    <img class="avatar" id="foto" alt="Profil fotoğrafı" src="" />
+    <div class="meta"><span class="label">Konum:</span> <span id="konum">—</span></div>
+    <div class="meta"><span class="label">Pi Bakiyesi:</span> <span id="bakiye">—</span> π</div>
+    <div class="meta" id="bio">—</div>
+    <div class="actions">
+      <a href="login.html">Kullanıcı değiştir</a>
+      <a href="login.html" id="cikis">Çıkış yap</a>
+    </div>
+    <div class="muted" id="hint"></div>
+  </div>
 
-<div id="profil"></div>
+  <script>
+    // Yardımcılar
+    const qs = (k) => new URLSearchParams(location.search).get(k);
+    const el = (id) => document.getElementById(id);
+    const showError = (msg) => {
+      el('ad').textContent = 'Kullanıcı bulunamadı';
+      el('foto').style.display = 'none';
+      el('konum').textContent = '—';
+      el('bakiye').textContent = '—';
+      el('bio').innerHTML = <span class="error">${msg}</span>;
+      el('hint').textContent = '';
+    };
 
-<script>
-  const profilDiv = document.getElementById("profil");
+    // id’yi al
+    const idStr = qs('id');
+    const id = idStr ? Number(idStr) : NaN;
 
-  // URL parametresinden kullanıcı ID'sini al
-  const params = new URLSearchParams(window.location.search);
-  const userId = params.get("id");
+    // users.json’ı çek (cache-bust ile)
+    const jsonURL = data/users.json?v=${Date.now()};
 
-  if (!userId) {
-    profilDiv.innerHTML = "<p>Kullanıcı bulunamadı</p>";
-  } else {
-    profilDiv.innerHTML = "<p>Yükleniyor...</p>";
-
-    fetch("https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json")
+    fetch(jsonURL)
       .then(r => {
-        if (!r.ok) throw new Error("JSON yüklenemedi");
-        return r.json();
+        if (!r.ok) throw new Error(users.json yüklenemedi (HTTP ${r.status}));
+        return r.text(); // önce düz metin al
+      })
+      .then(text => {
+        // Beklenmedik HTML gelirse (ör. 404 sayfası), JSON.parse hata verirdi; bunu yakalıyoruz
+        if (text.trim().startsWith('<')) {
+          throw new Error('users.json yerine HTML geldi (muhtemelen yol/isim hatası).');
+        }
+        return JSON.parse(text);
       })
       .then(users => {
-        const user = users.find(u => String(u.id) === String(userId));
-        if (!user) {
-          profilDiv.innerHTML = "<p>Kullanıcı bulunamadı</p>";
-          return;
+        if (!Number.isFinite(id)) {
+          throw new Error('Geçersiz veya eksik id parametresi.');
+        }
+        const u = users.find(x => Number(x.id) === id);
+        if (!u) {
+          throw new Error(ID=${id} için kullanıcı yok.);
         }
 
-        profilDiv.innerHTML = `
-          <img src="${user.profilFoto}" alt="Profil fotoğrafı">
-          <h2>${user.ad}</h2>
-          <p><strong>Konum:</strong> ${user.konum}</p>
-          <p class="bio">${user.bio}</p>
-          <p><strong>Pi Bakiyesi:</strong> ${user.piBakiyesi}</p>
-          <p><a href="login.html">Çıkış yap</a></p>
-        `;
+        // Görseller / alanlar
+        el('ad').textContent = u.ad || '—';
+        el('konum').textContent = u.konum || '—';
+        el('bakiye').textContent = (u.piBakiyesi ?? '—');
+        el('bio').textContent = u.bio || '—';
+
+        const img = el('foto');
+        img.src = u.profilFoto || '';
+        img.style.display = u.profilFoto ? 'block' : 'none';
+        img.onerror = () => {
+          img.style.display = 'none';
+          el('bio').innerHTML += <div class="muted">⚠ Fotoğraf bulunamadı: ${u.profilFoto}</div>;
+        };
+
+        el('hint').textContent = [${new Date().toLocaleString('tr-TR')}] Veriler yüklendi.;
       })
       .catch(err => {
-        profilDiv.innerHTML = "<p>Bir hata oluştu: " + err.message + "</p>";
+        showError(err.message);
       });
-  }
-</script>
-
+  </script>
 </body>
 </html>
