@@ -6,57 +6,48 @@
     <title>Profil</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        img { max-width: 150px; border-radius: 10px; }
-        .container { max-width: 400px; margin: auto; }
+        img { width: 150px; height: 150px; border-radius: 10px; }
+        .container { display: inline-block; text-align: left; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 id="ad">Yükleniyor...</h1>
-    <img id="profilFoto" src="" alt="Profil fotoğrafı">
-    <p><strong>Konum:</strong> <span id="konum">—</span></p>
-    <p><strong>Pi Bakiyesi:</strong> <span id="piBakiyesi">—</span> π</p>
-    <p id="bio"></p>
-    <button onclick="degistir()">Kullanıcı değiştir</button>
-</div>
+<h1>Profil Sayfası</h1>
+<div id="profil">Yükleniyor...</div>
+<button onclick="cikis()">Çıkış Yap</button>
 
 <script>
-    // Girişte kaydedilen kullanıcı ID'sini al
-    const seciliId = localStorage.getItem("seciliKullanici");
+function cikis() {
+    localStorage.removeItem("seciliKullanici");
+    window.location.href = "login.html";
+}
 
-    if (!seciliId) {
-        document.body.innerHTML = "<h2>Kullanıcı bulunamadı.</h2>";
-    } else {
-        fetch("data/kullanicilar.json")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Veri yüklenemedi");
-                }
-                return response.json();
-            })
-            .then(veriler => {
-                const kullanici = veriler.find(k => k.id == seciliId);
-                if (!kullanici) {
-                    document.body.innerHTML = "<h2>Kullanıcı bulunamadı.</h2>";
-                } else {
-                    document.getElementById("ad").textContent = kullanici.ad;
-                    document.getElementById("profilFoto").src = kullanici.profilFoto;
-                    document.getElementById("konum").textContent = kullanici.konum;
-                    document.getElementById("piBakiyesi").textContent = kullanici.piBakiyesi;
-                    document.getElementById("bio").textContent = kullanici.bio;
-                }
-            })
-            .catch(hata => {
-                console.error(hata);
-                document.body.innerHTML = "<h2>Bir hata oluştu.</h2>";
-            });
-    }
-
-    function degistir() {
-        localStorage.removeItem("seciliKullanici");
-        window.location.href = "login.html";
-    }
+const seciliID = localStorage.getItem("seciliKullanici");
+if (!seciliID) {
+    document.getElementById("profil").innerHTML = "Kullanıcı bulunamadı.";
+} else {
+    fetch("data/kullanicilar.json")
+        .then(r => r.json())
+        .then(veriler => {
+            const kullanici = veriler.find(k => k.id == seciliID);
+            if (kullanici) {
+                document.getElementById("profil").innerHTML = `
+                    <div class="container">
+                        <img src="${kullanici.profilFoto}" alt="${kullanici.ad}">
+                        <h2>${kullanici.ad}</h2>
+                        <p><strong>Konum:</strong> ${kullanici.konum}</p>
+                        <p><strong>Biyo:</strong> ${kullanici.bio}</p>
+                        <p><strong>Pi Bakiyesi:</strong> ${kullanici.piBakiyesi} π</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById("profil").innerHTML = "Kullanıcı bulunamadı.";
+            }
+        })
+        .catch(() => {
+            document.getElementById("profil").innerHTML = "Veriler yüklenemedi.";
+        });
+}
 </script>
 
 </body>
