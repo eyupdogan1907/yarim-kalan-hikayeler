@@ -2,164 +2,56 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profil</title>
   <style>
-    :root { --card: #f5f7fa; --text: #1f2937; --muted:#6b7280; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 32px;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text); background: #ffffff;
-      display: grid; place-items: start center; min-height: 100vh;
-    }
-    .wrap { width: 100%; max-width: 720px; }
-    .card {
-      background: var(--card); border-radius: 16px; padding: 28px 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.06); text-align: center;
-    }
-    h1 { margin: 0 0 18px; font-size: 34px; letter-spacing:.2px; }
-    .avatar {
-      width: 220px; height: 220px; border-radius: 16px; object-fit: cover;
-      display: block; margin: 0 auto 14px; background:#e5e7eb;
-    }
-    .row { margin: 6px 0; }
-    .label { font-weight: 600; }
-    .muted { color: var(--muted); font-size: 14px; }
-    .actions { margin-top: 16px; display: flex; gap: 12px; justify-content: center; }
-    button, a.btn {
-      padding: 10px 14px; font-size: 15px; border-radius: 10px; border: 1px solid #d1d5db;
-      background: #fff; cursor: pointer; text-decoration: none; color: var(--text);
-    }
-    .hint { text-align:center; color: var(--muted); margin-top: 10px; font-size: 13px; }
-    .center { text-align:center; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    img { max-width: 200px; border-radius: 10px; margin-bottom: 10px; }
+    .bio { margin: 10px 0; font-style: italic; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div id="card" class="card">
-      <div class="center muted" id="status">Yükleniyor…</div>
-    </div>
-    <div class="hint" id="time"></div>
-  </div>
 
-  <script>
-    (function () {
-      // Zaman damgası
-      try {
-        const now = new Date();
-        const ts = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
-        const ds = now.toLocaleDateString('tr-TR');
-        document.getElementById('time').textContent = [${ts}, ${ds}];
-      } catch(_) {}
+<div id="profil"></div>
 
-      const card = document.getElementById('card');
-      const statusEl = document.getElementById('status');
+<script>
+  const profilDiv = document.getElementById("profil");
 
-      // localStorage'dan seçili kullanıcı id'sini al
-      const raw = localStorage.getItem('secilenKullanici');
-      const selectedId = raw ? parseInt(raw, 10) : NaN;
+  // URL parametresinden kullanıcı ID'sini al
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get("id");
 
-      // Seçim yoksa login'e gönder
-      if (!Number.isFinite(selectedId)) {
-        renderNotFound();
-        return;
-      }
+  if (!userId) {
+    profilDiv.innerHTML = "<p>Kullanıcı bulunamadı</p>";
+  } else {
+    profilDiv.innerHTML = "<p>Yükleniyor...</p>";
 
-      // JSON'u doğru yoldan çek (profil.html ana dizinde, JSON data/ klasöründe)
-      const url = "data/users.json?v=" + Date.now(); // cache-bust
+    fetch("https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json")
+      .then(r => {
+        if (!r.ok) throw new Error("JSON yüklenemedi");
+        return r.json();
+      })
+      .then(users => {
+        const user = users.find(u => String(u.id) === String(userId));
+        if (!user) {
+          profilDiv.innerHTML = "<p>Kullanıcı bulunamadı</p>";
+          return;
+        }
 
-      fetch(url)
-        .then(function (r) {
-          if (!r.ok) throw new Error("HTTP " + r.status);
-          return r.json();
-        })
-        .then(function (users) {
-          // users bir dizi olmalı
-          const u = Array.isArray(users) ? users.find(x => Number(x.id) === selectedId) : null;
-          if (!u) { renderNotFound(); return; }
-          renderUser(u);
-        })
-        .catch(function (err) {
-          console.error("JSON yüklenemedi:", err);
-          renderNotFound("Veri yüklenemedi.");
-        });
+        profilDiv.innerHTML = `
+          <img src="${user.profilFoto}" alt="Profil fotoğrafı">
+          <h2>${user.ad}</h2>
+          <p><strong>Konum:</strong> ${user.konum}</p>
+          <p class="bio">${user.bio}</p>
+          <p><strong>Pi Bakiyesi:</strong> ${user.piBakiyesi}</p>
+          <p><a href="login.html">Çıkış yap</a></p>
+        `;
+      })
+      .catch(err => {
+        profilDiv.innerHTML = "<p>Bir hata oluştu: " + err.message + "</p>";
+      });
+  }
+</script>
 
-      function renderUser(u) {
-        card.innerHTML = "";
-
-        const h1 = document.createElement("h1");
-        h1.textContent = u.ad || "Profil";
-        card.appendChild(h1);
-
-        const img = document.createElement("img");
-        img.className = "avatar";
-        // JSON'daki tam yolu kullan (ör: "images/ayse.png")
-        img.src = (u.profilFoto || "").trim();
-        img.alt = (u.ad || "Kullanıcı") + " profil fotoğrafı";
-        img.onerror = function(){ this.style.display = "none"; };
-        card.appendChild(img);
-
-        // İsim (ikinci başlık istersen)
-        const nameRow = document.createElement("div");
-        nameRow.className = "row muted";
-        nameRow.textContent = u.ad || "";
-        card.appendChild(nameRow);
-
-        const loc = document.createElement("div");
-        loc.className = "row";
-        loc.innerHTML = '<span class="label">Konum:</span> ' + (u.konum || "—");
-        card.appendChild(loc);
-
-        const pi = document.createElement("div");
-        pi.className = "row";
-        const bakiye = (typeof u.piBakiyesi === "number" ? u.piBakiyesi.toFixed(2) : (u.piBakiyesi || "—"));
-        pi.innerHTML = '<span class="label">Pi Bakiyesi:</span> ' + bakiye + ' π';
-        card.appendChild(pi);
-
-        const bio = document.createElement("div");
-        bio.className = "row muted";
-        bio.textContent = (u.bio || "").toString();
-        card.appendChild(bio);
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-        const logout = document.createElement("button");
-        logout.textContent = "Çıkış yap";
-        logout.onclick = function () {
-          try { localStorage.removeItem("secilenKullanici"); } catch(_) {}
-          location.href = "login.html";
-        };
-        const change = document.createElement("a");
-        change.className = "btn";
-        change.textContent = "Kullanıcı değiştir";
-        change.href = "login.html";
-        actions.appendChild(logout);
-        actions.appendChild(change);
-        card.appendChild(actions);
-      }
-
-      function renderNotFound(msg) {
-        card.innerHTML = "";
-        const h1 = document.createElement("h1");
-        h1.textContent = "Kullanıcı bulunamadı";
-        card.appendChild(h1);
-
-        const ph = document.createElement("div");
-        ph.className = "row muted";
-        ph.textContent = msg || "";
-        card.appendChild(ph);
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-        const back = document.createElement("a");
-        back.className = "btn";
-        back.textContent = "Girişe dön";
-        back.href = "login.html";
-        actions.appendChild(back);
-        card.appendChild(actions);
-      }
-    })();
-  </script>
 </body>
 </html>
