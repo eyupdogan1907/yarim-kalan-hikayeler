@@ -1,51 +1,72 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Giriş</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
-    select, button { padding: 10px; font-size: 16px; margin-top: 10px; }
-    .hint { margin-top:8px; font-size:12px; opacity:.7; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Giriş</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        text-align: center;
+    }
+    select, button {
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 10px;
+    }
+    .hint {
+        margin-top: 8px;
+        font-size: 12px;
+        opacity: 0.7;
+    }
+</style>
 </head>
 <body>
-  <h1>Giriş Yap</h1>
-  <p>Kullanıcı seç:</p>
-  <select id="kullaniciSec"></select><br>
-  <button id="girisBtn">Giriş</button>
-  <div class="hint">Liste boşsa sayfayı Ctrl+F5 ile yenile.</div>
+<h1>Giriş Yap</h1>
+<p>Kullanıcı seç:</p>
+<select id="kullaniciSec"></select><br>
+<button id="girisBtn">Giriş</button>
+<div class="hint">Liste boşsa sayfayı Ctrl+F5 ile yenile.</div>
 
-  <script>
-  (function () {
+<script>
+(function () {
+    // JSON dosyasının yolu (login.html ana dizindeyse bu doğru)
     var url = "data/users.json?v=" + Date.now(); // cache-bust
+
     var select = document.getElementById("kullaniciSec");
     var btn = document.getElementById("girisBtn");
 
     fetch(url)
-      .then(function (r) { return r.json(); })
-      .then(function (users) {
-        users.forEach(function (u) {
-          var opt = document.createElement("option");
-          opt.value = String(u.id);
-          opt.textContent = u.ad + " (" + u.konum + ")";
-          select.appendChild(opt);
+        .then(function (r) {
+            if (!r.ok) throw new Error("JSON yüklenemedi");
+            return r.json();
+        })
+        .then(function (users) {
+            // Kullanıcıları listeye ekle
+            users.forEach(function (u) {
+                var opt = document.createElement("option");
+                opt.value = String(u.id);
+                opt.textContent = u.ad + " (" + u.konum + ")";
+                select.appendChild(opt);
+            });
+        })
+        .catch(function (err) {
+            console.error("Hata:", err);
+            alert("Kullanıcı listesi yüklenemedi!");
         });
-        if (users.length) select.value = String(users[0].id);
-      })
-      .catch(function (err) {
-        console.error("Kullanıcı listesi yüklenemedi:", err);
-        alert("Kullanıcı listesi yüklenemedi. data/users.json yolunu kontrol et.");
-      });
 
+    // Giriş butonu tıklandığında seçilen kullanıcıyı kaydet
     btn.addEventListener("click", function () {
-      var id = select.value;
-      if (!id) { alert("Lütfen kullanıcı seç."); return; }
-      try { localStorage.setItem("secilenKullanici", id); } catch(e){}
-      window.location.href = "profil.html";
+        var secilenID = select.value;
+        if (!secilenID) {
+            alert("Lütfen bir kullanıcı seçin.");
+            return;
+        }
+        localStorage.setItem("secilenKullaniciID", secilenID);
+        window.location.href = "profil.html";
     });
-  })();
-  </script>
+})();
+</script>
 </body>
 </html>
