@@ -11,23 +11,23 @@
     "id": "tugce",
     "isim": "Tuğçe",
     "konum": "Beyoğlu",
-    "piBakiyesi": "2.75 ₺",
-    "aciklama": "Müzik dinlemeyi seviyor.",
+    "piBakiyesi": "5.21 ₺",
+    "aciklama": "Seyahat etmeyi seviyor.",
     "foto": "images/tugce.png"
   },
   {
     "id": "yasemin",
     "isim": "Yasemin",
     "konum": "Şişli",
-    "piBakiyesi": "1.98 ₺",
-    "aciklama": "Kahve tutkunu.",
+    "piBakiyesi": "4.02 ₺",
+    "aciklama": "Kahve ve tatlı tutkunu.",
     "foto": "images/yasemin.png"
   },
   {
     "id": "feyza",
     "isim": "Feyza",
     "konum": "İstanbul",
-    "piBakiyesi": "2.12 ₺",
+    "piBakiyesi": "2.56 ₺",
     "aciklama": "Fotoğraf çekmeyi ve gezmeyi seviyor.",
     "foto": "images/feyza.jpg"
   },
@@ -35,7 +35,7 @@
     "id": "burcu",
     "isim": "Burcu",
     "konum": "İstanbul",
-    "piBakiyesi": "2.45 ₺",
+    "piBakiyesi": "3.87 ₺",
     "aciklama": "Gece hayatını seviyor.",
     "foto": "images/burcu.jpg"
   },
@@ -43,7 +43,7 @@
     "id": "ebru",
     "isim": "Ebru",
     "konum": "İstanbul",
-    "piBakiyesi": "3.01 ₺",
+    "piBakiyesi": "2.91 ₺",
     "aciklama": "Kitap kurdu.",
     "foto": "images/ebru.jpg"
   },
@@ -67,7 +67,7 @@
     "id": "mehmet",
     "isim": "Mehmet",
     "konum": "İstanbul",
-    "piBakiyesi": "1.55 ₺",
+    "piBakiyesi": "3.33 ₺",
     "aciklama": "Spor yapmayı seviyor.",
     "foto": "images/mehmet.jpg"
   },
@@ -75,8 +75,8 @@
     "id": "kerem",
     "isim": "Kerem",
     "konum": "İstanbul",
-    "piBakiyesi": "2.15 ₺",
-    "aciklama": "Yüzmeyi seviyor.",
+    "piBakiyesi": "2.14 ₺",
+    "aciklama": "Teknoloji meraklısı.",
     "foto": "images/kerem.jpg"
   }
 ]
