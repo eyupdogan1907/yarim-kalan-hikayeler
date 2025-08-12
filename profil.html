@@ -21,7 +21,7 @@
   </style>
 </head>
 <body>
-  <div class="card" id="card">
+  <div class="card">
     <h1 id="ad">Yükleniyor…</h1>
     <img id="profilFoto" class="avatar" alt="Profil fotoğrafı"/>
     <p class="meta"><strong>Konum:</strong> <span id="konum">—</span></p>
@@ -36,32 +36,28 @@
 
   <script>
   (function () {
-    // 1) Login'de seçilen kullanıcı id'si
     var userId = localStorage.getItem("secilenKullanici");
     if (!userId) { alert("Kullanıcı seçilmedi. Login'e dönüyoruz."); location.href="login.html"; return; }
 
-    // 2) JSON'dan veriyi çek (cache-bust için ?v=… ekli)
-    var url = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=" + Date.now();
+    var url = "data/users.json?v=" + Date.now(); // cache-bust
     fetch(url)
       .then(function(r){ return r.json(); })
       .then(function(users){
         var u = users.find(function(x){ return String(x.id) === String(userId); });
         if (!u) { alert("Kullanıcı bulunamadı."); location.href="login.html"; return; }
 
-        // 3) Profili tek kez doldur
         document.getElementById("ad").textContent    = u.ad;
         document.getElementById("konum").textContent = u.konum || "—";
         document.getElementById("bio").textContent   = u.bio || "";
-        document.getElementById("profilFoto").src    = u.profilFoto;
+        document.getElementById("profilFoto").src    = (u.profilFoto || "") + "?v=" + Date.now();
         document.getElementById("profilFoto").alt    = u.ad + " profil fotoğrafı";
         document.getElementById("pi").textContent    = (u.piBakiyesi ?? "—");
       })
       .catch(function(err){
         console.error("Profil yüklenemedi:", err);
-        alert("Profil yüklenemedi. İnternet/JSON yolunu kontrol edin.");
+        alert("Profil yüklenemedi. data/users.json yolunu kontrol edin.");
       });
 
-    // 4) Çıkış
     document.getElementById("cikisBtn").addEventListener("click", function(){
       try { localStorage.removeItem("secilenKullanici"); } catch(e){}
       location.href = "login.html";
