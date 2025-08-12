@@ -18,13 +18,13 @@
     "ad": "Tuğçe",
     "konum": "Beyoğlu",
     "aciklama": "Camilere gitmeyi seviyor.",
-    "profilFoto": "assets/tugce.jpg"
+    "profilFoto": "assets/tugce.png"
   },
   {
     "id": 5,
     "ad": "Yasemin",
     "konum": "Şişli",
     "aciklama": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
-    "profilFoto": "assets/yasemin.jpg"
+    "profilFoto": "assets/yasemin.png"
   }
 ]
