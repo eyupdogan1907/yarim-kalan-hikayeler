@@ -1,50 +1,63 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        img {
-            max-width: 200px;
-            border-radius: 10px;
-        }
-        h1 {
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+    img { max-width: 200px; border-radius: 8px; }
+    .card { max-width: 300px; margin: auto; border: 1px solid #ddd; padding: 15px; border-radius: 10px; }
+    h2 { margin: 10px 0 5px; }
+  </style>
 </head>
 <body>
-    <img id="profilFoto" src="" alt="Profil fotoğrafı">
-    <h1 id="ad"></h1>
-    <p id="bio" style="font-style: italic;"></p>
-    <p><strong>Konum:</strong> <span id="konum"></span></p>
-    <p><strong>Pi Bakiyesi:</strong> <span id="piBakiyesi"></span></p>
-    <a href="login.html">Çıkış yap</a>
+  <div id="profil"></div>
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const userId = params.get("id");
+  <script>
+    (function(){
+      const profilEl = document.getElementById("profil");
 
-        fetch("data/users.json?v=" + Date.now())
-            .then(res => res.json())
-            .then(users => {
-                const user = users.find(u => u.id == userId);
-                if (!user) {
-                    document.body.innerHTML = "<p>Kullanıcı bulunamadı</p>";
-                    return;
-                }
-                document.getElementById("profilFoto").src = user.profilFoto;
-                document.getElementById("ad").textContent = user.ad;
-                document.getElementById("bio").textContent = user.bio;
-                document.getElementById("konum").textContent = user.konum;
-                document.getElementById("piBakiyesi").textContent = user.piBakiyesi;
-            });
-    </script>
+      // URL'den id parametresini al
+      const params = new URLSearchParams(window.location.search);
+      let id = params.get("id");
+
+      // Eğer id yoksa localStorage'dan al
+      if (!id) {
+        id = localStorage.getItem("secilenKullaniciId");
+      }
+
+      if (!id) {
+        profilEl.innerHTML = "<p>Kullanıcı bulunamadı</p>";
+        return;
+      }
+
+      // JSON'u yükle
+      fetch("data/users.json?v=" + Date.now())
+        .then(r => r.json())
+        .then(users => {
+          const user = users.find(u => String(u.id) === String(id));
+          if (!user) {
+            profilEl.innerHTML = "<p>Kullanıcı bulunamadı</p>";
+            return;
+          }
+
+          profilEl.innerHTML = `
+            <div class="card">
+              <img src="${user.profilFoto}" alt="Profil fotoğrafı">
+              <h2>${user.ad}</h2>
+              <p><b>Konum:</b> ${user.konum}</p>
+              <p><b>Bio:</b> ${user.bio}</p>
+              <p><b>Pi Bakiyesi:</b> ${user.piBakiyesi}</p>
+              <a href="login.html">Çıkış yap</a>
+            </div>
+          `;
+        })
+        .catch(err => {
+          console.error(err);
+          profilEl.innerHTML = "<p>Veri yüklenemedi</p>";
+        });
+    })();
+  </script>
 </body>
 </html>
