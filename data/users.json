@@ -1,82 +1,18 @@
 [
   {
-    "id": "ayse",
-    "isim": "Ayşe",
+    "id": 1,
+    "ad": "Ayşe",
     "konum": "İstanbul",
-    "piBakiyesi": "3.14 ₺",
-    "aciklama": "Kitap kurdu, kısa mesafe yolcusu.",
-    "foto": "images/ayse.png"
+    "foto": "images/ayse.jpg",
+    "bakiye": "0.0001 Pi",
+    "hakkinda": "Toplu taşımada kitap okumayı sever."
   },
   {
-    "id": "tugce",
-    "isim": "Tuğçe",
-    "konum": "Beyoğlu",
-    "piBakiyesi": "5.21 ₺",
-    "aciklama": "Seyahat etmeyi seviyor.",
-    "foto": "images/tugce.png"
-  },
-  {
-    "id": "yasemin",
-    "isim": "Yasemin",
-    "konum": "Şişli",
-    "piBakiyesi": "4.02 ₺",
-    "aciklama": "Kahve ve tatlı tutkunu.",
-    "foto": "images/yasemin.png"
-  },
-  {
-    "id": "feyza",
-    "isim": "Feyza",
+    "id": 2,
+    "ad": "Eyüp",
     "konum": "İstanbul",
-    "piBakiyesi": "2.56 ₺",
-    "aciklama": "Fotoğraf çekmeyi ve gezmeyi seviyor.",
-    "foto": "images/feyza.jpg"
-  },
-  {
-    "id": "burcu",
-    "isim": "Burcu",
-    "konum": "İstanbul",
-    "piBakiyesi": "3.87 ₺",
-    "aciklama": "Gece hayatını seviyor.",
-    "foto": "images/burcu.jpg"
-  },
-  {
-    "id": "ebru",
-    "isim": "Ebru",
-    "konum": "İstanbul",
-    "piBakiyesi": "2.91 ₺",
-    "aciklama": "Kitap kurdu.",
-    "foto": "images/ebru.jpg"
-  },
-  {
-    "id": "baris",
-    "isim": "Barış",
-    "konum": "İstanbul",
-    "piBakiyesi": "1.82 ₺",
-    "aciklama": "Bisiklete binmeyi seviyor.",
-    "foto": "images/baris.jpg"
-  },
-  {
-    "id": "okan",
-    "isim": "Okan",
-    "konum": "İstanbul",
-    "piBakiyesi": "2.76 ₺",
-    "aciklama": "Sinema meraklısı.",
-    "foto": "images/okan.jpg"
-  },
-  {
-    "id": "mehmet",
-    "isim": "Mehmet",
-    "konum": "İstanbul",
-    "piBakiyesi": "3.33 ₺",
-    "aciklama": "Spor yapmayı seviyor.",
-    "foto": "images/mehmet.jpg"
-  },
-  {
-    "id": "kerem",
-    "isim": "Kerem",
-    "konum": "İstanbul",
-    "piBakiyesi": "2.14 ₺",
-    "aciklama": "Teknoloji meraklısı.",
-    "foto": "images/kerem.jpg"
+    "foto": "images/eyup.jpg",
+    "bakiye": "0.0005 Pi",
+    "hakkinda": "Yazılım ve Pi Network meraklısı."
   }
 ]
