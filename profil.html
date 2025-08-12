@@ -1,55 +1,45 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Profil</title>
+<style>
+  body { font-family: Arial; text-align: center; padding-top: 50px; }
+  img { width: 150px; height: 150px; border-radius: 10px; }
+</style>
 </head>
 <body>
-  <div id="profileContainer"></div>
 
-  <script>
-    async function loadProfile() {
-      const userId = localStorage.getItem('loggedInUserId');
-      if (!userId) {
-        alert("Lütfen önce giriş yapın!");
-        window.location.href = 'login.html';
-        return;
-      }
+<div id="profileContainer">
+  <img id="profilePhoto" src="" alt="Profil Fotoğrafı"><br><br>
+  <strong id="profileName"></strong><br>
+  <span id="profileLocation"></span><br>
+  <span id="profileBio"></span><br>
+  <span id="profilePiBalance"></span> π
+</div>
 
-      try {
-        const response = await fetch('data/users.json');
-        const users = await response.json();
-        const user = users.find(u => u.id == userId);
+<script>
+  const selectedUser = localStorage.getItem("selectedUser");
 
-        if (!user) {
-          alert("Kullanıcı bulunamadı!");
-          window.location.href = 'login.html';
-          return;
+  if (!selectedUser) {
+    document.body.innerHTML = "<h2>Kullanıcı bulunamadı.</h2>";
+  } else {
+    fetch("data/users.json")
+      .then(res => res.json())
+      .then(users => {
+        const user = users.find(u => u.id == selectedUser);
+        if (user) {
+          document.getElementById("profilePhoto").src = user.photo;
+          document.getElementById("profileName").textContent = user.name;
+          document.getElementById("profileLocation").textContent = "Konum: " + user.location;
+          document.getElementById("profileBio").textContent = "Bio: " + user.bio;
+          document.getElementById("profilePiBalance").textContent = "Pi Bakiyesi: " + user.piBalance;
+        } else {
+          document.body.innerHTML = "<h2>Kullanıcı bulunamadı.</h2>";
         }
+      });
+  }
+</script>
 
-        document.getElementById('profileContainer').innerHTML = `
-          <div class="profile-card">
-            <img src="${user.profilFoto}" alt="${user.ad}" class="profile-photo">
-            <h2>${user.ad}</h2>
-            <p><strong>Konum:</strong> ${user.konum}</p>
-            <p><strong>Hakkında:</strong> ${user.bio}</p>
-            <p><strong>Pi Bakiyesi:</strong> ${user.piBakiyesi} π</p>
-            <button onclick="logout()">Çıkış Yap</button>
-          </div>
-        `;
-      } catch (error) {
-        console.error("Profil yüklenemedi:", error);
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('loggedInUserId');
-      window.location.href = 'login.html';
-    }
-
-    loadProfile();
-  </script>
 </body>
 </html>
