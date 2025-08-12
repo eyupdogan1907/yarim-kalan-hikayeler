@@ -5,59 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Giriş</title>
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;text-align:center;padding:24px}
-    h1{margin-bottom:16px}
-    select,button{font-size:16px;padding:10px 12px;margin-top:8px}
-    .hint{margin-top:10px;font-size:12px;opacity:.7}
+    :root { color-scheme: light dark; }
+    body { font-family: Arial, sans-serif; padding: 24px; text-align: center; }
+    h1 { margin-bottom: 10px; }
+    select, button { padding: 10px 12px; font-size: 16px; margin-top: 10px; }
+    .hint { margin-top: 8px; font-size: 12px; opacity: .7; }
+    .row { margin-top: 16px; }
   </style>
 </head>
 <body>
   <h1>Giriş Yap</h1>
+
   <p>Kullanıcı seç:</p>
-  <select id="kullaniciSec" aria-label="Kullanıcı seçimi"></select><br/>
-  <button id="girisBtn" disabled>Giriş</button>
-  <div class="hint">Liste boşsa sayfayı <b>Ctrl+F5</b> ile yenileyin.</div>
+  <select id="kullaniciSec" aria-label="Kullanıcı seçimi"></select>
+
+  <div class="row">
+    <button id="girisBtn">Giriş</button>
+  </div>
+  <div class="hint">Liste boşsa sayfayı <b>Ctrl+F5</b> ile yenile.</div>
 
   <script>
-    (function () {
-      const selectEl = document.getElementById("kullaniciSec");
-      const btn = document.getElementById("girisBtn");
+    (function(){
       const url = "data/users.json?v=" + Date.now(); // cache-bust
+      const select = document.getElementById("kullaniciSec");
+      const btn = document.getElementById("girisBtn");
 
-      // JSON'u yükle ve seçenekleri doldur
+      // Kullanıcıları yükle ve <option> oluştur
       fetch(url)
         .then(r => r.json())
         .then(users => {
-          if (!Array.isArray(users) || users.length === 0) {
-            throw new Error("Boş kullanıcı listesi");
-          }
-          // Seçenekleri oluştur
-          users.forEach(u => {
+          // Güvenlik için beklenen alanları olanları al
+          const safe = users.filter(u => u && typeof u.id !== "undefined" && u.ad);
+          if (safe.length === 0) throw new Error("Kullanıcı listesi boş.");
+
+          safe.forEach(u => {
             const opt = document.createElement("option");
             opt.value = String(u.id);
-            opt.textContent = ${u.ad} (${u.konum});
-            selectEl.appendChild(opt);
+            opt.textContent = ${u.ad} (${u.konum || "—"});
+            select.appendChild(opt);
           });
-          // İlk kullanıcı varsayılan seçili
-          selectEl.value = String(users[0].id);
-          btn.disabled = false;
+
+          // İlk öğeyi seçili yap
+          select.value = String(safe[0].id);
         })
         .catch(err => {
           console.error("Liste yüklenemedi:", err);
-          alert("Kullanıcı listesi yüklenemedi. Lütfen JSON yolunu ve biçimini kontrol edin.");
+          alert("Kullanıcı listesi yüklenemedi. JSON yolunu ve içeriğini kontrol et.");
         });
 
-      // Giriş tıklandığında profil sayfasına yönlendir
+      // Giriş
       btn.addEventListener("click", () => {
-        const id = selectEl.value;
-        if (!id) {
-          alert("Lütfen kullanıcı seçin.");
-          return;
-        }
-        // Seçimi saklamak istersen (opsiyonel):
-        try { localStorage.setItem("secilenKullaniciId", id); } catch (e) {}
-        // Profil sayfasına id ile git
-        window.location.href = profil.html?id=${encodeURIComponent(id)};
+        const id = select.value;
+        if (!id) { alert("Lütfen kullanıcı seç."); return; }
+        try { localStorage.setItem("secilenKullaniciId", id); } catch(e){}
+        // Hem URL param ile gönder, hem de localStorage yedeği dursun
+        window.location.href = "profil.html?id=" + encodeURIComponent(id);
       });
     })();
   </script>
