@@ -12,7 +12,7 @@
     "ad": "Tuğçe",
     "konum": "Beyoğlu",
     "profilFoto": "images/tugce.png",
-    "bio": "Camilere gitmeyi seviyor.",
+    "bio": "Camilerde gitmeyi seviyor.",
     "piBakiyesi": 1.41
   },
   {
@@ -29,7 +29,7 @@
     "konum": "İstanbul",
     "profilFoto": "images/feyza.jpg",
     "bio": "Fotoğraf çekmeyi ve gezmeyi seviyor.",
-    "piBakiyesi": 2.85
+    "piBakiyesi": 1.90
   },
   {
     "id": 5,
@@ -37,7 +37,7 @@
     "konum": "İstanbul",
     "profilFoto": "images/burcu.jpg",
     "bio": "Gece hayatını seviyor.",
-    "piBakiyesi": 1.75
+    "piBakiyesi": 2.50
   },
   {
     "id": 6,
@@ -45,7 +45,39 @@
     "konum": "İstanbul",
     "profilFoto": "images/ebru.jpg",
     "bio": "Kitap kurdu.",
+    "piBakiyesi": 1.75
+  },
+  {
+    "id": 7,
+    "ad": "Emre",
+    "konum": "İstanbul",
+    "profilFoto": "images/emre.jpg",
+    "bio": "Müzik dinlemeyi ve gitar çalmayı seviyor.",
+    "piBakiyesi": 2.75
+  },
+  {
+    "id": 8,
+    "ad": "Mert",
+    "konum": "Ankara",
+    "profilFoto": "images/mert.jpg",
+    "bio": "Basketbol tutkunu ve seyahat etmeyi seviyor.",
+    "piBakiyesi": 1.85
+  },
+  {
+    "id": 9,
+    "ad": "Kerem",
+    "konum": "İzmir",
+    "profilFoto": "images/kerem.jpg",
+    "bio": "Yeni tatlar keşfetmeyi seven bir gurme.",
     "piBakiyesi": 3.00
+  },
+  {
+    "id": 10,
+    "ad": "Baran",
+    "konum": "Bursa",
+    "profilFoto": "images/baran.jpg",
+    "bio": "Teknoloji meraklısı, kamp yapmayı seviyor.",
+    "piBakiyesi": 2.10
   }
 ]
 
