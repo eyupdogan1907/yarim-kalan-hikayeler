@@ -11,7 +11,7 @@
     "id": 2,
     "ad": "Mehmet",
     "konum": "İstanbul",
-    "profilFoto": "mehmet.jpg",
+    "profilFoto": "https://picsum.photos/seed/mehmet/600/400",
     "bio": "Müzik ve kahve molalarını sever.",
     "piBakiyesi": 2.71
   },
@@ -27,7 +27,7 @@
     "id": 4,
     "ad": "Tuğçe",
     "konum": "Beyoğlu",
-    "profilFoto": "assets/tugce.png",
+    "profilFoto": "images/tugce.png",
     "bio": "Camilere gitmeyi seviyor.",
     "piBakiyesi": 0.99
   },
@@ -35,7 +35,7 @@
     "id": 5,
     "ad": "Yasemin",
     "konum": "Şişli",
-    "profilFoto": "assets/yasemin.png",
+    "profilFoto": "images/yasemin.png",
     "bio": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
     "piBakiyesi": 4.2
   }
