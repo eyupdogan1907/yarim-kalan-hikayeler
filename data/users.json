@@ -1,23 +1,26 @@
 [
   {
     "id": 1,
-    "isim": "Ayşe",
-    "sehir": "İstanbul",
+    "ad": "Ayşe",
+    "konum": "İstanbul",
     "profilFoto": "images/ayse.jpg",
+    "bio": "Kitap kurdu, kısa mesafe yolcusu.",
     "piBakiyesi": 3.14
   },
   {
     "id": 2,
-    "isim": "Tuğçe",
-    "sehir": "Beyoğlu",
+    "ad": "Tuğçe",
+    "konum": "Beyoğlu",
     "profilFoto": "images/tugce.png",
+    "bio": "Camilere gitmeyi seviyor.",
     "piBakiyesi": 1.41
   },
   {
     "id": 3,
-    "isim": "Yasemin",
-    "sehir": "Şişli",
+    "ad": "Yasemin",
+    "konum": "Şişli",
     "profilFoto": "images/yasemin.png",
+    "bio": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
     "piBakiyesi": 2.31
   }
 ]
