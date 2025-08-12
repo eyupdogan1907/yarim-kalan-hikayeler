@@ -2,68 +2,163 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Profil</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: Arial, sans-serif; padding: 24px; text-align: center; }
-    .card { max-width: 420px; margin: 0 auto; border: 1px solid #ddd; border-radius: 16px;
-            padding: 20px; box-shadow: 0 4px 18px rgba(0,0,0,.06); }
-    .avatar { width: 220px; height: 220px; object-fit: cover; border-radius: 12px; }
-    h1 { margin: 8px 0 16px; }
-    .muted { opacity:.7 }
-    .row { margin-top: 16px; display: flex; gap: 16px; justify-content: center; }
-    a { text-decoration: none; padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; }
+    :root { --card: #f5f7fa; --text: #1f2937; --muted:#6b7280; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 32px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text); background: #ffffff;
+      display: grid; place-items: start center; min-height: 100vh;
+    }
+    .wrap { width: 100%; max-width: 720px; }
+    .card {
+      background: var(--card); border-radius: 16px; padding: 28px 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06); text-align: center;
+    }
+    h1 { margin: 0 0 18px; font-size: 34px; letter-spacing:.2px; }
+    .avatar {
+      width: 220px; height: 220px; border-radius: 16px; object-fit: cover;
+      display: block; margin: 0 auto 14px; background:#e5e7eb;
+    }
+    .row { margin: 6px 0; }
+    .label { font-weight: 600; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .actions { margin-top: 16px; display: flex; gap: 12px; justify-content: center; }
+    button, a.btn {
+      padding: 10px 14px; font-size: 15px; border-radius: 10px; border: 1px solid #d1d5db;
+      background: #fff; cursor: pointer; text-decoration: none; color: var(--text);
+    }
+    .hint { text-align:center; color: var(--muted); margin-top: 10px; font-size: 13px; }
+    .center { text-align:center; }
   </style>
 </head>
 <body>
-  <div id="profil"><div class="muted">Yükleniyor…</div></div>
+  <div class="wrap">
+    <div id="card" class="card">
+      <div class="center muted" id="status">Yükleniyor…</div>
+    </div>
+    <div class="hint" id="time"></div>
+  </div>
 
   <script>
-    (function(){
-      const profilEl = document.getElementById("profil");
+    (function () {
+      // Zaman damgası
+      try {
+        const now = new Date();
+        const ts = now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'});
+        const ds = now.toLocaleDateString('tr-TR');
+        document.getElementById('time').textContent = [${ts}, ${ds}];
+      } catch(_) {}
 
-      // URL parametresi > localStorage sırası
-      const params = new URLSearchParams(window.location.search);
-      let id = params.get("id") || localStorage.getItem("secilenKullaniciId");
+      const card = document.getElementById('card');
+      const statusEl = document.getElementById('status');
 
-      if (!id) {
-        profilEl.innerHTML = "<p>Kullanıcı bulunamadı</p>";
+      // localStorage'dan seçili kullanıcı id'sini al
+      const raw = localStorage.getItem('secilenKullanici');
+      const selectedId = raw ? parseInt(raw, 10) : NaN;
+
+      // Seçim yoksa login'e gönder
+      if (!Number.isFinite(selectedId)) {
+        renderNotFound();
         return;
       }
 
-      fetch("data/users.json?v=" + Date.now())
-        .then(r => r.json())
-        .then(users => {
-          const user = users.find(u => String(u.id) === String(id));
-          if (!user) {
-            profilEl.innerHTML = "<p>Kullanıcı bulunamadı</p>";
-            return;
-          }
+      // JSON'u doğru yoldan çek (profil.html ana dizinde, JSON data/ klasöründe)
+      const url = "data/users.json?v=" + Date.now(); // cache-bust
 
-          const konum = user.konum ?? "—";
-          const bio = user.bio ?? "—";
-          const bakiye = (typeof user.piBakiyesi === "number") ? user.piBakiyesi : "—";
-          const foto = user.profilFoto || "";
-
-          profilEl.innerHTML = `
-            <div class="card">
-              ${foto ? <img class="avatar" src="${foto}" alt="Profil fotoğrafı"> : <div class="muted">Profil fotoğrafı yok</div>}
-              <h1>${user.ad}</h1>
-              <p><b>Konum:</b> ${konum}</p>
-              <p><b>Pi Bakiyesi:</b> ${bakiye} π</p>
-              <p class="muted">${bio}</p>
-              <div class="row">
-                <a href="login.html">Kullanıcı değiştir</a>
-                <a href="login.html" onclick="try{localStorage.removeItem('secilenKullaniciId');}catch(e){}">Çıkış yap</a>
-              </div>
-            </div>
-          `;
+      fetch(url)
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
         })
-        .catch(err => {
-          console.error(err);
-          profilEl.innerHTML = "<p>Veri yüklenemedi</p>";
+        .then(function (users) {
+          // users bir dizi olmalı
+          const u = Array.isArray(users) ? users.find(x => Number(x.id) === selectedId) : null;
+          if (!u) { renderNotFound(); return; }
+          renderUser(u);
+        })
+        .catch(function (err) {
+          console.error("JSON yüklenemedi:", err);
+          renderNotFound("Veri yüklenemedi.");
         });
+
+      function renderUser(u) {
+        card.innerHTML = "";
+
+        const h1 = document.createElement("h1");
+        h1.textContent = u.ad || "Profil";
+        card.appendChild(h1);
+
+        const img = document.createElement("img");
+        img.className = "avatar";
+        // JSON'daki tam yolu kullan (ör: "images/ayse.png")
+        img.src = (u.profilFoto || "").trim();
+        img.alt = (u.ad || "Kullanıcı") + " profil fotoğrafı";
+        img.onerror = function(){ this.style.display = "none"; };
+        card.appendChild(img);
+
+        // İsim (ikinci başlık istersen)
+        const nameRow = document.createElement("div");
+        nameRow.className = "row muted";
+        nameRow.textContent = u.ad || "";
+        card.appendChild(nameRow);
+
+        const loc = document.createElement("div");
+        loc.className = "row";
+        loc.innerHTML = '<span class="label">Konum:</span> ' + (u.konum || "—");
+        card.appendChild(loc);
+
+        const pi = document.createElement("div");
+        pi.className = "row";
+        const bakiye = (typeof u.piBakiyesi === "number" ? u.piBakiyesi.toFixed(2) : (u.piBakiyesi || "—"));
+        pi.innerHTML = '<span class="label">Pi Bakiyesi:</span> ' + bakiye + ' π';
+        card.appendChild(pi);
+
+        const bio = document.createElement("div");
+        bio.className = "row muted";
+        bio.textContent = (u.bio || "").toString();
+        card.appendChild(bio);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const logout = document.createElement("button");
+        logout.textContent = "Çıkış yap";
+        logout.onclick = function () {
+          try { localStorage.removeItem("secilenKullanici"); } catch(_) {}
+          location.href = "login.html";
+        };
+        const change = document.createElement("a");
+        change.className = "btn";
+        change.textContent = "Kullanıcı değiştir";
+        change.href = "login.html";
+        actions.appendChild(logout);
+        actions.appendChild(change);
+        card.appendChild(actions);
+      }
+
+      function renderNotFound(msg) {
+        card.innerHTML = "";
+        const h1 = document.createElement("h1");
+        h1.textContent = "Kullanıcı bulunamadı";
+        card.appendChild(h1);
+
+        const ph = document.createElement("div");
+        ph.className = "row muted";
+        ph.textContent = msg || "";
+        card.appendChild(ph);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const back = document.createElement("a");
+        back.className = "btn";
+        back.textContent = "Girişe dön";
+        back.href = "login.html";
+        actions.appendChild(back);
+        card.appendChild(actions);
+      }
     })();
   </script>
 </body>
