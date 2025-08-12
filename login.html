@@ -1,57 +1,45 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Giriş</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
     select, button { padding: 10px; font-size: 16px; margin-top: 10px; }
-    #debug { margin-top:12px; font-size:12px; opacity:.7; white-space:pre-wrap; }
   </style>
 </head>
 <body>
   <h1>Giriş Yap</h1>
   <p>Kullanıcı seç:</p>
-  <select id="kullaniciSec"></select>
-  <br/>
+  <select id="kullaniciSec"></select><br>
   <button onclick="girisYap()">Giriş</button>
-  <div id="debug"></div>
 
   <script>
-    const debug = (msg) => document.getElementById('debug').textContent += msg + "\n";
+  (function(){
+    var url = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=" + Date.now();
+    fetch(url).then(function(r){ return r.json(); }).then(function(users){
+      var select = document.getElementById("kullaniciSec");
+      for (var i=0; i<users.length; i++){
+        var u = users[i];
+        var opt = document.createElement("option");
+        opt.value = String(u.id);
+        opt.textContent = u.ad + " (" + u.konum + ")";
+        select.appendChild(opt);
+      }
+      if (users.length > 0) { select.value = String(users[0].id); }
+    }).catch(function(err){
+      console.error("Liste yüklenemedi:", err);
+      alert("Kullanıcı listesi yüklenemedi. JSON yolunu kontrol et.");
+    });
 
-    const url = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=" + Date.now(); // cache-bust
-    debug("JSON URL: " + url);
-
-    fetch(url)
-      .then(r => {
-        debug("HTTP durum: " + r.status);
-        return r.json();
-      })
-      .then(users => {
-        debug("Kayıt sayısı: " + users.length);
-        const select = document.getElementById("kullaniciSec");
-        users.forEach(u => {
-          const opt = document.createElement("option");
-          opt.value = u.id;
-          opt.textContent = ${u.ad} (${u.konum});
-          select.appendChild(opt);
-        });
-        if (users.length) select.value = users[0].id; // ilkini otomatik seç
-      })
-      .catch(err => {
-        console.error(err);
-        debug("Hata: " + err);
-        alert("Kullanıcı listesi yüklenemedi. Konsoldaki hatayı bana gönder.");
-      });
-
-    function girisYap() {
-      const id = document.getElementById("kullaniciSec").value;
+    window.girisYap = function(){
+      var id = document.getElementById("kullaniciSec").value;
       if (!id) { alert("Lütfen kullanıcı seç."); return; }
-      localStorage.setItem("secilenKullanici", id);
+      try { localStorage.setItem("secilenKullanici", id); } catch(e){}
       window.location.href = "profil.html";
-    }
+    };
+  })();
   </script>
 </body>
 </html>
