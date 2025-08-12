@@ -1,50 +1,68 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
-        img { border-radius: 10px; max-width: 200px; }
-        .container { max-width: 400px; margin: auto; }
-        .info { margin-top: 15px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 24px; display:flex; justify-content:center; }
+    .card { max-width: 420px; width:100%; text-align:center; border:1px solid #eee; border-radius:12px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,.06); }
+    img { width: 220px; max-width: 100%; border-radius:12px; }
+    .meta { margin-top:12px; color:#555; }
+    .btns { margin-top:18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    button, a.btn { padding:10px 14px; border:1px solid #ddd; border-radius:8px; background:#fff; cursor:pointer; text-decoration:none; color:#222; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="ad"></h1>
-        <img id="profilFoto" src="" alt="Profil Fotoğrafı">
-        <div class="info">
-            <p><strong>Konum:</strong> <span id="konum"></span></p>
-            <p id="bio"></p>
-        </div>
+  <div class="card">
+    <h1 id="ad">Yükleniyor...</h1>
+    <img id="profilFoto" alt="Profil Fotoğrafı">
+    <p class="meta"><strong>Konum:</strong> <span id="konum">—</span></p>
+    <p id="bio" class="meta"></p>
+
+    <div class="btns">
+      <button id="cikisBtn">Çıkış yap</button>
+      <a class="btn" href="login.html">Kullanıcı değiştir</a>
     </div>
+  </div>
 
-    <script>
-        // Girişte seçilen kullanıcı ID'sini al
-        const userId = localStorage.getItem("secilenKullanici");
+  <script>
+  (function () {
+    // 1) Login'de seçilen kullanıcı id'sini al
+    var userId = localStorage.getItem("secilenKullanici");
+    if (!userId) {
+      alert("Kullanıcı seçilmedi. Login'e dönüyoruz.");
+      window.location.href = "login.html";
+      return;
+    }
 
-        if (!userId) {
-            alert("Kullanıcı seçilmedi!");
-            window.location.href = "login.html";
-        }
+    // 2) JSON'dan kullanıcıları çek
+    var url = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=" + Date.now();
+    fetch(url).then(function(r){ return r.json(); }).then(function(users){
+      var u = users.find(function(x){ return String(x.id) === String(userId); });
+      if (!u) {
+        alert("Kullanıcı bulunamadı. Login'e dönüyoruz.");
+        window.location.href = "login.html";
+        return;
+      }
 
-        // JSON'dan veri çek
-        fetch("data/users.json")
-            .then(response => response.json())
-            .then(users => {
-                const user = users.find(u => u.id == userId);
-                if (user) {
-                    document.getElementById("ad").textContent = user.ad;
-                    document.getElementById("konum").textContent = user.konum;
-                    document.getElementById("bio").textContent = user.bio;
-                    document.getElementById("profilFoto").src = user.profilFoto;
-                } else {
-                    alert("Kullanıcı bulunamadı!");
-                }
-            })
-            .catch(err => console.error("JSON yüklenemedi:", err));
-    </script>
+      // 3) Profili doldur
+      document.getElementById("ad").textContent = u.ad;
+      document.getElementById("konum").textContent = u.konum || "—";
+      document.getElementById("bio").textContent = u.bio || "";
+      document.getElementById("profilFoto").src = u.profilFoto;
+      document.getElementById("profilFoto").alt = u.ad + " profil fotoğrafı";
+    }).catch(function(err){
+      console.error("Profil yüklenemedi:", err);
+      alert("Profil yüklenemedi. İnternet/JSON yolunu kontrol edin.");
+    });
+
+    // 4) Çıkış
+    document.getElementById("cikisBtn").addEventListener("click", function(){
+      try { localStorage.removeItem("secilenKullanici"); } catch(e){}
+      window.location.href = "login.html";
+    });
+  })();
+  </script>
 </body>
 </html>
