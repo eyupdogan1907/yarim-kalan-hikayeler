@@ -1,82 +1,82 @@
-const users = [
+[
   {
-    id: 1,
-    ad: "Ayşe",
-    konum: "İstanbul",
-    profilFoto: "images/ayse.png",
-    bio: "Kitap kurdu, kısa mesafe yolcusu.",
-    piBakiyesi: 3.14
+    "id": 1,
+    "ad": "Ayşe",
+    "konum": "İstanbul",
+    "profilFoto": "images/ayse.png",
+    "bio": "Kitap kurdu, kısa mesafe yolcusu.",
+    "piBakiyesi": 3.14
   },
   {
-    id: 2,
-    ad: "Tuğçe",
-    konum: "Beyoğlu",
-    profilFoto: "images/tugce.png",
-    bio: "Camilere gitmeyi seviyor.",
-    piBakiyesi: 1.41
+    "id": 2,
+    "ad": "Tuğçe",
+    "konum": "Beyoğlu",
+    "profilFoto": "images/tugce.png",
+    "bio": "Camilere gitmeyi seviyor.",
+    "piBakiyesi": 1.41
   },
   {
-    id: 3,
-    ad: "Yasemin",
-    konum: "Şişli",
-    profilFoto: "images/yasemin.png",
-    bio: "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
-    piBakiyesi: 2.31
+    "id": 3,
+    "ad": "Yasemin",
+    "konum": "Şişli",
+    "profilFoto": "images/yasemin.png",
+    "bio": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
+    "piBakiyesi": 2.31
   },
   {
-    id: 4,
-    ad: "Feyza",
-    konum: "İstanbul",
-    profilFoto: "images/feyza.jpg",
-    bio: "Fotoğraf çekmeyi ve gezmeyi seviyor.",
-    piBakiyesi: 1.85
+    "id": 4,
+    "ad": "Feyza",
+    "konum": "İstanbul",
+    "profilFoto": "images/feyza.jpg",
+    "bio": "Fotoğraf çekmeyi ve gezmeyi seviyor.",
+    "piBakiyesi": 1.85
   },
   {
-    id: 5,
-    ad: "Burcu",
-    konum: "İstanbul",
-    profilFoto: "images/burcu.jpg",
-    bio: "Gece hayatını seviyor.",
-    piBakiyesi: 2.05
+    "id": 5,
+    "ad": "Burcu",
+    "konum": "İstanbul",
+    "profilFoto": "images/burcu.jpg",
+    "bio": "Gece hayatını seviyor.",
+    "piBakiyesi": 2.05
   },
   {
-    id: 6,
-    ad: "Ebru",
-    konum: "İstanbul",
-    profilFoto: "images/ebru.jpg",
-    bio: "Kitap kurdu.",
-    piBakiyesi: 1.92
+    "id": 6,
+    "ad": "Ebru",
+    "konum": "İstanbul",
+    "profilFoto": "images/ebru.jpg",
+    "bio": "Kitap kurdu.",
+    "piBakiyesi": 1.92
   },
   {
-    id: 7,
-    ad: "Barış",
-    konum: "İstanbul",
-    profilFoto: "images/baris.jpg",
-    bio: "Bisiklete binmeyi seviyor.",
-    piBakiyesi: 1.82
+    "id": 7,
+    "ad": "Barış",
+    "konum": "İstanbul",
+    "profilFoto": "images/baris.jpg",
+    "bio": "Bisiklete binmeyi seviyor.",
+    "piBakiyesi": 1.82
   },
   {
-    id: 8,
-    ad: "Okan",
-    konum: "İstanbul",
-    profilFoto: "images/okan.jpg",
-    bio: "Sinema meraklısı.",
-    piBakiyesi: 2.76
+    "id": 8,
+    "ad": "Okan",
+    "konum": "İstanbul",
+    "profilFoto": "images/okan.jpg",
+    "bio": "Sinema meraklısı.",
+    "piBakiyesi": 2.76
   },
   {
-    id: 9,
-    ad: "Mehmet",
-    konum: "İstanbul",
-    profilFoto: "images/mehmet.jpg",
-    bio: "Futbol oynamayı seviyor.",
-    piBakiyesi: 1.67
+    "id": 9,
+    "ad": "Mehmet",
+    "konum": "İstanbul",
+    "profilFoto": "images/mehmet.jpg",
+    "bio": "Futbol oynamayı seviyor.",
+    "piBakiyesi": 1.67
   },
   {
-    id: 10,
-    ad: "Kerem",
-    konum: "İstanbul",
-    profilFoto: "images/kerem.jpg",
-    bio: "Yüzme sporu ile ilgileniyor.",
-    piBakiyesi: 2.14
+    "id": 10,
+    "ad": "Kerem",
+    "konum": "İstanbul",
+    "profilFoto": "images/kerem.jpg",
+    "bio": "Yüzme sporu ile ilgileniyor.",
+    "piBakiyesi": 2.14
   }
-];
+]
