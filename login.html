@@ -1,41 +1,47 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kullanıcı Seç</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        .user { display: inline-block; margin: 15px; cursor: pointer; }
-        img { width: 100px; height: 100px; border-radius: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <h1>Kullanıcı Seç</h1>
+  <select id="userSelect">
+    <option value="">-- Kullanıcı Seçin --</option>
+  </select>
+  <button onclick="login()">Giriş Yap</button>
 
-<h1>Kullanıcı Seç</h1>
-<div id="kullaniciListesi">Yükleniyor...</div>
+  <script>
+    async function loadUsers() {
+      try {
+        const response = await fetch('data/users.json');
+        const users = await response.json();
+        const select = document.getElementById('userSelect');
 
-<script>
-    fetch("data/kullanicilar.json")
-        .then(r => r.json())
-        .then(veriler => {
-            const liste = document.getElementById("kullaniciListesi");
-            liste.innerHTML = "";
-            veriler.forEach(k => {
-                const div = document.createElement("div");
-                div.className = "user";
-                div.innerHTML = <img src="${k.profilFoto}" alt="${k.ad}"><p>${k.ad}</p>;
-                div.onclick = () => {
-                    localStorage.setItem("seciliKullanici", k.id);
-                    window.location.href = "profil.html";
-                };
-                liste.appendChild(div);
-            });
-        })
-        .catch(() => {
-            document.getElementById("kullaniciListesi").innerHTML = "Veriler yüklenemedi.";
+        users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = ${user.ad} - ${user.konum};
+          select.appendChild(option);
         });
-</script>
+      } catch (error) {
+        console.error("Kullanıcılar yüklenemedi:", error);
+      }
+    }
 
+    function login() {
+      const selectedId = document.getElementById('userSelect').value;
+      if (selectedId) {
+        localStorage.setItem('loggedInUserId', selectedId);
+        window.location.href = 'profil.html';
+      } else {
+        alert("Lütfen bir kullanıcı seçin!");
+      }
+    }
+
+    loadUsers();
+  </script>
 </body>
 </html>
