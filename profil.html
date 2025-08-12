@@ -5,34 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profil</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-    img { max-width: 200px; border-radius: 8px; }
-    .card { max-width: 300px; margin: auto; border: 1px solid #ddd; padding: 15px; border-radius: 10px; }
-    h2 { margin: 10px 0 5px; }
+    :root { color-scheme: light dark; }
+    body { font-family: Arial, sans-serif; padding: 24px; text-align: center; }
+    .card { max-width: 420px; margin: 0 auto; border: 1px solid #ddd; border-radius: 16px;
+            padding: 20px; box-shadow: 0 4px 18px rgba(0,0,0,.06); }
+    .avatar { width: 220px; height: 220px; object-fit: cover; border-radius: 12px; }
+    h1 { margin: 8px 0 16px; }
+    .muted { opacity:.7 }
+    .row { margin-top: 16px; display: flex; gap: 16px; justify-content: center; }
+    a { text-decoration: none; padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; }
   </style>
 </head>
 <body>
-  <div id="profil"></div>
+  <div id="profil"><div class="muted">Yükleniyor…</div></div>
 
   <script>
     (function(){
       const profilEl = document.getElementById("profil");
 
-      // URL'den id parametresini al
+      // URL parametresi > localStorage sırası
       const params = new URLSearchParams(window.location.search);
-      let id = params.get("id");
-
-      // Eğer id yoksa localStorage'dan al
-      if (!id) {
-        id = localStorage.getItem("secilenKullaniciId");
-      }
+      let id = params.get("id") || localStorage.getItem("secilenKullaniciId");
 
       if (!id) {
         profilEl.innerHTML = "<p>Kullanıcı bulunamadı</p>";
         return;
       }
 
-      // JSON'u yükle
       fetch("data/users.json?v=" + Date.now())
         .then(r => r.json())
         .then(users => {
@@ -42,14 +41,22 @@
             return;
           }
 
+          const konum = user.konum ?? "—";
+          const bio = user.bio ?? "—";
+          const bakiye = (typeof user.piBakiyesi === "number") ? user.piBakiyesi : "—";
+          const foto = user.profilFoto || "";
+
           profilEl.innerHTML = `
             <div class="card">
-              <img src="${user.profilFoto}" alt="Profil fotoğrafı">
-              <h2>${user.ad}</h2>
-              <p><b>Konum:</b> ${user.konum}</p>
-              <p><b>Bio:</b> ${user.bio}</p>
-              <p><b>Pi Bakiyesi:</b> ${user.piBakiyesi}</p>
-              <a href="login.html">Çıkış yap</a>
+              ${foto ? <img class="avatar" src="${foto}" alt="Profil fotoğrafı"> : <div class="muted">Profil fotoğrafı yok</div>}
+              <h1>${user.ad}</h1>
+              <p><b>Konum:</b> ${konum}</p>
+              <p><b>Pi Bakiyesi:</b> ${bakiye} π</p>
+              <p class="muted">${bio}</p>
+              <div class="row">
+                <a href="login.html">Kullanıcı değiştir</a>
+                <a href="login.html" onclick="try{localStorage.removeItem('secilenKullaniciId');}catch(e){}">Çıkış yap</a>
+              </div>
             </div>
           `;
         })
