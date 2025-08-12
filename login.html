@@ -1,42 +1,57 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giriş</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
-        select, button { padding: 10px; font-size: 16px; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Giriş</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+    select, button { padding: 10px; font-size: 16px; margin-top: 10px; }
+    #debug { margin-top:12px; font-size:12px; opacity:.7; white-space:pre-wrap; }
+  </style>
 </head>
 <body>
-    <h1>Giriş Yap</h1>
-    <p>Kullanıcı seç:</p>
-    <select id="kullaniciSec"></select>
-    <br>
-    <button onclick="girisYap()">Giriş</button>
+  <h1>Giriş Yap</h1>
+  <p>Kullanıcı seç:</p>
+  <select id="kullaniciSec"></select>
+  <br/>
+  <button onclick="girisYap()">Giriş</button>
+  <div id="debug"></div>
 
-    <script>
-        fetch("https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json")
-            .then(response => response.json())
-            .then(users => {
-                const select = document.getElementById("kullaniciSec");
-                users.forEach(user => {
-                    const option = document.createElement("option");
-                    option.value = user.id;
-                    option.textContent = ${user.ad} (${user.konum});
-                    select.appendChild(option);
-                });
-                // Ayşe'yi otomatik seç
-                select.value = 1;
-            })
-            .catch(err => console.error("Kullanıcı listesi yüklenemedi:", err));
+  <script>
+    const debug = (msg) => document.getElementById('debug').textContent += msg + "\n";
 
-        function girisYap() {
-            const secilenId = document.getElementById("kullaniciSec").value;
-            localStorage.setItem("secilenKullanici", secilenId);
-            window.location.href = "profil.html";
-        }
-    </script>
+    const url = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=" + Date.now(); // cache-bust
+    debug("JSON URL: " + url);
+
+    fetch(url)
+      .then(r => {
+        debug("HTTP durum: " + r.status);
+        return r.json();
+      })
+      .then(users => {
+        debug("Kayıt sayısı: " + users.length);
+        const select = document.getElementById("kullaniciSec");
+        users.forEach(u => {
+          const opt = document.createElement("option");
+          opt.value = u.id;
+          opt.textContent = ${u.ad} (${u.konum});
+          select.appendChild(opt);
+        });
+        if (users.length) select.value = users[0].id; // ilkini otomatik seç
+      })
+      .catch(err => {
+        console.error(err);
+        debug("Hata: " + err);
+        alert("Kullanıcı listesi yüklenemedi. Konsoldaki hatayı bana gönder.");
+      });
+
+    function girisYap() {
+      const id = document.getElementById("kullaniciSec").value;
+      if (!id) { alert("Lütfen kullanıcı seç."); return; }
+      localStorage.setItem("secilenKullanici", id);
+      window.location.href = "profil.html";
+    }
+  </script>
 </body>
 </html>
