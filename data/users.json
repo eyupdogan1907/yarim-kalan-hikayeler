@@ -2,22 +2,36 @@
   {
     "id": 1,
     "ad": "Ayşe",
-    "konum": "Kadıköy",
-    "profilFoto": "https://picsum.photos/seed/ayse/600/400",
+    "konum": "İstanbul",
+    "profilFoto": "assets/ayse.jpg",
     "bio": "Kitap kurdu, kısa mesafe yolcusu."
   },
   {
     "id": 2,
+    "ad": "Mehmet",
+    "konum": "İstanbul",
+    "profilFoto": "assets/mehmet.jpg",
+    "bio": "Müzik ve kahve molalarını sever."
+  },
+  {
+    "id": 3,
     "ad": "Zehra",
     "konum": "Beşiktaş",
     "profilFoto": "https://picsum.photos/seed/zehra/600/400",
     "bio": "Güne erken başlayanlardan."
   },
   {
-    "id": 3,
-    "ad": "Elif",
-    "konum": "Üsküdar",
-    "profilFoto": "https://picsum.photos/seed/elif/600/400",
-    "bio": "Kahve + deniz manzarası."
+    "id": 4,
+    "ad": "Tuğçe",
+    "konum": "Beyoğlu",
+    "profilFoto": "assets/tugce.png",
+    "bio": "Camilere gitmeyi seviyor."
+  },
+  {
+    "id": 5,
+    "ad": "Yasemin",
+    "konum": "Şişli",
+    "profilFoto": "assets/yasemin.png",
+    "bio": "Kayak yapmayı ve su sporlarıyla ilgileniyor."
   }
 ]
