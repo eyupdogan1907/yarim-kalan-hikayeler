@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profil</title>
   <style>
     :root { --bg:#f6f7fb; --card:#fff; --text:#222; --muted:#555; --line:#e3e6ee; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:var(--bg); display:flex; min-height:100vh; align-items:center; justify-content:center; padding:24px; }
-    .card { width:100%; max-width:460px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:0 10px 25px rgba(0,0,0,.06); text-align:center; }
-    h1 { margin:0 0 12px; color:var(--text); letter-spacing:.3px; }
-    img { width:240px; height:auto; max-width:100%; border-radius:12px; display:block; margin:10px auto 14px; }
-    .meta { margin:8px 0; color:var(--muted); }
-    .meta strong { color:var(--text); }
-    .row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
-    button, a.btn { padding:10px 14px; border:1px solid var(--line); border-radius:10px; background:#fff; cursor:pointer; text-decoration:none; color:var(--text); }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--bg);
+          display:flex; min-height:100vh; align-items:center; justify-content:center; padding:24px;}
+    .card{ width:100%; max-width:460px; background:var(--card); border:1px solid var(--line);
+           border-radius:16px; padding:22px; box-shadow:0 10px 25px rgba(0,0,0,.06); text-align:center;}
+    h1{ margin:0 0 12px; color:var(--text); letter-spacing:.3px;}
+    .avatar{ width:240px; height:240px; max-width:100%; border-radius:12px; display:block; margin:10px auto 14px; object-fit:cover;}
+    .meta{ margin:8px 0; color:var(--muted);}
+    .meta strong{ color:var(--text);}
+    .row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;}
+    button, a.btn{ padding:10px 14px; border:1px solid var(--line); border-radius:10px;
+                   background:#fff; cursor:pointer; text-decoration:none; color:var(--text);}
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="card" id="card">
     <h1 id="ad">Yükleniyor…</h1>
-    <img id="profilFoto" alt="Profil fotoğrafı">
+    <img id="profilFoto" class="avatar" alt="Profil fotoğrafı"/>
     <p class="meta"><strong>Konum:</strong> <span id="konum">—</span></p>
     <p class="meta"><strong>Pi Bakiyesi:</strong> <span id="pi">—</span> π</p>
     <p id="bio" class="meta"></p>
@@ -37,23 +40,26 @@
     var userId = localStorage.getItem("secilenKullanici");
     if (!userId) { alert("Kullanıcı seçilmedi. Login'e dönüyoruz."); location.href="login.html"; return; }
 
-    // 2) JSON'dan veriyi çek
+    // 2) JSON'dan veriyi çek (cache-bust için ?v=… ekli)
     var url = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=" + Date.now();
-    fetch(url).then(function(r){ return r.json(); }).then(function(users){
-      var u = users.find(function(x){ return String(x.id) === String(userId); });
-      if (!u) { alert("Kullanıcı bulunamadı."); location.href="login.html"; return; }
+    fetch(url)
+      .then(function(r){ return r.json(); })
+      .then(function(users){
+        var u = users.find(function(x){ return String(x.id) === String(userId); });
+        if (!u) { alert("Kullanıcı bulunamadı."); location.href="login.html"; return; }
 
-      // 3) Profili doldur
-      document.getElementById("ad").textContent      = u.ad;
-      document.getElementById("konum").textContent   = u.konum || "—";
-      document.getElementById("bio").textContent     = u.bio || "";
-      document.getElementById("profilFoto").src      = u.profilFoto;
-      document.getElementById("profilFoto").alt      = u.ad + " profil fotoğrafı";
-      document.getElementById("pi").textContent      = (u.piBakiyesi ?? "—");
-    }).catch(function(err){
-      console.error("Profil yüklenemedi:", err);
-      alert("Profil yüklenemedi. İnternet/JSON yolunu kontrol edin.");
-    });
+        // 3) Profili tek kez doldur
+        document.getElementById("ad").textContent    = u.ad;
+        document.getElementById("konum").textContent = u.konum || "—";
+        document.getElementById("bio").textContent   = u.bio || "";
+        document.getElementById("profilFoto").src    = u.profilFoto;
+        document.getElementById("profilFoto").alt    = u.ad + " profil fotoğrafı";
+        document.getElementById("pi").textContent    = (u.piBakiyesi ?? "—");
+      })
+      .catch(function(err){
+        console.error("Profil yüklenemedi:", err);
+        alert("Profil yüklenemedi. İnternet/JSON yolunu kontrol edin.");
+      });
 
     // 4) Çıkış
     document.getElementById("cikisBtn").addEventListener("click", function(){
