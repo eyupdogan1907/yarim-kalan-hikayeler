@@ -17,8 +17,7 @@
     <button onclick="girisYap()">Giriş</button>
 
     <script>
-        // Kullanıcı listesini JSON'dan yükle
-        fetch("data/users.json")
+        fetch("https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json")
             .then(response => response.json())
             .then(users => {
                 const select = document.getElementById("kullaniciSec");
@@ -28,13 +27,11 @@
                     option.textContent = ${user.ad} (${user.konum});
                     select.appendChild(option);
                 });
-
-                // Ayşe'yi (id: 1) otomatik seç
+                // Ayşe'yi otomatik seç
                 select.value = 1;
             })
             .catch(err => console.error("Kullanıcı listesi yüklenemedi:", err));
 
-        // Giriş yap
         function girisYap() {
             const secilenId = document.getElementById("kullaniciSec").value;
             localStorage.setItem("secilenKullanici", secilenId);
