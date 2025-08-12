@@ -28,6 +28,9 @@
                     option.textContent = ${user.ad} (${user.konum});
                     select.appendChild(option);
                 });
+
+                // Ayşe'yi (id: 1) otomatik seç
+                select.value = 1;
             })
             .catch(err => console.error("Kullanıcı listesi yüklenemedi:", err));
 
