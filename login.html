@@ -5,63 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Giriş</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: Arial, sans-serif; padding: 24px; text-align: center; }
-    h1 { margin-bottom: 10px; }
-    select, button { padding: 10px 12px; font-size: 16px; margin-top: 10px; }
-    .hint { margin-top: 8px; font-size: 12px; opacity: .7; }
-    .row { margin-top: 16px; }
+    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+    select, button { padding: 10px; font-size: 16px; margin-top: 10px; }
+    .hint { margin-top: 8px; font-size: 12px; opacity: 0.7; }
   </style>
 </head>
 <body>
-  <h1>Giriş Yap</h1>
 
-  <p>Kullanıcı seç:</p>
-  <select id="kullaniciSec" aria-label="Kullanıcı seçimi"></select>
+<h1>Giriş Yap</h1>
+<p>Kullanıcı seç:</p>
+<select id="kullaniciSec"></select><br>
+<button id="girisBtn">Giriş</button>
 
-  <div class="row">
-    <button id="girisBtn">Giriş</button>
-  </div>
-  <div class="hint">Liste boşsa sayfayı <b>Ctrl+F5</b> ile yenile.</div>
+<div class="hint">Liste boşsa sayfayı Ctrl+F5 ile yenile.</div>
 
-  <script>
-    (function(){
-      const url = "data/users.json?v=" + Date.now(); // cache-bust
-      const select = document.getElementById("kullaniciSec");
-      const btn = document.getElementById("girisBtn");
+<script>
+  const select = document.getElementById("kullaniciSec");
+  const btn = document.getElementById("girisBtn");
 
-      // Kullanıcıları yükle ve <option> oluştur
-      fetch(url)
-        .then(r => r.json())
-        .then(users => {
-          // Güvenlik için beklenen alanları olanları al
-          const safe = users.filter(u => u && typeof u.id !== "undefined" && u.ad);
-          if (safe.length === 0) throw new Error("Kullanıcı listesi boş.");
-
-          safe.forEach(u => {
-            const opt = document.createElement("option");
-            opt.value = String(u.id);
-            opt.textContent = ${u.ad} (${u.konum || "—"});
-            select.appendChild(opt);
-          });
-
-          // İlk öğeyi seçili yap
-          select.value = String(safe[0].id);
-        })
-        .catch(err => {
-          console.error("Liste yüklenemedi:", err);
-          alert("Kullanıcı listesi yüklenemedi. JSON yolunu ve içeriğini kontrol et.");
-        });
-
-      // Giriş
-      btn.addEventListener("click", () => {
-        const id = select.value;
-        if (!id) { alert("Lütfen kullanıcı seç."); return; }
-        try { localStorage.setItem("secilenKullaniciId", id); } catch(e){}
-        // Hem URL param ile gönder, hem de localStorage yedeği dursun
-        window.location.href = "profil.html?id=" + encodeURIComponent(id);
+  // JSON dosyasını GitHub URL'sinden çek
+  fetch("https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json")
+    .then(r => {
+      if (!r.ok) throw new Error("Kullanıcı listesi yüklenemedi");
+      return r.json();
+    })
+    .then(users => {
+      users.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = ${u.ad} (${u.konum});
+        select.appendChild(opt);
       });
-    })();
-  </script>
+    })
+    .catch(err => {
+      alert("Hata: " + err.message);
+    });
+
+  // Giriş butonuna tıklayınca profil sayfasına yönlendir
+  btn.addEventListener("click", () => {
+    const seciliId = select.value;
+    if (!seciliId) {
+      alert("Lütfen bir kullanıcı seçin");
+      return;
+    }
+    window.location.href = profil.html?id=${seciliId};
+  });
+</script>
+
 </body>
 </html>
