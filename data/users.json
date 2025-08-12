@@ -8,27 +8,13 @@
   },
   {
     "id": 2,
-    "isim": "Mehmet",
-    "sehir": "İstanbul",
-    "profilFoto": "images/mehmet.jpg",
-    "piBakiyesi": 1.59
-  },
-  {
-    "id": 3,
-    "isim": "Zehra",
-    "sehir": "Beşiktaş",
-    "profilFoto": "images/zehra.jpg",
-    "piBakiyesi": 2.71
-  },
-  {
-    "id": 4,
     "isim": "Tuğçe",
     "sehir": "Beyoğlu",
     "profilFoto": "images/tugce.png",
     "piBakiyesi": 1.41
   },
   {
-    "id": 5,
+    "id": 3,
     "isim": "Yasemin",
     "sehir": "Şişli",
     "profilFoto": "images/yasemin.png",
