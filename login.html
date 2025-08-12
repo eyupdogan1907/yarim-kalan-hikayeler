@@ -1,47 +1,37 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Giriş Yap</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Kullanıcı Seç</title>
+<style>
+  body { text-align: center; padding-top: 50px; background: yellow; font-family: Arial; }
+</style>
 </head>
 <body>
-  <h1>Kullanıcı Seç</h1>
-  <select id="userSelect">
-    <option value="">-- Kullanıcı Seçin --</option>
-  </select>
-  <button onclick="login()">Giriş Yap</button>
+<h1>Kullanıcı Seç</h1>
+<select id="userSelect"></select>
+<button id="loginBtn">Giriş Yap</button>
 
-  <script>
-    async function loadUsers() {
-      try {
-        const response = await fetch('data/users.json');
-        const users = await response.json();
-        const select = document.getElementById('userSelect');
+<script>
+  // Kullanıcı listesini yükle
+  fetch("data/users.json")
+    .then(res => res.json())
+    .then(users => {
+      const select = document.getElementById("userSelect");
+      users.forEach(user => {
+        const option = document.createElement("option");
+        option.value = user.id;
+        option.textContent = user.name;
+        select.appendChild(option);
+      });
+    });
 
-        users.forEach(user => {
-          const option = document.createElement('option');
-          option.value = user.id;
-          option.textContent = ${user.ad} - ${user.konum};
-          select.appendChild(option);
-        });
-      } catch (error) {
-        console.error("Kullanıcılar yüklenemedi:", error);
-      }
-    }
-
-    function login() {
-      const selectedId = document.getElementById('userSelect').value;
-      if (selectedId) {
-        localStorage.setItem('loggedInUserId', selectedId);
-        window.location.href = 'profil.html';
-      } else {
-        alert("Lütfen bir kullanıcı seçin!");
-      }
-    }
-
-    loadUsers();
-  </script>
+  // Giriş yap
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    const selectedUser = document.getElementById("userSelect").value;
+    localStorage.setItem("selectedUser", selectedUser);
+    window.location.href = "profil.html";
+  });
+</script>
 </body>
 </html>
