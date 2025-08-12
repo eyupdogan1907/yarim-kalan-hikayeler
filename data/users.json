@@ -1,11 +1,11 @@
 [
-  {
-    "id": 1,
-    "ad": "Ayşe",
-    "konum": "İstanbul",
-    "profilFoto": "images/ayse.jpg",
-    "bio": "Kitap kurdu, kısa mesafe yolcusu.",
-    "piBakiyesi": 3.14
+{
+  "id": 1,
+  "ad": "Ayşe",
+  "konum": "İstanbul",
+  "profilFoto": "images/ayse.png",
+  "bio": "Kitap kurdu, kısa mesafe yolcusu.",
+  "piBakiyesi": 3.14
   },
   {
     "id": 2,
@@ -24,3 +24,4 @@
     "piBakiyesi": 2.31
   }
 ]
+
