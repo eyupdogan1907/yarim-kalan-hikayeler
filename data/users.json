@@ -1,26 +1,11 @@
-[
-  {
-    "id": 1,
-    "name": "Ayşe",
-    "location": "İstanbul",
-    "photo": "images/ayse.png",
-    "bio": "Kitap kurdu, kısa mesafe yolcusu.",
-    "piBalance": 3.14
-  },
-  {
-    "id": 2,
-    "name": "Tuğçe",
-    "location": "Beyoğlu",
-    "photo": "images/tugce.png",
-    "bio": "Camilere gitmeyi seviyor.",
-    "piBalance": 1.41
-  },
-  {
-    "id": 3,
-    "name": "Yasemin",
-    "location": "Şişli",
-    "photo": "images/yasemin.png",
-    "bio": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
-    "piBalance": 2.31
-  }
-]
+{
+  "users": [
+    {
+      "id": "ayse",
+      "name": "Ayşe Y.",
+      "age": 27,
+      "bio": "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
+      "photo": "assets/ayse.jpg"
+    }
+  ]
+}
