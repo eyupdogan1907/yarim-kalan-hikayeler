@@ -24,15 +24,13 @@
 <body>
   <header><h1>Profil</h1></header>
   <div class="wrap">
-    <div id="profile" class="card">
-      Yükleniyor…
-    </div>
+    <div id="profile" class="card">Yükleniyor…</div>
     <div class="actions">
       <a class="btn" href="login.html">Kullanıcı değiştir</a>
       <button id="clear">Seçileni temizle</button>
     </div>
   </div>
-  <div class="footer">Giriş seçimi kaynağı: URL > localStorage</div>
+  <div class="footer">Giriş seçimi kaynağı: URL → localStorage</div>
 
   <script>
     const LS_KEY = 'ykh_current_user';
@@ -42,30 +40,27 @@
       const id = p.get('id');
       return id && id.trim() ? id.trim() : null;
     }
+    function setLocalCurrent(id){ try{ localStorage.setItem(LS_KEY, id); }catch(_){} }
+    function getLocalCurrent(){ try{ return localStorage.getItem(LS_KEY) }catch(_){ return null } }
 
-    function setLocalCurrent(id){
-      try{ localStorage.setItem(LS_KEY, id); }catch(_){}
-    }
-
-    function getLocalCurrent(){
-      try{ return localStorage.getItem(LS_KEY) }catch(_){ return null }
-    }
+    // 3 sn içinde veri gelmezse uyarı göster (teşhis için)
+    let watchdog = setTimeout(()=>{
+      document.getElementById('profile').innerHTML =
+        'Veri alınamadı. <a href="data/users.json?v=' + Date.now() + '" target="_blank">users.json</a> dosyasını kontrol et.';
+    }, 3000);
 
     async function getUsers(){
-      // Cache sorunu yaşamamak için her isteğe zaman ekliyoruz
-      const cacheBust = 'v=' + Date.now();
-      const res = await fetch('data/users.json?' + cacheBust);
-      if(!res.ok) throw new Error('users.json alınamadı');
+      const res = await fetch('data/users.json?v=' + Date.now());
+      clearTimeout(watchdog);
+      if(!res.ok) throw new Error('users.json alınamadı: ' + res.status);
       const data = await res.json();
-      return (data && Array.isArray(data.users)) ? data.users : [];
+      return Array.isArray(data.users) ? data.users : [];
     }
 
     function renderUser(u){
       const el = document.getElementById('profile');
       if(!u){
-        el.innerHTML = `
-          <div class="muted">Kullanıcı bulunamadı. <a href="login.html">Giriş ekranına dön</a>.</div>
-        `;
+        el.innerHTML = <div class="muted">Kullanıcı bulunamadı. <a href="login.html">Giriş ekranına dön</a>.</div>;
         return;
       }
       el.innerHTML = `
@@ -92,19 +87,12 @@
         const localId = getLocalCurrent();
         const chosenId = queryId || localId;
 
-        if(!chosenId){
-          location.href = 'login.html';
-          return;
-        }
-
+        if(!chosenId){ location.href = 'login.html'; return; }
         if(queryId) setLocalCurrent(queryId);
 
         const users = await getUsers();
         const u = users.find(x => (x.id || '').toLowerCase() === chosenId.toLowerCase());
-        if(!u){
-          location.href = 'login.html';
-          return;
-        }
+        if(!u){ location.href = 'login.html'; return; }
         renderUser(u);
       }catch(err){
         console.error(err);
