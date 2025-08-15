@@ -29,21 +29,18 @@
   <div class="footer">Seçtiğin kişiyle <strong>profil</strong> sayfası otomatik açılır.</div>
 
   <script>
-    // Basit yardımcılar
     const LS_KEY = 'ykh_current_user';
 
     function goProfile(id){
       try{ localStorage.setItem(LS_KEY, id); }catch(_){}
-      // profil.html?id=... (query de koyuyoruz; profil.html önce query’yi okur)
       location.href = 'profil.html?id=' + encodeURIComponent(id);
     }
 
     async function loadUsers(){
-      const cacheBust = 'v=' + Date.now(); // GitHub Pages cache sorunu için
-      const res = await fetch('data/users.json?' + cacheBust);
+      const res = await fetch('data/users.json?v=' + Date.now());
       if(!res.ok) throw new Error('users.json yüklenemedi');
       const data = await res.json();
-      return (data && Array.isArray(data.users)) ? data.users : [];
+      return Array.isArray(data.users) ? data.users : [];
     }
 
     function render(users){
@@ -52,6 +49,7 @@
       list.innerHTML = '';
       if(users.length === 0){ empty.hidden = false; return; }
       empty.hidden = true;
+
       users.forEach(u=>{
         const card = document.createElement('div');
         card.className='card';
@@ -67,7 +65,7 @@
         const info = document.createElement('div');
         info.className='info';
         const nm = document.createElement('div'); nm.className='name'; nm.textContent=u.name || u.id;
-        const bio = document.createElement('div'); bio.className='bio'; bio.textContent=u.bio || '...';
+        const bio = document.createElement('div'); bio.className='bio'; bio.textContent=u.bio || '';
 
         info.appendChild(nm); info.appendChild(bio);
         card.appendChild(img); card.appendChild(info);
@@ -81,8 +79,9 @@
         render(users);
       }catch(err){
         console.error(err);
-        document.getElementById('empty').hidden = false;
-        document.getElementById('empty').textContent = 'Bir şeyler ters gitti. users.json bulunamadı.';
+        const empty = document.getElementById('empty');
+        empty.hidden = false;
+        empty.textContent = 'Bir şeyler ters gitti. users.json bulunamadı.';
       }
     })();
   </script>
