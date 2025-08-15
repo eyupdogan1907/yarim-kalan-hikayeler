@@ -1,45 +1,118 @@
-<!DOCTYPE html>
+ <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Profil</title>
-<style>
-  body { font-family: Arial; text-align: center; padding-top: 50px; }
-  img { width: 150px; height: 150px; border-radius: 10px; }
-</style>
+  <meta charset="utf-8">
+  <title>Yarım Kalan Hikayeler — Profil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
+    header{padding:20px;text-align:center}
+    h1{margin:0;font-size:22px}
+    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    .profile{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
+    .ph{width:180px;height:180px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
+    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:14px}
+    .muted{opacity:.75}
+    .row{margin:8px 0}
+    .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    button, a.btn{border:1px solid #3a4670;background:#202547;color:#eef;border-radius:10px;padding:10px 14px;cursor:pointer;text-decoration:none}
+    button:hover, a.btn:hover{filter:brightness(1.1)}
+    .footer{opacity:.7;text-align:center;font-size:12px;padding:12px}
+    @media(max-width:700px){ .profile{grid-template-columns:1fr} .ph{width:100%;height:260px} }
+  </style>
 </head>
 <body>
+  <header><h1>Profil</h1></header>
+  <div class="wrap">
+    <div id="profile" class="card">
+      Yükleniyor…
+    </div>
+    <div class="actions">
+      <a class="btn" href="login.html">Kullanıcı değiştir</a>
+      <button id="clear">Seçileni temizle</button>
+    </div>
+  </div>
+  <div class="footer">Giriş seçimi kaynağı: URL > localStorage</div>
 
-<div id="profileContainer">
-  <img id="profilePhoto" src="" alt="Profil Fotoğrafı"><br><br>
-  <strong id="profileName"></strong><br>
-  <span id="profileLocation"></span><br>
-  <span id="profileBio"></span><br>
-  <span id="profilePiBalance"></span> π
-</div>
+  <script>
+    const LS_KEY = 'ykh_current_user';
 
-<script>
-  const selectedUser = localStorage.getItem("selectedUser");
+    function getQueryId(){
+      const p = new URLSearchParams(location.search);
+      const id = p.get('id');
+      return id && id.trim() ? id.trim() : null;
+    }
 
-  if (!selectedUser) {
-    document.body.innerHTML = "<h2>Kullanıcı bulunamadı.</h2>";
-  } else {
-    fetch("data/users.json")
-      .then(res => res.json())
-      .then(users => {
-        const user = users.find(u => u.id == selectedUser);
-        if (user) {
-          document.getElementById("profilePhoto").src = user.photo;
-          document.getElementById("profileName").textContent = user.name;
-          document.getElementById("profileLocation").textContent = "Konum: " + user.location;
-          document.getElementById("profileBio").textContent = "Bio: " + user.bio;
-          document.getElementById("profilePiBalance").textContent = "Pi Bakiyesi: " + user.piBalance;
-        } else {
-          document.body.innerHTML = "<h2>Kullanıcı bulunamadı.</h2>";
+    function setLocalCurrent(id){
+      try{ localStorage.setItem(LS_KEY, id); }catch(_){}
+    }
+
+    function getLocalCurrent(){
+      try{ return localStorage.getItem(LS_KEY) }catch(_){ return null }
+    }
+
+    async function getUsers(){
+      const cacheBust = 'v=' + Date.now();
+      const res = await fetch('data/users.json?' + cacheBust);
+      if(!res.ok) throw new Error('users.json alınamadı');
+      const data = await res.json();
+      return (data && Array.isArray(data.users)) ? data.users : [];
+    }
+
+    function renderUser(u){
+      const el = document.getElementById('profile');
+      if(!u){
+        el.innerHTML = `
+          <div class="muted">Kullanıcı bulunamadı. <a href="login.html">Giriş ekranına dön</a>.</div>
+        `;
+        return;
+      }
+      el.innerHTML = `
+        <div class="profile">
+          <img class="ph" alt="${u.name || 'Kullanıcı'}" src="${u.photo || 'assets/placeholder.jpg'}">
+          <div>
+            <div class="row"><strong>${u.name || u.id}</strong></div>
+            ${u.age ? <div class="row muted">${u.age} yaşında</div> : ``}
+            <div class="row">${u.bio ? u.bio : ''}</div>
+            <div class="row muted">ID: ${u.id}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('clear').onclick = ()=>{
+      try{ localStorage.removeItem(LS_KEY); }catch(_){}
+      location.href = 'login.html';
+    };
+
+    (async ()=>{
+      try{
+        const queryId = getQueryId();
+        const localId = getLocalCurrent();
+        const chosenId = queryId || localId;
+
+        if(!chosenId){
+          // Hiç seçim yoksa login’e gönder.
+          location.href = 'login.html';
+          return;
         }
-      });
-  }
-</script>
 
+        // Query geldiyse, localStorage’a da yaz ki kalıcı olsun.
+        if(queryId) setLocalCurrent(queryId);
+
+        const users = await getUsers();
+        const u = users.find(x => (x.id || '').toLowerCase() === chosenId.toLowerCase());
+        if(!u){
+          // Kullanıcı JSON’da yoksa da login’e gönder.
+          location.href = 'login.html';
+          return;
+        }
+        renderUser(u);
+      }catch(err){
+        console.error(err);
+        document.getElementById('profile').innerHTML = Bir hata oluştu. <a href="login.html">Girişe dön</a>;
+      }
+    })();
+  </script>
 </body>
 </html>
