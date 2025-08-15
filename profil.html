@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <div class="build">BUILD v401 • <span id="js-status">JS YÜKLENMEDİ</span></div>
+  <div class="build">BUILD v402 • <span id="js-status">JS YÜKLENMEDİ</span></div>
   <header><h1>Profil</h1></header>
   <div class="wrap">
     <div id="profile" class="card">Yükleniyor…</div>
@@ -34,7 +34,6 @@
   </div>
   <div class="footer">Giriş seçimi kaynağı: URL → localStorage</div>
 
-  <!-- Tüm JS tek dosyada, hatasız -->
   <script>
     // JS çalıştı işareti
     (function(){
@@ -52,7 +51,7 @@
     function setLocalCurrent(id){ try{ localStorage.setItem(LS_KEY, id); }catch(_){} }
     function getLocalCurrent(){ try{ return localStorage.getItem(LS_KEY) }catch(_){ return null } }
 
-    // Fallback veri (fetch olmazsa yine göster)
+    // Fallback veri
     const FALLBACK_USERS = [
       { id:'ayse', name:'Ayşe Y.', age:27,
         bio:'Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.',
@@ -72,7 +71,6 @@
     }, 3000);
 
     async function getUsers(){
-      // Mutlak URL + cache-bust
       const url = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=' + Date.now();
       try{
         const res = await fetch(url, { cache: 'no-store' });
