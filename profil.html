@@ -1,4 +1,4 @@
- <!doctype html>
+<!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8">
@@ -52,6 +52,7 @@
     }
 
     async function getUsers(){
+      // Cache sorunu yaşamamak için her isteğe zaman ekliyoruz
       const cacheBust = 'v=' + Date.now();
       const res = await fetch('data/users.json?' + cacheBust);
       if(!res.ok) throw new Error('users.json alınamadı');
@@ -92,18 +93,15 @@
         const chosenId = queryId || localId;
 
         if(!chosenId){
-          // Hiç seçim yoksa login’e gönder.
           location.href = 'login.html';
           return;
         }
 
-        // Query geldiyse, localStorage’a da yaz ki kalıcı olsun.
         if(queryId) setLocalCurrent(queryId);
 
         const users = await getUsers();
         const u = users.find(x => (x.id || '').toLowerCase() === chosenId.toLowerCase());
         if(!u){
-          // Kullanıcı JSON’da yoksa da login’e gönder.
           location.href = 'login.html';
           return;
         }
