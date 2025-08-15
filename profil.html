@@ -18,15 +18,16 @@
   .p16{padding:16px}
   .muted{color:var(--muted)}
   @media (max-width:760px){.grid{grid-template-columns:1fr}}
+  .err{color:#fecaca;background:#7f1d1d;border:1px solid #ef4444;padding:8px 10px;border-radius:8px}
 </style>
 </head>
 <body>
   <header>
     <div class="wrap" style="display:flex;gap:10px;align-items:center">
       <strong>Yarım Kalan Hikayeler</strong>
-      <span class="build">BUILD v404 — test edildi</span>
+      <span class="build">BUILD v405 — hata yakalayıcı</span>
       <span style="flex:1"></span>
-      <a class="btn" href="login.html">Kullanıcı değiştir</a>
+      <a class="btn" href="login.html?v=405">Kullanıcı değiştir</a>
       <button class="btn" id="clearBtn">Seçileni temizle</button>
     </div>
   </header>
@@ -60,74 +61,71 @@
   </main>
 
 <script>
-const USERS = {
-  ayse: {
-    id:"ayse",
-    ad:"Ayşe Y.",
-    yas:27,
-    bio:"M2 sabah 08:30; kitap & kahve",
-    fotograf:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop",
-    etiketler:["Kitapkurdu","Yürüyüş","Kahve"],
-    hakkinda:"Sakin, güleryüzlü; klasik müzik, kısa yürüyüşler.",
-    karsilasmalar:["Levent - 12 Ağustos","Taksim - 14 Ağustos","Şişli - 15 Ağustos"]
-  },
-  mehmet: {
-    id:"mehmet",
-    ad:"Mehmet K.",
-    yas:30,
-    bio:"Akşam 18:10; bisiklet & satranç",
-    fotograf:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=900&auto=format&fit=crop",
-    etiketler:["Satranç","Belgesel","Bisiklet"],
-    hakkinda:"Teknoloji meraklısı; hafta sonu orman turu.",
-    karsilasmalar:["Gayrettepe - 10 Ağustos","Osmanbey - 14 Ağustos"]
-  },
-  elif: {
-    id:"elif",
-    ad:"Elif T.",
-    yas:25,
-    bio:"09:05; klasik müzik & fotoğraf",
-    fotograf:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=900&auto=format&fit=crop",
-    etiketler:["Fotoğraf","Klasik müzik","Açık hava"],
-    hakkinda:"Açık tenli, başörtülü; şehir içi kısa kaçamaklar.",
-    karsilasmalar:["Yenikapı - 9 Ağustos","Haliç - 13 Ağustos","Şişli - 15 Ağustos"]
+(function(){
+  const $ = id => document.getElementById(id);
+  const set = (id,t)=>$(id).textContent=t;
+
+  try {
+    // 1) Mini veri (sıfır risk)
+    const USERS = {
+      ayse:{id:"ayse",ad:"Ayşe Y.",yas:27,bio:"M2 · 08:30 · kitap & kahve",
+        fotograf:"https://picsum.photos/seed/ayse/900/600",
+        etiketler:["Kitapkurdu","Yürüyüş","Kahve"],
+        hakkinda:"Sakin, güleryüzlü; klasik müzik, kısa yürüyüşler.",
+        karsilasmalar:["Levent - 12 Ağu","Taksim - 14 Ağu","Şişli - 15 Ağu"]},
+      mehmet:{id:"mehmet",ad:"Mehmet K.",yas:30,bio:"18:10 · bisiklet & satranç",
+        fotograf:"https://picsum.photos/seed/mehmet/900/600",
+        etiketler:["Satranç","Belgesel","Bisiklet"],
+        hakkinda:"Teknoloji meraklısı; hafta sonu orman turu.",
+        karsilasmalar:["Gayrettepe - 10 Ağu","Osmanbey - 14 Ağu"]},
+      elif:{id:"elif",ad:"Elif T.",yas:25,bio:"09:05 · klasik müzik & fotoğraf",
+        fotograf:"https://picsum.photos/seed/elif/900/600",
+        etiketler:["Fotoğraf","Klasik müzik","Açık hava"],
+        hakkinda:"Açık tenli, başörtülü; şehir içi kısa kaçamaklar.",
+        karsilasmalar:["Yenikapı - 9 Ağu","Haliç - 13 Ağu","Şişli - 15 Ağu"]}
+    };
+
+    // 2) Seçim
+    const qs = new URLSearchParams(location.search);
+    let uid = (qs.get('id') || localStorage.getItem('yklh_selectedUserId') || 'ayse').toLowerCase();
+    if(!USERS[uid]) uid = 'ayse';
+    localStorage.setItem('yklh_selectedUserId', uid);
+
+    // 3) UI
+    const u = USERS[uid];
+    $('photo').src = u.fotograf;
+    set('name', u.ad);
+    set('ageBio', ${u.yas} • ${u.bio});
+    set('about', u.hakkinda);
+
+    const tags = $('tags'); tags.innerHTML='';
+    (u.etiketler||[]).forEach(t=>{
+      const s=document.createElement('span');
+      s.className='muted'; s.style.border='1px dashed #334155';
+      s.style.padding='4px 8px'; s.style.borderRadius='999px';
+      s.textContent=t; tags.appendChild(s);
+    });
+
+    const meets = $('meets'); meets.innerHTML='';
+    (u.karsilasmalar||[]).forEach(m=>{
+      const li=document.createElement('li'); li.textContent=m; meets.appendChild(li);
+    });
+
+    set('status', Yüklendi · kullanıcı: ${u.id} · ${new Date().toLocaleTimeString()});
+
+    $('btnSelam').onclick = ()=>alert(“${u.ad}” kişisine selam gönderildi ✔);
+    $('btnMesaj').onclick = ()=>alert(“${u.ad}” için mesaj isteği kuyrukta ✔);
+    $('clearBtn').onclick = ()=>{
+      localStorage.removeItem('yklh_selectedUserId');
+      alert('Seçim temizlendi. Sayfa yenilenecek.'); location.reload();
+    };
+
+  } catch(err){
+    const s = document.getElementById('status');
+    s.className = 'err';
+    s.textContent = 'Hata: ' + (err && err.message ? err.message : err);
   }
-};
-
-const Q = new URLSearchParams(location.search);
-const $ = id => document.getElementById(id);
-const setText = (id,t)=>$(id).textContent=t;
-
-let uid = (Q.get('id') || localStorage.getItem('yklh_selectedUserId') || 'ayse').toLowerCase();
-if(!USERS[uid]) uid = 'ayse';
-localStorage.setItem('yklh_selectedUserId', uid);
-
-const u = USERS[uid];
-$('photo').src = u.fotograf;
-setText('name', u.ad);
-setText('ageBio', ${u.yas} • ${u.bio});
-setText('about', u.hakkinda);
-
-const tags = $('tags'); tags.innerHTML='';
-u.etiketler.forEach(t=>{
-  const s=document.createElement('span');
-  s.className='muted'; s.style.border='1px dashed #334155';
-  s.style.padding='4px 8px'; s.style.borderRadius='999px';
-  s.textContent=t; tags.appendChild(s);
-});
-
-const meets = $('meets'); meets.innerHTML='';
-u.karsilasmalar.forEach(m=>{
-  const li=document.createElement('li'); li.textContent=m; meets.appendChild(li);
-});
-
-setText('status', Yüklendi · kullanıcı: ${u.id} · ${new Date().toLocaleTimeString()});
-
-$('btnSelam').onclick = ()=>alert(“${u.ad}” kişisine selam gönderildi ✔);
-$('btnMesaj').onclick = ()=>alert(“${u.ad}” için mesaj isteği kuyrukta ✔);
-$('clearBtn').onclick = ()=>{
-  localStorage.removeItem('yklh_selectedUserId');
-  alert('Seçim temizlendi. Sayfa yenilenecek.'); location.reload();
-};
+})();
 </script>
 </body>
 </html>
