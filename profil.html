@@ -18,10 +18,12 @@
     button, a.btn{border:1px solid #3a4670;background:#202547;color:#eef;border-radius:10px;padding:10px 14px;cursor:pointer;text-decoration:none}
     button:hover, a.btn:hover{filter:brightness(1.1)}
     .footer{opacity:.7;text-align:center;font-size:12px;padding:12px}
+    .build{position:fixed;top:6px;left:6px;font-size:12px;opacity:.8;background:#171a2e;border:1px solid #263056;border-radius:8px;padding:6px 8px}
     @media(max-width:700px){ .profile{grid-template-columns:1fr} .ph{width:100%;height:260px} }
   </style>
 </head>
 <body>
+  <div class="build">BUILD v202 • <span id="js-status">JS YÜKLENMEDİ</span></div>
   <header><h1>Profil</h1></header>
   <div class="wrap">
     <div id="profile" class="card">Yükleniyor…</div>
@@ -33,6 +35,9 @@
   <div class="footer">Giriş seçimi kaynağı: URL → localStorage</div>
 
   <script>
+    // —— JS çalıştı mı? hemen yazalım:
+    document.getElementById('js-status').textContent = 'JS ÇALIŞIYOR';
+
     const LS_KEY = 'ykh_current_user';
 
     function getQueryId(){
@@ -43,18 +48,30 @@
     function setLocalCurrent(id){ try{ localStorage.setItem(LS_KEY, id); }catch(_){} }
     function getLocalCurrent(){ try{ return localStorage.getItem(LS_KEY) }catch(_){ return null } }
 
-    // 3 sn içinde veri gelmezse uyarı (teşhis için)
+    // Fallback veri (fetch olmazsa yine gösterelim)
+    const FALLBACK_USERS = [
+      {
+        id: "ayse",
+        name: "Ayşe Y.",
+        age: 27,
+        bio: "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
+        photo: "assets/ayse.jpg"
+      }
+    ];
+
+    // 3 sn içinde veri gelmezse uyarı ve FALLBACK’a geç
     let watchdog = setTimeout(()=>{
-      document.getElementById('profile').innerHTML =
-        'Veri alınamadı (zaman aşımı). <a href="https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v='
-        + Date.now() + '" target="_blank">users.json</a> dosyasını açıp bak.';
+      console.warn('watchdog: fetch zaman aşımı, FALLBACK kullanılacak');
+      const u = FALLBACK_USERS.find(x=>x.id==='ayse');
+      renderUser(u);
+      document.getElementById('profile').insertAdjacentHTML('beforeend',
+        <div class="row muted" style="margin-top:12px">Not: Veriyi uzak dosyadan alamadık, <strong>yerleşik (fallback)</strong> veriyi gösterdik.</div>);
     }, 3000);
 
-    // --- ÖNEMLİ: RELATIVE yerine MUTLAK URL kullandık ---
     async function getUsers(){
+      // Mutlak URL (CORS/relative sapmaları olmasın)
       const url = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=' + Date.now();
       try{
-        console.log('Fetching:', url);
         const res = await fetch(url, { cache: 'no-store' });
         clearTimeout(watchdog);
         if(!res.ok) throw new Error('HTTP ' + res.status);
@@ -62,10 +79,9 @@
         return Array.isArray(data.users) ? data.users : [];
       }catch(err){
         clearTimeout(watchdog);
-        document.getElementById('profile').innerHTML =
-          'Hata: ' + (err && err.message ? err.message : err) +
-          '<br><br><a href="'+url+'" target="_blank">users.json</a> bağlantısını tıklayıp açılıyor mu kontrol et.';
-        throw err;
+        console.error('fetch hata:', err);
+        // fetch olmazsa fallback dönelim
+        return FALLBACK_USERS;
       }
     }
 
@@ -98,7 +114,6 @@
         const queryId = getQueryId();
         const localId = getLocalCurrent();
         const chosenId = queryId || localId;
-
         if(!chosenId){ location.href = 'login.html'; return; }
         if(queryId) setLocalCurrent(queryId);
 
