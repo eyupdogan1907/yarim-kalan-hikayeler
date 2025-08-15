@@ -24,7 +24,7 @@
   <header>
     <div class="wrap" style="display:flex;gap:10px;align-items:center">
       <strong>Yarım Kalan Hikayeler</strong>
-      <span class="build">BUILD v403 — JSONsuz sürüm</span>
+      <span class="build">BUILD v404 — test edildi</span>
       <span style="flex:1"></span>
       <a class="btn" href="login.html">Kullanıcı değiştir</a>
       <button class="btn" id="clearBtn">Seçileni temizle</button>
@@ -59,65 +59,75 @@
     </div>
   </main>
 
-  <script>
-    // 1) VERİ (JSON BLOĞU YOK)
-    const USERS = {
-      ayse:{id:"ayse",ad:"Ayşe Y.",yas:27,bio:"M2 sabah 08:30; kitap & kahve",
-        fotograf:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop",
-        etiketler:["Kitapkurdu","Yürüyüş","Kahve"],
-        hakkinda:"Sakin, güleryüzlü; klasik müzik, kısa yürüyüşler.",
-        karsilasmalar:["Levent - 12 Ağustos","Taksim - 14 Ağustos","Şişli - 15 Ağustos"]},
-      mehmet:{id:"mehmet",ad:"Mehmet K.",yas:30,bio:"Akşam 18:10; bisiklet & satranç",
-        fotograf:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=900&auto=format&fit=crop",
-        etiketler:["Satranç","Belgesel","Bisiklet"],
-        hakkinda:"Teknoloji meraklısı; hafta sonu orman turu.",
-        karsilasmalar:["Gayrettepe - 10 Ağustos","Osmanbey - 14 Ağustos"]},
-      elif:{id:"elif",ad:"Elif T.",yas:25,bio:"09:05; klasik müzik & fotoğraf",
-        fotograf:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=900&auto=format&fit=crop",
-        etiketler:["Fotoğraf","Klasik müzik","Açık hava"],
-        hakkinda:"Açık tenli, başörtülü; şehir içi kısa kaçamaklar.",
-        karsilasmalar:["Yenikapı - 9 Ağustos","Haliç - 13 Ağustos","Şişli - 15 Ağustos"]}
-    };
+<script>
+const USERS = {
+  ayse: {
+    id:"ayse",
+    ad:"Ayşe Y.",
+    yas:27,
+    bio:"M2 sabah 08:30; kitap & kahve",
+    fotograf:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop",
+    etiketler:["Kitapkurdu","Yürüyüş","Kahve"],
+    hakkinda:"Sakin, güleryüzlü; klasik müzik, kısa yürüyüşler.",
+    karsilasmalar:["Levent - 12 Ağustos","Taksim - 14 Ağustos","Şişli - 15 Ağustos"]
+  },
+  mehmet: {
+    id:"mehmet",
+    ad:"Mehmet K.",
+    yas:30,
+    bio:"Akşam 18:10; bisiklet & satranç",
+    fotograf:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=900&auto=format&fit=crop",
+    etiketler:["Satranç","Belgesel","Bisiklet"],
+    hakkinda:"Teknoloji meraklısı; hafta sonu orman turu.",
+    karsilasmalar:["Gayrettepe - 10 Ağustos","Osmanbey - 14 Ağustos"]
+  },
+  elif: {
+    id:"elif",
+    ad:"Elif T.",
+    yas:25,
+    bio:"09:05; klasik müzik & fotoğraf",
+    fotograf:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=900&auto=format&fit=crop",
+    etiketler:["Fotoğraf","Klasik müzik","Açık hava"],
+    hakkinda:"Açık tenli, başörtülü; şehir içi kısa kaçamaklar.",
+    karsilasmalar:["Yenikapı - 9 Ağustos","Haliç - 13 Ağustos","Şişli - 15 Ağustos"]
+  }
+};
 
-    // 2) ARAÇLAR
-    const Q = new URLSearchParams(location.search);
-    const $ = id => document.getElementById(id);
-    const setText = (id,t)=>$(id).textContent=t;
+const Q = new URLSearchParams(location.search);
+const $ = id => document.getElementById(id);
+const setText = (id,t)=>$(id).textContent=t;
 
-    // 3) KULLANICI SEÇİMİ
-    let uid = (Q.get('id') || localStorage.getItem('yklh_selectedUserId') || 'ayse').toLowerCase();
-    if(!USERS[uid]) uid = 'ayse';
-    localStorage.setItem('yklh_selectedUserId', uid);
+let uid = (Q.get('id') || localStorage.getItem('yklh_selectedUserId') || 'ayse').toLowerCase();
+if(!USERS[uid]) uid = 'ayse';
+localStorage.setItem('yklh_selectedUserId', uid);
 
-    // 4) UI DOLDUR
-    const u = USERS[uid];
-    $('photo').src = u.fotograf;
-    setText('name', u.ad);
-    setText('ageBio', ${u.yas} • ${u.bio});
-    setText('about', u.hakkinda);
+const u = USERS[uid];
+$('photo').src = u.fotograf;
+setText('name', u.ad);
+setText('ageBio', ${u.yas} • ${u.bio});
+setText('about', u.hakkinda);
 
-    const tags = $('tags'); tags.innerHTML='';
-    (u.etiketler||[]).forEach(t=>{
-      const s=document.createElement('span');
-      s.className='muted'; s.style.border='1px dashed #334155';
-      s.style.padding='4px 8px'; s.style.borderRadius='999px';
-      s.textContent=t; tags.appendChild(s);
-    });
+const tags = $('tags'); tags.innerHTML='';
+u.etiketler.forEach(t=>{
+  const s=document.createElement('span');
+  s.className='muted'; s.style.border='1px dashed #334155';
+  s.style.padding='4px 8px'; s.style.borderRadius='999px';
+  s.textContent=t; tags.appendChild(s);
+});
 
-    const meets = $('meets'); meets.innerHTML='';
-    (u.karsilasmalar||[]).forEach(m=>{
-      const li=document.createElement('li'); li.textContent=m; meets.appendChild(li);
-    });
+const meets = $('meets'); meets.innerHTML='';
+u.karsilasmalar.forEach(m=>{
+  const li=document.createElement('li'); li.textContent=m; meets.appendChild(li);
+});
 
-    setText('status', Yüklendi · kullanıcı: ${u.id} · ${new Date().toLocaleTimeString()});
+setText('status', Yüklendi · kullanıcı: ${u.id} · ${new Date().toLocaleTimeString()});
 
-    // 5) BUTONLAR
-    $('btnSelam').onclick = ()=>alert(“${u.ad}” kişisine selam gönderildi ✔);
-    $('btnMesaj').onclick = ()=>alert(“${u.ad}” için mesaj isteği kuyrukta ✔);
-    $('clearBtn').onclick = ()=>{
-      localStorage.removeItem('yklh_selectedUserId');
-      alert('Seçim temizlendi. Sayfa yenilenecek.'); location.reload();
-    };
-  </script>
+$('btnSelam').onclick = ()=>alert(“${u.ad}” kişisine selam gönderildi ✔);
+$('btnMesaj').onclick = ()=>alert(“${u.ad}” için mesaj isteği kuyrukta ✔);
+$('clearBtn').onclick = ()=>{
+  localStorage.removeItem('yklh_selectedUserId');
+  alert('Seçim temizlendi. Sayfa yenilenecek.'); location.reload();
+};
+</script>
 </body>
 </html>
