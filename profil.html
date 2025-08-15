@@ -1,132 +1,121 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <title>Yarım Kalan Hikayeler — Profil</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
-    header{padding:20px;text-align:center}
-    h1{margin:0;font-size:22px}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
-    .profile{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
-    .ph{width:180px;height:180px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
-    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:14px}
-    .muted{opacity:.75}
-    .row{margin:8px 0}
-    .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-    button, a.btn{border:1px solid #3a4670;background:#202547;color:#eef;border-radius:10px;padding:10px 14px;cursor:pointer;text-decoration:none}
-    button:hover, a.btn:hover{filter:brightness(1.1)}
-    .footer{opacity:.7;text-align:center;font-size:12px;padding:12px}
-    .build{position:fixed;top:6px;left:6px;font-size:12px;opacity:.8;background:#171a2e;border:1px solid #263056;border-radius:8px;padding:6px 8px}
-    @media(max-width:700px){ .profile{grid-template-columns:1fr} .ph{width:100%;height:260px} }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yarım Kalan Hikayeler · Profil</title>
+<style>
+  :root{--bg:#0b1220;--card:#0f172a;--ink:#e5e7eb;--muted:#94a3b8;--line:#1f2937}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b1220;color:var(--ink)}
+  header{padding:10px 14px;border-bottom:1px solid var(--line);background:#0f172a;position:sticky;top:0;z-index:10}
+  .wrap{max-width:900px;margin:0 auto}
+  .build{font-size:12px;color:#a7f3d0}
+  .btn{appearance:none;border:1px solid var(--line);background:#111827;color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer}
+  main{padding:16px}
+  .grid{display:grid;grid-template-columns:280px 1fr;gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  img{width:100%;height:300px;object-fit:cover;display:block}
+  .p16{padding:16px}
+  .muted{color:var(--muted)}
+  @media (max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <div class="build">BUILD v402 • <span id="js-status">JS YÜKLENMEDİ</span></div>
-  <header><h1>Profil</h1></header>
-  <div class="wrap">
-    <div id="profile" class="card">Yükleniyor…</div>
-    <div class="actions">
+  <header>
+    <div class="wrap" style="display:flex;gap:10px;align-items:center">
+      <strong>Yarım Kalan Hikayeler</strong>
+      <span class="build">BUILD v402 – INLINE JS ÇALIŞIYOR</span>
+      <span style="flex:1"></span>
       <a class="btn" href="login.html">Kullanıcı değiştir</a>
-      <button id="clear">Seçileni temizle</button>
+      <button class="btn" id="clearBtn">Seçileni temizle</button>
     </div>
-  </div>
-  <div class="footer">Giriş seçimi kaynağı: URL → localStorage</div>
+  </header>
 
-  <script>
-    // JS çalıştı işareti
-    (function(){
-      var s = document.getElementById('js-status');
-      if (s) s.textContent = 'JS ÇALIŞIYOR';
-    })();
-
-    const LS_KEY = 'ykh_current_user';
-
-    function getQueryId(){
-      const p = new URLSearchParams(location.search);
-      const id = p.get('id');
-      return id && id.trim() ? id.trim() : null;
-    }
-    function setLocalCurrent(id){ try{ localStorage.setItem(LS_KEY, id); }catch(_){} }
-    function getLocalCurrent(){ try{ return localStorage.getItem(LS_KEY) }catch(_){ return null } }
-
-    // Fallback veri
-    const FALLBACK_USERS = [
-      { id:'ayse', name:'Ayşe Y.', age:27,
-        bio:'Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.',
-        photo:'assets/ayse.jpg' }
-    ];
-
-    // 3 sn içinde veri gelmezse fallback’a geç
-    let watchdog = setTimeout(()=>{
-      const u = FALLBACK_USERS.find(x=>x.id==='ayse');
-      renderUser(u);
-      document.getElementById('profile').insertAdjacentHTML(
-        'beforeend',
-        `<div class="row muted" style="margin-top:12px">
-           Not: Uzak veriyi alamadık, <strong>yerleşik (fallback)</strong> gösterildi.
-         </div>`
-      );
-    }, 3000);
-
-    async function getUsers(){
-      const url = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=' + Date.now();
-      try{
-        const res = await fetch(url, { cache: 'no-store' });
-        clearTimeout(watchdog);
-        if(!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        return Array.isArray(data.users) ? data.users : [];
-      }catch(err){
-        console.error('fetch hata:', err);
-        clearTimeout(watchdog);
-        return FALLBACK_USERS;
-      }
-    }
-
-    function renderUser(u){
-      const el = document.getElementById('profile');
-      if(!u){
-        el.innerHTML = <div class="muted">Kullanıcı bulunamadı. <a href="login.html">Giriş ekranına dön</a>.</div>;
-        return;
-      }
-      el.innerHTML = `
-        <div class="profile">
-          <img class="ph" alt="${u.name || 'Kullanıcı'}" src="${u.photo || 'assets/placeholder.jpg'}">
-          <div>
-            <div class="row"><strong>${u.name || u.id}</strong></div>
-            ${u.age ? <div class="row muted">${u.age} yaşında</div> : ``}
-            <div class="row">${u.bio ? u.bio : ''}</div>
-            <div class="row muted">ID: ${u.id}</div>
+  <main class="wrap">
+    <div id="status" class="muted" style="margin-bottom:12px">Yükleniyor…</div>
+    <div class="grid">
+      <section class="card">
+        <img id="photo" alt="Profil">
+        <div class="p16">
+          <h2 id="name">—</h2>
+          <p id="ageBio" class="muted">—</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px" id="tags"></div>
+          <div style="margin-top:12px;display:flex;gap:10px">
+            <button class="btn" id="btnSelam">Selam ver</button>
+            <button class="btn" id="btnMesaj">Mesaj isteği</button>
           </div>
         </div>
-      `;
-    }
+      </section>
+      <section>
+        <div class="card p16">
+          <h3 style="margin:0 0 8px">Hakkında</h3>
+          <p id="about" class="muted">—</p>
+        </div>
+        <div class="card p16" style="margin-top:14px">
+          <h3 style="margin:0 0 8px">Son karşılaşmalar</h3>
+          <ul id="meets" class="muted" style="padding-left:18px;margin:0"><li>—</li></ul>
+        </div>
+      </section>
+    </div>
+  </main>
 
-    document.getElementById('clear').onclick = ()=>{
-      try{ localStorage.removeItem(LS_KEY); }catch(_){}
-      location.href = 'login.html';
+  <!-- Gömülü veri (HARİCİ DOSYA YOK) -->
+  <script id="users-json" type="application/json">
+  {
+    "ayse":{"id":"ayse","ad":"Ayşe Y.","yas":27,"bio":"M2 sabah 08:30; kitap & kahve",
+      "fotograf":"https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop",
+      "etiketler":["Kitapkurdu","Yürüyüş","Kahve"],
+      "hakkinda":"Sakin, güleryüzlü; klasik müzik, kısa yürüyüşler.",
+      "karsilasmalar":["Levent - 12 Ağustos","Taksim - 14 Ağustos","Şişli - 15 Ağustos"]},
+    "mehmet":{"id":"mehmet","ad":"Mehmet K.","yas":30,"bio":"Akşam 18:10; bisiklet & satranç",
+      "fotograf":"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=900&auto=format&fit=crop",
+      "etiketler":["Satranç","Belgesel","Bisiklet"],
+      "hakkinda":"Teknoloji meraklısı; hafta sonu orman turu.",
+      "karsilasmalar":["Gayrettepe - 10 Ağustos","Osmanbey - 14 Ağustos"]},
+    "elif":{"id":"elif","ad":"Elif T.","yas":25,"bio":"09:05; klasik müzik & fotoğraf",
+      "fotograf":"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=900&auto=format&fit=crop",
+      "etiketler":["Fotoğraf","Klasik müzik","Açık hava"],
+      "hakkinda":"Açık tenli, başörtülü; şehir içi kısa kaçamaklar.",
+      "karsilasmalar":["Yenikapı - 9 Ağustos","Haliç - 13 Ağustos","Şişli - 15 Ağustos"]}
+  }
+  </script>
+
+  <script>
+    // Yardımcılar
+    const Q = new URLSearchParams(location.search);
+    function $(id){return document.getElementById(id)}
+    function setText(id, t){$(id).textContent = t}
+
+    // Veriyi yükle
+    const USERS = JSON.parse(document.getElementById('users-json').textContent);
+
+    // Kullanıcı seçimi: ?id => localStorage => 'ayse'
+    let uid = (Q.get('id') || localStorage.getItem('yklh_selectedUserId') || 'ayse').toLowerCase();
+    if(!USERS[uid]) uid = 'ayse';
+
+    // Kalıcı yaz
+    localStorage.setItem('yklh_selectedUserId', uid);
+    localStorage.setItem('yklh_users', JSON.stringify(USERS));
+
+    // UI doldur
+    const u = USERS[uid];
+    $('photo').src = u.fotograf;
+    setText('name', u.ad);
+    setText('ageBio', ${u.yas} • ${u.bio});
+    setText('about', u.hakkinda);
+    const tags = $('tags'); tags.innerHTML='';
+    (u.etiketler||[]).forEach(t=>{const s=document.createElement('span'); s.className='muted'; s.style.border='1px dashed #334155'; s.style.padding='4px 8px'; s.style.borderRadius='999px'; s.textContent=t; tags.appendChild(s);});
+    const meets = $('meets'); meets.innerHTML='';
+    (u.karsilasmalar||[]).forEach(m=>{const li=document.createElement('li'); li.textContent=m; meets.appendChild(li);});
+    setText('status', Yüklendi · kullanıcı: ${u.id} · ${new Date().toLocaleTimeString()});
+
+    // Butonlar
+    $('btnSelam').onclick = ()=>alert(“${u.ad}” kişisine selam gönderildi ✔);
+    $('btnMesaj').onclick = ()=>alert(“${u.ad}” için mesaj isteği kuyrukta ✔);
+    $('clearBtn').onclick = ()=>{
+      localStorage.removeItem('yklh_selectedUserId');
+      alert('Seçim temizlendi. Sayfa yenilenecek.'); location.reload();
     };
-
-    (async ()=>{
-      try{
-        const queryId = getQueryId();
-        const localId = getLocalCurrent();
-        const chosenId = queryId || localId;
-        if(!chosenId){ location.href = 'login.html'; return; }
-        if(queryId) setLocalCurrent(queryId);
-
-        const users = await getUsers();
-        const u = users.find(x => (x.id || '').toLowerCase() === chosenId.toLowerCase());
-        if(!u){ location.href = 'login.html'; return; }
-        renderUser(u);
-      }catch(err){
-        console.error(err);
-        document.getElementById('profile').innerHTML =
-          Bir hata oluştu. <a href="login.html">Girişe dön</a>;
-      }
-    })();
   </script>
 </body>
 </html>
