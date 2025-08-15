@@ -1,89 +1,82 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <title>Yarım Kalan Hikayeler — Giriş</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
-    header{padding:20px;text-align:center}
-    h1{margin:0;font-size:22px}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease}
-    .card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
-    .ph{width:100%;height:160px;object-fit:cover;background:#22263f}
-    .info{padding:12px}
-    .name{font-weight:700;font-size:16px}
-    .bio{opacity:.85;font-size:13px;margin-top:6px;line-height:1.35}
-    .footer{opacity:.7;text-align:center;font-size:12px;padding:12px}
-    .empty{padding:24px;text-align:center;opacity:.8}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yarım Kalan Hikayeler · Giriş</title>
+<style>
+  :root{--bg:#0b1220;--card:#0f172a;--ink:#e5e7eb;--muted:#94a3b8;--line:#1f2937}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b1220;color:var(--ink)}
+  header{padding:10px 14px;border-bottom:1px solid var(--line);background:#0f172a}
+  .wrap{max-width:560px;margin:0 auto}
+  .build{font-size:12px;color:#a7f3d0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px}
+  select,button{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#111827;color:var(--ink)}
+  button{cursor:pointer;font-weight:600;margin-top:12px}
+  .muted{color:var(--muted);font-size:13px;margin-top:10px}
+</style>
 </head>
 <body>
-  <header><h1>Giriş (Kullanıcı Seç)</h1></header>
-  <div class="wrap">
-    <div id="list" class="grid" aria-live="polite"></div>
-    <div id="empty" class="empty" hidden>Hiç kullanıcı bulunamadı.</div>
-  </div>
-  <div class="footer">Seçtiğin kişiyle <strong>profil</strong> sayfası otomatik açılır.</div>
+  <header>
+    <div class="wrap" style="display:flex;gap:10px;align-items:center">
+      <strong>Yarım Kalan Hikayeler</strong>
+      <span class="build">BUILD v404 — login</span>
+    </div>
+  </header>
 
-  <script>
-    const LS_KEY = 'ykh_current_user';
+  <main class="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 10px">Giriş (Kullanıcı Seç)</h2>
+      <select id="userSelect"></select>
+      <button id="enterBtn">Giriş Yap</button>
+      <button id="clearBtn" style="margin-top:8px">Seçimi Temizle</button>
+      <p class="muted">İpucu: <code>profil.html?id=ayse</code> gibi URL ile doğrudan da açabilirsin.</p>
+    </div>
+  </main>
 
-    function goProfile(id){
-      try{ localStorage.setItem(LS_KEY, id); }catch(_){}
-      location.href = 'profil.html?id=' + encodeURIComponent(id);
-    }
+<script>
+// Aynı veri, profil.html ile birebir aynı
+const USERS = {
+  ayse:{id:"ayse",ad:"Ayşe Y.",yas:27,bio:"M2 sabah 08:30; kitap & kahve",
+    fotograf:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop",
+    etiketler:["Kitapkurdu","Yürüyüş","Kahve"],
+    hakkinda:"Sakin, güleryüzlü; klasik müzik, kısa yürüyüşler.",
+    karsilasmalar:["Levent - 12 Ağustos","Taksim - 14 Ağustos","Şişli - 15 Ağustos"]},
+  mehmet:{id:"mehmet",ad:"Mehmet K.",yas:30,bio:"Akşam 18:10; bisiklet & satranç",
+    fotograf:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=900&auto=format&fit=crop",
+    etiketler:["Satranç","Belgesel","Bisiklet"],
+    hakkinda:"Teknoloji meraklısı; hafta sonu orman turu.",
+    karsilasmalar:["Gayrettepe - 10 Ağustos","Osmanbey - 14 Ağustos"]},
+  elif:{id:"elif",ad:"Elif T.",yas:25,bio:"09:05; klasik müzik & fotoğraf",
+    fotograf:"https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=900&auto=format&fit=crop",
+    etiketler:["Fotoğraf","Klasik müzik","Açık hava"],
+    hakkinda:"Açık tenli, başörtülü; şehir içi kısa kaçamaklar.",
+    karsilasmalar:["Yenikapı - 9 Ağustos","Haliç - 13 Ağustos","Şişli - 15 Ağustos"]}
+};
 
-    async function loadUsers(){
-      const res = await fetch('data/users.json?v=' + Date.now());
-      if(!res.ok) throw new Error('users.json yüklenemedi');
-      const data = await res.json();
-      return Array.isArray(data.users) ? data.users : [];
-    }
+const sel = document.getElementById('userSelect');
+Object.values(USERS).forEach(u=>{
+  const opt=document.createElement('option');
+  opt.value=u.id; opt.textContent=${u.ad} (${u.yas});
+  sel.appendChild(opt);
+});
 
-    function render(users){
-      const list = document.getElementById('list');
-      const empty = document.getElementById('empty');
-      list.innerHTML = '';
-      if(users.length === 0){ empty.hidden = false; return; }
-      empty.hidden = true;
+// Varsa önceki seçimle aç
+const last = (localStorage.getItem('yklh_selectedUserId')||'ayse').toLowerCase();
+if(USERS[last]) sel.value = last;
 
-      users.forEach(u=>{
-        const card = document.createElement('div');
-        card.className='card';
-        card.tabIndex=0;
-        card.onclick=()=>goProfile(u.id);
-        card.onkeypress=(e)=>{ if(e.key==='Enter') goProfile(u.id); };
+document.getElementById('enterBtn').onclick = ()=>{
+  const id = sel.value;
+  localStorage.setItem('yklh_selectedUserId', id);
+  // isteğe bağlı: kullanıcı verisini de sakla (ileride lazım olabilir)
+  localStorage.setItem('yklh_users', JSON.stringify(USERS));
+  location.href = 'profil.html?v=404';
+};
 
-        const img = document.createElement('img');
-        img.className='ph';
-        img.alt = u.name || 'Kullanıcı';
-        img.src = u.photo || 'assets/placeholder.jpg';
-
-        const info = document.createElement('div');
-        info.className='info';
-        const nm = document.createElement('div'); nm.className='name'; nm.textContent=u.name || u.id;
-        const bio = document.createElement('div'); bio.className='bio'; bio.textContent=u.bio || '';
-
-        info.appendChild(nm); info.appendChild(bio);
-        card.appendChild(img); card.appendChild(info);
-        list.appendChild(card);
-      });
-    }
-
-    (async ()=>{
-      try{
-        const users = await loadUsers();
-        render(users);
-      }catch(err){
-        console.error(err);
-        const empty = document.getElementById('empty');
-        empty.hidden = false;
-        empty.textContent = 'Bir şeyler ters gitti. users.json bulunamadı.';
-      }
-    })();
-  </script>
+document.getElementById('clearBtn').onclick = ()=>{
+  localStorage.removeItem('yklh_selectedUserId');
+  alert('Seçim temizlendi.');
+};
+</script>
 </body>
 </html>
