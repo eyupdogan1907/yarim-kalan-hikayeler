@@ -43,18 +43,30 @@
     function setLocalCurrent(id){ try{ localStorage.setItem(LS_KEY, id); }catch(_){} }
     function getLocalCurrent(){ try{ return localStorage.getItem(LS_KEY) }catch(_){ return null } }
 
-    // 3 sn içinde veri gelmezse uyarı göster (teşhis için)
+    // 3 sn içinde veri gelmezse uyarı (teşhis için)
     let watchdog = setTimeout(()=>{
       document.getElementById('profile').innerHTML =
-        'Veri alınamadı. <a href="data/users.json?v=' + Date.now() + '" target="_blank">users.json</a> dosyasını kontrol et.';
+        'Veri alınamadı (zaman aşımı). <a href="https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v='
+        + Date.now() + '" target="_blank">users.json</a> dosyasını açıp bak.';
     }, 3000);
 
+    // --- ÖNEMLİ: RELATIVE yerine MUTLAK URL kullandık ---
     async function getUsers(){
-      const res = await fetch('data/users.json?v=' + Date.now());
-      clearTimeout(watchdog);
-      if(!res.ok) throw new Error('users.json alınamadı: ' + res.status);
-      const data = await res.json();
-      return Array.isArray(data.users) ? data.users : [];
+      const url = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=' + Date.now();
+      try{
+        console.log('Fetching:', url);
+        const res = await fetch(url, { cache: 'no-store' });
+        clearTimeout(watchdog);
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        return Array.isArray(data.users) ? data.users : [];
+      }catch(err){
+        clearTimeout(watchdog);
+        document.getElementById('profile').innerHTML =
+          'Hata: ' + (err && err.message ? err.message : err) +
+          '<br><br><a href="'+url+'" target="_blank">users.json</a> bağlantısını tıklayıp açılıyor mu kontrol et.';
+        throw err;
+      }
     }
 
     function renderUser(u){
