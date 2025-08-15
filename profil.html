@@ -35,7 +35,7 @@
   <div class="footer">Giriş seçimi kaynağı: URL → localStorage</div>
 
   <script>
-    // —— JS çalıştı mı? hemen yazalım:
+    // JS çalıştı mı?
     document.getElementById('js-status').textContent = 'JS ÇALIŞIYOR';
 
     const LS_KEY = 'ykh_current_user';
@@ -48,7 +48,7 @@
     function setLocalCurrent(id){ try{ localStorage.setItem(LS_KEY, id); }catch(_){} }
     function getLocalCurrent(){ try{ return localStorage.getItem(LS_KEY) }catch(_){ return null } }
 
-    // Fallback veri (fetch olmazsa yine gösterelim)
+    // Fallback veri (fetch olmazsa bile gösterelim)
     const FALLBACK_USERS = [
       {
         id: "ayse",
@@ -59,17 +59,21 @@
       }
     ];
 
-    // 3 sn içinde veri gelmezse uyarı ve FALLBACK’a geç
+    // 3 sn içinde veri gelmezse FALLBACK'a geç ve bilgi ekle
     let watchdog = setTimeout(()=>{
       console.warn('watchdog: fetch zaman aşımı, FALLBACK kullanılacak');
       const u = FALLBACK_USERS.find(x=>x.id==='ayse');
       renderUser(u);
-      document.getElementById('profile').insertAdjacentHTML('beforeend',
-        <div class="row muted" style="margin-top:12px">Not: Veriyi uzak dosyadan alamadık, <strong>yerleşik (fallback)</strong> veriyi gösterdik.</div>);
+      document.getElementById('profile').insertAdjacentHTML(
+        'beforeend',
+        `<div class="row muted" style="margin-top:12px">
+           Not: Veriyi uzak dosyadan alamadık, <strong>yerleşik (fallback)</strong> veriyi gösterdik.
+         </div>`
+      );
     }, 3000);
 
+    // Mutlak URL ile çekiyoruz
     async function getUsers(){
-      // Mutlak URL (CORS/relative sapmaları olmasın)
       const url = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=' + Date.now();
       try{
         const res = await fetch(url, { cache: 'no-store' });
@@ -80,8 +84,7 @@
       }catch(err){
         clearTimeout(watchdog);
         console.error('fetch hata:', err);
-        // fetch olmazsa fallback dönelim
-        return FALLBACK_USERS;
+        return FALLBACK_USERS; // fetch olmazsa fallback kullan
       }
     }
 
