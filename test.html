@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yarım Kalan Hikayeler · TEST</title>
+<style>
+  :root{--bg:#0b1220;--card:#0f172a;--ink:#e5e7eb;--muted:#94a3b8;--line:#1f2937}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b1220;color:var(--ink)}
+  header{padding:10px 14px;border-bottom:1px solid var(--line);background:#0f172a;position:sticky;top:0;z-index:10}
+  .wrap{max-width:900px;margin:0 auto}
+  .build{font-size:12px;color:#a7f3d0}
+  .btn{appearance:none;border:1px solid var(--line);background:#111827;color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer}
+  main{padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .grid{display:grid;grid-template-columns:280px 1fr;gap:18px}
+  .muted{color:var(--muted)} select,button{padding:10px;border-radius:10px;border:1px solid var(--line);background:#111827;color:var(--ink)}
+  img{width:100%;height:280px;object-fit:cover;display:block;border-radius:12px}
+  @media (max-width:760px){.grid{grid-template-columns:1fr}}
+  .err{color:#fecaca;background:#7f1d1d;border:1px solid #ef4444;padding:8px 10px;border-radius:8px}
+</style>
+</head>
+<body>
+  <header>
+    <div class="wrap" style="display:flex;gap:10px;align-items:center">
+      <strong>Yarım Kalan Hikayeler</strong>
+      <span class="build">BUILD v500 — tek sayfa demo</span>
+      <span style="flex:1"></span>
+      <button class="btn" id="gotoLogin">Giriş</button>
+      <button class="btn" id="gotoProfil">Profil</button>
+      <button class="btn" id="clearSel">Seçileni temizle</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="status" class="muted" style="margin:12px 0">Yükleniyor…</div>
+
+    <!-- LOGIN -->
+    <section id="loginView" class="card" style="display:none">
+      <h2 style="margin:0 0 10px">Giriş (Kullanıcı Seç)</h2>
+      <select id="userSelect"></select>
+      <button class="btn" id="enterBtn" style="margin-top:10px">Giriş Yap</button>
+      <p class="muted" style="margin-top:10px">Seçim kaydedilir ve profil görüntülenir.</p>
+    </section>
+
+    <!-- PROFIL -->
+    <section id="profilView" style="display:none">
+      <div class="grid">
+        <div class="card">
+          <img id="photo" alt="Profil">
+          <h2 id="name" style="margin:12px 0 6px">—</h2>
+          <p id="ageBio" class="muted">—</p>
+        </div>
+        <div>
+          <div class="card">
+            <h3 style="margin:0 0 8px">Hakkında</h3>
+            <p id="about" class="muted">—</p>
+          </div>
+          <div class="card" style="margin-top:14px">
+            <h3 style="margin:0 0 8px">Son karşılaşmalar</h3>
+            <ul id="meets" class="muted" style="padding-left:18px;margin:0"><li>—</li></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+(function(){
+  // BOOT işareti
+  const statusEl = document.getElementById('status');
+  statusEl.textContent = 'JS BOOT OK · ' + new Date().toLocaleTimeString();
+
+  // Veri (resimler data URL — internet gerektirmez)
+  const IMG = 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#334155"/><stop offset="1" stop-color="#0ea5e9"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><text x="50%" y="55%" font-family="Arial" font-size="42" fill="#e5e7eb" text-anchor="middle">Profil Foto</text></svg>');
+  const USERS = {
+    ayse:{id:"ayse",ad:"Ayşe Y.",yas:27,bio:"M2 · 08:30 · kitap & kahve", fotograf:IMG,
+      hakkinda:"Sakin, güleryüzlü; klasik müzik, kısa yürüyüşler.",
+      karsilasmalar:["Levent - 12 Ağu","Taksim - 14 Ağu","Şişli - 15 Ağu"]},
+    mehmet:{id:"mehmet",ad:"Mehmet K.",yas:30,bio:"18:10 · bisiklet & satranç", fotograf:IMG,
+      hakkinda:"Teknoloji meraklısı; hafta sonu orman turu.",
+      karsilasmalar:["Gayrettepe - 10 Ağu","Osmanbey - 14 Ağu"]},
+    elif:{id:"elif",ad:"Elif T.",yas:25,bio:"09:05 · klasik müzik & fotoğraf", fotograf:IMG,
+      hakkinda:"Açık tenli, başörtülü; şehir içi kısa kaçamaklar.",
+      karsilasmalar:["Yenikapı - 9 Ağu","Haliç - 13 Ağu","Şişli - 15 Ağu"]}
+  };
+
+  // Basit yönlendirme
+  const $ = id => document.getElementById(id);
+  function show(v){$('loginView').style.display = v==='login'?'block':'none';
+                   $('profilView').style.display = v==='profil'?'block':'none';}
+
+  // LOGIN
+  const sel = $('userSelect');
+  Object.values(USERS).forEach(u=>{
+    const opt=document.createElement('option'); opt.value=u.id; opt.textContent=${u.ad} (${u.yas}); sel.appendChild(opt);
+  });
+  const last = (localStorage.getItem('yklh_selectedUserId')||'ayse'); if(USERS[last]) sel.value=last;
+
+  $('enterBtn').onclick = ()=>{ localStorage.setItem('yklh_selectedUserId', sel.value); loadProfil(); show('profil'); };
+
+  // PROFIL
+  function loadProfil(){
+    const id = (localStorage.getItem('yklh_selectedUserId')||'ayse');
+    const u = USERS[id] || USERS['ayse'];
+    $('photo').src = u.fotograf;
+    $('name').textContent = u.ad;
+    $('ageBio').textContent = ${u.yas} • ${u.bio};
+    $('about').textContent = u.hakkinda;
+    const m = $('meets'); m.innerHTML='';
+    u.karsilasmalar.forEach(t=>{const li=document.createElement('li'); li.textContent=t; m.appendChild(li);});
+    statusEl.textContent = `Yüklendi · kullanıcı: ${u.id} · ` + new Date().toLocaleTimeString();
+  }
+
+  // Üst menü
+  $('gotoLogin').onclick = ()=>show('login');
+  $('gotoProfil').onclick = ()=>{loadProfil(); show('profil');};
+  $('clearSel').onclick = ()=>{localStorage.removeItem('yklh_selectedUserId'); alert('Seçim temizlendi.');};
+
+  // İlk görünüm
+  if(localStorage.getItem('yklh_selectedUserId')){ loadProfil(); show('profil'); }
+  else{ show('login'); }
+})();
+</script>
+</body>
+</html>
