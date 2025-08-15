@@ -23,7 +23,7 @@
   </style>
 </head>
 <body>
-  <div class="build">BUILD v202 • <span id="js-status">JS YÜKLENMEDİ</span></div>
+  <div class="build">BUILD v301 • <span id="js-status">JS YÜKLENMEDİ</span></div>
   <header><h1>Profil</h1></header>
   <div class="wrap">
     <div id="profile" class="card">Yükleniyor…</div>
@@ -34,101 +34,7 @@
   </div>
   <div class="footer">Giriş seçimi kaynağı: URL → localStorage</div>
 
-  <script>
-    // JS çalıştı mı?
-    document.getElementById('js-status').textContent = 'JS ÇALIŞIYOR';
-
-    const LS_KEY = 'ykh_current_user';
-
-    function getQueryId(){
-      const p = new URLSearchParams(location.search);
-      const id = p.get('id');
-      return id && id.trim() ? id.trim() : null;
-    }
-    function setLocalCurrent(id){ try{ localStorage.setItem(LS_KEY, id); }catch(_){} }
-    function getLocalCurrent(){ try{ return localStorage.getItem(LS_KEY) }catch(_){ return null } }
-
-    // Fallback veri (fetch olmazsa bile gösterelim)
-    const FALLBACK_USERS = [
-      {
-        id: "ayse",
-        name: "Ayşe Y.",
-        age: 27,
-        bio: "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
-        photo: "assets/ayse.jpg"
-      }
-    ];
-
-    // 3 sn içinde veri gelmezse FALLBACK'a geç ve bilgi ekle
-    let watchdog = setTimeout(()=>{
-      console.warn('watchdog: fetch zaman aşımı, FALLBACK kullanılacak');
-      const u = FALLBACK_USERS.find(x=>x.id==='ayse');
-      renderUser(u);
-      document.getElementById('profile').insertAdjacentHTML(
-        'beforeend',
-        `<div class="row muted" style="margin-top:12px">
-           Not: Veriyi uzak dosyadan alamadık, <strong>yerleşik (fallback)</strong> veriyi gösterdik.
-         </div>`
-      );
-    }, 3000);
-
-    // Mutlak URL ile çekiyoruz
-    async function getUsers(){
-      const url = 'https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json?v=' + Date.now();
-      try{
-        const res = await fetch(url, { cache: 'no-store' });
-        clearTimeout(watchdog);
-        if(!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        return Array.isArray(data.users) ? data.users : [];
-      }catch(err){
-        clearTimeout(watchdog);
-        console.error('fetch hata:', err);
-        return FALLBACK_USERS; // fetch olmazsa fallback kullan
-      }
-    }
-
-    function renderUser(u){
-      const el = document.getElementById('profile');
-      if(!u){
-        el.innerHTML = <div class="muted">Kullanıcı bulunamadı. <a href="login.html">Giriş ekranına dön</a>.</div>;
-        return;
-      }
-      el.innerHTML = `
-        <div class="profile">
-          <img class="ph" alt="${u.name || 'Kullanıcı'}" src="${u.photo || 'assets/placeholder.jpg'}">
-          <div>
-            <div class="row"><strong>${u.name || u.id}</strong></div>
-            ${u.age ? <div class="row muted">${u.age} yaşında</div> : ``}
-            <div class="row">${u.bio ? u.bio : ''}</div>
-            <div class="row muted">ID: ${u.id}</div>
-          </div>
-        </div>
-      `;
-    }
-
-    document.getElementById('clear').onclick = ()=>{
-      try{ localStorage.removeItem(LS_KEY); }catch(_){}
-      location.href = 'login.html';
-    };
-
-    (async ()=>{
-      try{
-        const queryId = getQueryId();
-        const localId = getLocalCurrent();
-        const chosenId = queryId || localId;
-        if(!chosenId){ location.href = 'login.html'; return; }
-        if(queryId) setLocalCurrent(queryId);
-
-        const users = await getUsers();
-        const u = users.find(x => (x.id || '').toLowerCase() === chosenId.toLowerCase());
-        if(!u){ location.href = 'login.html'; return; }
-        renderUser(u);
-      }catch(err){
-        console.error(err);
-        document.getElementById('profile').innerHTML = Bir hata oluştu. <a href="login.html">Girişe dön</a>;
-      }
-    })();
-  </script>
+  <!-- JS’i dış dosyadan yüklüyoruz -->
+  <script src="js/profil.js?v=301" defer></script>
 </body>
 </html>
