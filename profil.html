@@ -54,106 +54,121 @@
   </div>
 
 <script>
-const STORAGE_KEY = "ykh_currentUserId";
-const FALLBACK = {
-  "users": [
-    {
-      "id": "ayse",
-      "name": "Ayşe Yılmaz",
-      "age": 27,
-      "job": "Endüstri Mühendisi",
-      "city": "İstanbul",
-      "bio": "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
-      "photo": "",
-      "interests": ["kitap","kahve","koşu","müzik"],
-      "lastSeen": "2025-08-12 18:40"
-    },
-    {
-      "id": "ali",
-      "name": "Ali Demir",
-      "age": 30,
-      "job": "Yazılım Geliştirici",
-      "city": "İstanbul",
-      "bio": "Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.",
-      "photo": "",
-      "interests": ["bisiklet","sinema","oyun","tekno"],
-      "lastSeen": "2025-08-16 08:25"
-    }
-  ]
-};
+// === ES5 uyumlu ve hataya dayanıklı ===
+(function(){
+  var STORAGE_KEY = "ykh_currentUserId";
+  var FALLBACK = {
+    "users":[
+      {"id":"ayse","name":"Ayşe Yılmaz","age":27,"job":"Endüstri Mühendisi","city":"İstanbul","bio":"Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.","photo":"","interests":["kitap","kahve","koşu","müzik"],"lastSeen":"2025-08-12 18:40"},
+      {"id":"ali","name":"Ali Demir","age":30,"job":"Yazılım Geliştirici","city":"İstanbul","bio":"Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.","photo":"","interests":["bisiklet","sinema","oyun","tekno"],"lastSeen":"2025-08-16 08:25"}
+    ]
+  };
 
-function showWarn(msg){
-  const w = document.getElementById("warn");
-  w.textContent = msg; w.style.display = "block";
-}
+  function showWarn(msg){
+    var w = document.getElementById("warn");
+    w.textContent = msg; w.style.display = "block";
+  }
 
-async function loadUsers(){
-  const candidates = ["data/users.json","./data/users.json","users.json","./users.json"];
-  for(const url of candidates){
+  function initials(name){
+    if(!name) return "?";
+    var parts = name.replace(/\s+/g," ").trim().split(" ");
+    var a = parts[0] ? parts[0].charAt(0) : "";
+    var b = parts[1] ? parts[1].charAt(0) : "";
+    var t = (a + b) || a || "?";
+    return t.toUpperCase();
+  }
+
+  function httpGetJSON(url, onOk, onErr){
     try{
-      const res = await fetch(url, {cache:"no-store"});
-      if(res.ok){ return await res.json(); }
-    }catch(e){ /* geç */ }
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url + "?t=" + Date.now(), true);
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+          if(xhr.status >= 200 && xhr.status < 300){
+            try { onOk(JSON.parse(xhr.responseText)); }
+            catch(e){ onErr && onErr(e); }
+          } else {
+            onErr && onErr(new Error("HTTP " + xhr.status));
+          }
+        }
+      };
+      xhr.send();
+    }catch(e){ onErr && onErr(e); }
   }
-  return FALLBACK;
-}
 
-function initials(name){
-  if(!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  const a = (parts[0]||"")[0]||"";
-  const b = (parts[1]||"")[0]||"";
-  return (a+b || a).toUpperCase();
-}
+  function loadUsers(cb){
+    var paths = ["data/users.json","./data/users.json","users.json","./users.json"];
+    var i = 0;
+    function next(){
+      if(i >= paths.length){ return cb(FALLBACK); }
+      var url = paths[i++];
+      httpGetJSON(url, function(data){ cb(data); }, function(){ next(); });
+    }
+    next();
+  }
 
-function renderUser(u){
-  document.getElementById("name").textContent = u.name || "İsimsiz";
-  document.getElementById("subtitle").textContent = [u.age?${u.age}:null, u.job, u.city].filter(Boolean).join(" • ") || "—";
-  document.getElementById("bio").textContent = u.bio || "—";
-  document.getElementById("lastSeen").textContent = "Son görülme: " + (u.lastSeen || "—");
+  function renderUser(u){
+    document.getElementById("name").textContent = u.name || "İsimsiz";
+    var sub = [];
+    if(u.age) sub.push(String(u.age));
+    if(u.job) sub.push(u.job);
+    if(u.city) sub.push(u.city);
+    document.getElementById("subtitle").textContent = sub.join(" • ") || "—";
+    document.getElementById("bio").textContent = u.bio || "—";
+    document.getElementById("lastSeen").textContent = "Son görülme: " + (u.lastSeen || "—");
 
-  const ul = document.getElementById("interests");
-  ul.innerHTML = "";
-  (u.interests || []).forEach(it=>{
-    const li = document.createElement("li");
-    li.textContent = it; ul.appendChild(li);
+    var ul = document.getElementById("interests");
+    ul.innerHTML = "";
+    var arr = u.interests || [];
+    for(var i=0;i<arr.length;i++){
+      var li = document.createElement("li");
+      li.textContent = arr[i];
+      ul.appendChild(li);
+    }
+
+    var av = document.getElementById("avatar");
+    av.innerHTML = "";
+    if(u.photo){
+      var img = new Image();
+      img.alt = u.name || "";
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      img.onerror = function(){ av.textContent = initials(u.name); };
+      img.src = u.photo;
+      av.appendChild(img);
+    }else{
+      av.textContent = initials(u.name);
+    }
+  }
+
+  function init(){
+    var id = null;
+    try { id = localStorage.getItem(STORAGE_KEY); } catch(e){}
+    if(!id){ showWarn("Seçili kullanıcı bulunamadı. Lütfen önce giriş yapın."); return; }
+
+    loadUsers(function(data){
+      var users = (data && data.users) ? data.users : [];
+      var found = null;
+      for(var i=0;i<users.length;i++){
+        if(users[i].id === id){ found = users[i]; break; }
+      }
+      if(!found){ showWarn("Seçili kullanıcı verilerde yok. Lütfen tekrar giriş yapın."); return; }
+      renderUser(found);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    init();
+    var btn = document.getElementById("btnClear");
+    if(btn){
+      btn.addEventListener("click", function(){
+        try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+        location.href = "login.html";
+      });
+    }
   });
-
-  const av = document.getElementById("avatar");
-  if(u.photo){
-    const img = new Image();
-    img.alt = u.name;
-    img.style.width = "100%"; img.style.height = "100%"; img.style.objectFit = "cover";
-    img.onerror = ()=>{ av.textContent = initials(u.name); };
-    img.src = u.photo;
-    av.textContent = ""; av.appendChild(img);
-  }else{
-    av.textContent = initials(u.name);
-  }
-}
-
-(async function init(){
-  const id = localStorage.getItem(STORAGE_KEY);
-  if(!id){
-    showWarn("Seçili kullanıcı bulunamadı. Lütfen önce giriş yapın.");
-    return;
-  }
-
-  const data = await loadUsers();
-  const user = (data.users || []).find(u => u.id === id);
-
-  if(!user){
-    showWarn("Seçili kullanıcı verilerde bulunamadı. Lütfen tekrar giriş yapın.");
-    return;
-  }
-
-  renderUser(user);
 })();
-
-document.getElementById("btnClear").addEventListener("click", ()=>{
-  localStorage.removeItem(STORAGE_KEY);
-  location.href = "login.html";
-});
 </script>
 </body>
 </html>
