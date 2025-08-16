@@ -20,7 +20,6 @@
     .notice{border-left:4px solid var(--accent);padding:10px 12px;background:#10163a;border-radius:8px;margin-top:10px}
     .footer{opacity:.7;text-align:center;padding:18px}
     a{color:var(--accent);text-decoration:none}
-    noscript{display:block;margin:16px 0;color:#ffb}
   </style>
 </head>
 <body>
@@ -43,17 +42,16 @@
       </div>
 
       <div id="status" class="notice">Durum: başlatılıyor…</div>
-      <noscript>Bu sayfa JavaScript gerektirir.</noscript>
     </div>
 
     <div class="footer">© 2025 Yarım Kalan Hikayeler — Demo</div>
   </div>
 
 <script>
-// === Güvenli, hataya dayanıklı sürüm ===
+// === ES5 uyumlu sürüm (eski tarayıcıda bile çalışır) ===
 (function(){
-  const STORAGE_KEY = "ykh_currentUserId";
-  const FALLBACK = {
+  var STORAGE_KEY = "ykh_currentUserId";
+  var FALLBACK = {
     "users":[
       {"id":"ayse","name":"Ayşe Yılmaz","age":27,"job":"Endüstri Mühendisi","city":"İstanbul","bio":"Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.","photo":"","interests":["kitap","kahve","koşu","müzik"],"lastSeen":"2025-08-12 18:40"},
       {"id":"ali","name":"Ali Demir","age":30,"job":"Yazılım Geliştirici","city":"İstanbul","bio":"Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.","photo":"","interests":["bisiklet","sinema","oyun","tekno"],"lastSeen":"2025-08-16 08:25"}
@@ -65,61 +63,72 @@
     if(el) el.textContent = "Durum: " + msg;
   }
 
-  async function loadUsers(){
-    const paths = ["data/users.json","./data/users.json","users.json","./users.json"];
-    for (let i=0;i<paths.length;i++){
-      const url = paths[i];
-      try{
-        const res = await fetch(url, {cache:"no-store"});
-        if(res.ok){
-          const data = await res.json();
-          console.info("Kullanıcı verisi:", url);
-          return data;
+  function httpGetJSON(url, onOk, onErr){
+    try{
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", url + "?t=" + Date.now(), true); // cache kır
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+          if(xhr.status >= 200 && xhr.status < 300){
+            try { onOk(JSON.parse(xhr.responseText)); }
+            catch(e){ onErr && onErr(e); }
+          } else {
+            onErr && onErr(new Error("HTTP " + xhr.status));
+          }
         }
-      }catch(e){
-        console.warn("Yüklenemedi:", url, e);
+      };
+      xhr.send();
+    }catch(e){ onErr && onErr(e); }
+  }
+
+  function loadUsers(callback){
+    var paths = ["data/users.json","./data/users.json","users.json","./users.json"];
+    var i = 0;
+    function tryNext(){
+      if(i >= paths.length){
+        console.warn("FALLBACK kullanıldı");
+        return callback(FALLBACK);
       }
+      var url = paths[i++];
+      httpGetJSON(url, function(data){ callback(data); }, function(){ tryNext(); });
     }
-    console.warn("FALLBACK kullanıldı");
-    return FALLBACK;
+    tryNext();
   }
 
   function fillSelect(list){
-    const sel = document.getElementById("userSelect");
+    var sel = document.getElementById("userSelect");
     if(!sel) return;
     sel.innerHTML = "";
-    (list.users||[]).forEach(function(u){
-      const opt = document.createElement("option");
+    var arr = (list && list.users) ? list.users : [];
+    for(var i=0;i<arr.length;i++){
+      var u = arr[i];
+      var opt = document.createElement("option");
       opt.value = u.id;
-      opt.textContent = (u.name||"İsimsiz") + (u.city ? (" — " + u.city) : "");
+      opt.text = (u.name || "İsimsiz") + (u.city ? (" — " + u.city) : "");
       sel.appendChild(opt);
-    });
+    }
   }
 
-  async function init(){
-    try{
-      setStatus("kullanıcılar yükleniyor…");
-      const data = await loadUsers();
+  function init(){
+    setStatus("kullanıcılar yükleniyor…");
+    loadUsers(function(data){
       fillSelect(data);
       setStatus("hazır");
-    }catch(err){
-      console.error(err);
-      setStatus("hata: " + (err && err.message ? err.message : "bilinmeyen"));
-    }
+    });
   }
 
   document.addEventListener("DOMContentLoaded", function(){
     init();
 
-    const btnLogin = document.getElementById("btnLogin");
-    const btnReset = document.getElementById("btnReset");
+    var btnLogin = document.getElementById("btnLogin");
+    var btnReset = document.getElementById("btnReset");
 
     if(btnLogin){
       btnLogin.addEventListener("click", function(){
-        const sel = document.getElementById("userSelect");
-        const id = sel && sel.value;
+        var sel = document.getElementById("userSelect");
+        var id = sel && sel.value;
         if(!id){ setStatus("lütfen bir kullanıcı seç"); return; }
-        localStorage.setItem(STORAGE_KEY, id);
+        try { localStorage.setItem(STORAGE_KEY, id); } catch(e){}
         setStatus("giriş yapıldı → profil…");
         location.href = "profil.html";
       });
@@ -127,7 +136,7 @@
 
     if(btnReset){
       btnReset.addEventListener("click", function(){
-        localStorage.removeItem(STORAGE_KEY);
+        try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
         setStatus("seçim sıfırlandı");
       });
     }
