@@ -29,7 +29,7 @@
       "job": "Psikolog",
       "city": "Ankara",
       "bio": "İnsan hikayelerini dinlemeyi seven bir yol arkadaşı.",
-      "photo": "assets/tugce.jpg",
+      "photo": "assets/tugce.png",
       "interests": ["kitap", "yoga", "gezmek"],
       "lastSeen": "2025-08-16 09:15"
     },
@@ -40,7 +40,7 @@
       "job": "Öğretmen",
       "city": "Bursa",
       "bio": "Öğrencilerinden öğrenmeyi seven bir öğretmen.",
-      "photo": "assets/yasemin.jpg",
+      "photo": "assets/yasemin.png",
       "interests": ["dans", "kitap", "kahve"],
       "lastSeen": "2025-08-17 12:40"
     },
