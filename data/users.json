@@ -7,20 +7,42 @@
       "job": "Endüstri Mühendisi",
       "city": "İstanbul",
       "bio": "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
-      "photo": "",
+      "photo": "assets/ayse.jpg",
       "interests": ["kitap", "kahve", "koşu", "müzik"],
       "lastSeen": "2025-08-12 18:40"
     },
     {
-      "id": "ali",
-      "name": "Ali Demir",
-      "age": 30,
-      "job": "Yazılım Geliştirici",
-      "city": "İstanbul",
-      "bio": "Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.",
-      "photo": "",
-      "interests": ["bisiklet", "sinema", "oyun", "tekno"],
-      "lastSeen": "2025-08-16 08:25"
+      "id": "mehmet",
+      "name": "Mehmet Kaya",
+      "age": 29,
+      "job": "Grafiker",
+      "city": "İzmir",
+      "bio": "Sanatı teknolojiyle birleştirmeye çalışan bir hayalperest.",
+      "photo": "assets/mehmet.jpg",
+      "interests": ["çizim", "fotoğraf", "müzik"],
+      "lastSeen": "2025-08-15 14:22"
+    },
+    {
+      "id": "tugce",
+      "name": "Tuğçe Demir",
+      "age": 26,
+      "job": "Psikolog",
+      "city": "Ankara",
+      "bio": "İnsan hikayelerini dinlemeyi seven bir yol arkadaşı.",
+      "photo": "assets/tugce.png",
+      "interests": ["kitap", "yoga", "gezmek"],
+      "lastSeen": "2025-08-16 09:15"
+    },
+    {
+      "id": "yasemin",
+      "name": "Yasemin Öz",
+      "age": 24,
+      "job": "Öğretmen",
+      "city": "Bursa",
+      "bio": "Öğrencilerinden öğrenmeyi seven bir öğretmen.",
+      "photo": "assets/yasemin.png",
+      "interests": ["dans", "kitap", "kahve"],
+      "lastSeen": "2025-08-17 12:40"
     }
   ]
 }
