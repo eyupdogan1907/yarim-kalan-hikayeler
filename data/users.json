@@ -62,7 +62,7 @@
       "job": "Elektrik Mühendisi",
       "city": "İstanbul",
       "bio": "Her gün aynı metro vagonu, belki bugün farklı bir sohbet.",
-      "photo": "assets/eren.jpg",
+      "photo": "assets/Eren.jpg",
       "interests": ["koşu", "teknoloji", "oyun"],
       "lastSeen": "2025-08-16 21:30"
     },
@@ -73,7 +73,7 @@
       "job": "Öğrenci",
       "city": "İstanbul",
       "bio": "Yarım kalan hikayeleri tamamlamak için buradayım.",
-      "photo": "assets/elif.jpg",
+      "photo": "assets/Elif.jpg",
       "interests": ["kitap", "müzik", "puzzle"],
       "lastSeen": "2025-08-17 08:12"
     },
@@ -84,7 +84,7 @@
       "job": "Satış Uzmanı",
       "city": "İstanbul",
       "bio": "Tesadüfler, cesaret edenleri sever.",
-      "photo": "assets/kerem.jpg",
+      "photo": "assets/Kerem.jpg",
       "interests": ["sinema", "basketbol", "yemek"],
       "lastSeen": "2025-08-15 19:48"
     }
