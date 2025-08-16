@@ -2,10 +2,25 @@
   "users": [
     {
       "id": "ayse",
-      "name": "Ayşe Y.",
+      "name": "Ayşe Yılmaz",
       "age": 27,
+      "job": "Endüstri Mühendisi",
+      "city": "İstanbul",
       "bio": "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
-      "photo": "assets/ayse.jpg"
+      "photo": "",
+      "interests": ["kitap", "kahve", "koşu", "müzik"],
+      "lastSeen": "2025-08-12 18:40"
+    },
+    {
+      "id": "ali",
+      "name": "Ali Demir",
+      "age": 30,
+      "job": "Yazılım Geliştirici",
+      "city": "İstanbul",
+      "bio": "Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.",
+      "photo": "",
+      "interests": ["bisiklet", "sinema", "oyun", "tekno"],
+      "lastSeen": "2025-08-16 08:25"
     }
   ]
 }
