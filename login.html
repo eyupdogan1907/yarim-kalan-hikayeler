@@ -1,52 +1,3 @@
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Yarım Kalan Hikayeler — Giriş</title>
-  <style>
-    *{box-sizing:border-box}
-    :root{--bg:#0f1222;--card:#171a2e;--line:#263056;--txt:#eef;--muted:#9aa3d9;--accent:#7aa2ff}
-    html,body{margin:0;height:100%}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:var(--bg);color:var(--txt)}
-    header{padding:18px;text-align:center;border-bottom:1px solid var(--line)}
-    h1{margin:0;font-size:20px}
-    .wrap{max-width:920px;margin:0 auto;padding:16px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
-    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    select,button{background:#0e1430;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px}
-    button{cursor:pointer}
-    .muted{color:var(--muted)}
-    .notice{border-left:4px solid var(--accent);padding:10px 12px;background:#10163a;border-radius:8px;margin-top:10px}
-    .footer{opacity:.7;text-align:center;padding:18px}
-    a{color:var(--accent);text-decoration:none}
-  </style>
-</head>
-<body>
-  <header><h1>Yarım Kalan Hikayeler — Giriş</h1></header>
-
-  <div class="wrap">
-    <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <div class="muted">Demo • yerel depolama ile çalışır</div>
-        <a href="profil.html">Profil sayfasına git →</a>
-      </div>
-
-      <p class="muted">Kullanıcı seç ve giriş yap. Veri dosyası bulunamazsa yerleşik yedek devreye girer.</p>
-
-      <div class="row">
-        <label for="userSelect" class="muted">Kullanıcı</label>
-        <select id="userSelect" aria-label="Kullanıcı seçimi"></select>
-        <button id="btnLogin">Giriş</button>
-        <button id="btnReset" title="Seçimi sıfırla">Sıfırla</button>
-      </div>
-
-      <div id="status" class="notice">Durum: başlatılıyor…</div>
-    </div>
-
-    <div class="footer">© 2025 Yarım Kalan Hikayeler — Demo</div>
-  </div>
-
 <script>
 const STORAGE_KEY = "ykh_currentUserId";
 const FALLBACK = {
@@ -76,19 +27,21 @@ const FALLBACK = {
   ]
 };
 
-function setStatus(msg){ document.getElementById("status").textContent = "Durum: " + msg; }
+function setStatus(msg) {
+  document.getElementById("status").textContent = "Durum: " + msg;
+}
 
-async function loadUsers(){
+async function loadUsers() {
   const candidates = ["data/users.json","./data/users.json","users.json","./users.json"];
   for(const url of candidates){
-    try{
+    try {
       const res = await fetch(url, {cache:"no-store"});
       if(res.ok){
         const data = await res.json();
         console.info("Kullanıcı verisi:", url);
         return data;
       }
-    }catch(e){
+    } catch(e) {
       console.warn("Yüklenemedi:", url, e);
     }
   }
@@ -96,7 +49,7 @@ async function loadUsers(){
   return FALLBACK;
 }
 
-function fillSelect(list){
+function fillSelect(list) {
   const sel = document.getElementById("userSelect");
   sel.innerHTML = "";
   for(const u of list.users){
@@ -107,7 +60,7 @@ function fillSelect(list){
   }
 }
 
-(async function init(){
+(async function init() {
   setStatus("kullanıcılar yükleniyor…");
   const data = await loadUsers();
   fillSelect(data);
@@ -127,5 +80,3 @@ document.getElementById("btnReset").addEventListener("click", ()=>{
   setStatus("seçim sıfırlandı");
 });
 </script>
-</body>
-</html>
