@@ -54,117 +54,93 @@
   </div>
 
 <script>
-// === ES5 uyumlu ve hataya dayanıklı ===
+/* === ES5 uyumlu — URL ?id= desteği + localStorage yedeği === */
 (function(){
   var STORAGE_KEY = "ykh_currentUserId";
-  var FALLBACK = {
-    "users":[
-      {"id":"ayse","name":"Ayşe Yılmaz","age":27,"job":"Endüstri Mühendisi","city":"İstanbul","bio":"Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.","photo":"","interests":["kitap","kahve","koşu","müzik"],"lastSeen":"2025-08-12 18:40"},
-      {"id":"ali","name":"Ali Demir","age":30,"job":"Yazılım Geliştirici","city":"İstanbul","bio":"Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.","photo":"","interests":["bisiklet","sinema","oyun","tekno"],"lastSeen":"2025-08-16 08:25"}
-    ]
-  };
+  var FALLBACK = {"users":[
+    {"id":"ayse","name":"Ayşe Yılmaz","age":27,"job":"Endüstri Mühendisi","city":"İstanbul","bio":"Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.","photo":"assets/ayse.jpg","interests":["kitap","kahve","koşu","müzik"],"lastSeen":"2025-08-12 18:40"}
+  ]};
 
-  function showWarn(msg){
-    var w = document.getElementById("warn");
-    w.textContent = msg; w.style.display = "block";
-  }
+  function showWarn(msg){ var w=document.getElementById("warn"); w.textContent=msg; w.style.display="block"; }
+  function initials(name){ if(!name) return "?"; var p=name.replace(/\s+/g," ").trim().split(" "); var a=p[0]?p[0].charAt(0):""; var b=p[1]?p[1].charAt(0):""; return (a+b||a||"?").toUpperCase(); }
 
-  function initials(name){
-    if(!name) return "?";
-    var parts = name.replace(/\s+/g," ").trim().split(" ");
-    var a = parts[0] ? parts[0].charAt(0) : "";
-    var b = parts[1] ? parts[1].charAt(0) : "";
-    var t = (a + b) || a || "?";
-    return t.toUpperCase();
-  }
-
-  function httpGetJSON(url, onOk, onErr){
+  function httpGetJSON(url, ok, err){
     try{
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", url + "?t=" + Date.now(), true);
-      xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-          if(xhr.status >= 200 && xhr.status < 300){
-            try { onOk(JSON.parse(xhr.responseText)); }
-            catch(e){ onErr && onErr(e); }
-          } else {
-            onErr && onErr(new Error("HTTP " + xhr.status));
-          }
+      var x=new XMLHttpRequest();
+      x.open("GET", url+"?t="+Date.now(), true);
+      x.onreadystatechange=function(){
+        if(x.readyState===4){
+          if(x.status>=200&&x.status<300){
+            try{ ok(JSON.parse(x.responseText)); }catch(e){ err&&err(e); }
+          }else{ err&&err(new Error("HTTP "+x.status)); }
         }
       };
-      xhr.send();
-    }catch(e){ onErr && onErr(e); }
+      x.send();
+    }catch(e){ err&&err(e); }
   }
 
   function loadUsers(cb){
-    var paths = ["data/users.json","./data/users.json","users.json","./users.json"];
-    var i = 0;
-    function next(){
-      if(i >= paths.length){ return cb(FALLBACK); }
-      var url = paths[i++];
-      httpGetJSON(url, function(data){ cb(data); }, function(){ next(); });
-    }
-    next();
+    var paths=["data/users.json","./data/users.json","users.json","./users.json"];
+    var i=0;
+    (function next(){
+      if(i>=paths.length) return cb(FALLBACK);
+      var u=paths[i++]; httpGetJSON(u, function(d){ cb(d); }, function(){ next(); });
+    })();
   }
 
   function renderUser(u){
     document.getElementById("name").textContent = u.name || "İsimsiz";
-    var sub = [];
-    if(u.age) sub.push(String(u.age));
-    if(u.job) sub.push(u.job);
-    if(u.city) sub.push(u.city);
+    var sub=[]; if(u.age) sub.push(String(u.age)); if(u.job) sub.push(u.job); if(u.city) sub.push(u.city);
     document.getElementById("subtitle").textContent = sub.join(" • ") || "—";
     document.getElementById("bio").textContent = u.bio || "—";
     document.getElementById("lastSeen").textContent = "Son görülme: " + (u.lastSeen || "—");
 
-    var ul = document.getElementById("interests");
-    ul.innerHTML = "";
-    var arr = u.interests || [];
-    for(var i=0;i<arr.length;i++){
-      var li = document.createElement("li");
-      li.textContent = arr[i];
-      ul.appendChild(li);
-    }
+    var ul=document.getElementById("interests"); ul.innerHTML="";
+    var arr=u.interests||[]; for(var i=0;i<arr.length;i++){ var li=document.createElement("li"); li.textContent=arr[i]; ul.appendChild(li); }
 
-    var av = document.getElementById("avatar");
-    av.innerHTML = "";
+    var av=document.getElementById("avatar"); av.innerHTML="";
     if(u.photo){
-      var img = new Image();
-      img.alt = u.name || "";
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "cover";
-      img.onerror = function(){ av.textContent = initials(u.name); };
-      img.src = u.photo;
+      var img=new Image(); img.alt=u.name||""; img.style.width="100%"; img.style.height="100%"; img.style.objectFit="cover";
+      img.onerror=function(){ av.textContent=initials(u.name); };
+      img.src = u.photo; // yol JSON'dan geldiği gibi kullanılır (assets/Eren.jpg vs.)
       av.appendChild(img);
-    }else{
-      av.textContent = initials(u.name);
+    }else{ av.textContent=initials(u.name); }
+  }
+
+  function getParamId(){
+    // URLSearchParams yerine manuel, ES5 uyumlu okuyucu
+    var s = window.location.search || "";
+    if(s.indexOf("?")===0) s = s.substring(1);
+    var parts = s.split("&");
+    for(var i=0;i<parts.length;i++){
+      var kv = parts[i].split("=");
+      if(kv[0]==="id") return decodeURIComponent(kv[1]||"");
     }
+    return null;
   }
 
   function init(){
-    var id = null;
-    try { id = localStorage.getItem(STORAGE_KEY); } catch(e){}
-    if(!id){ showWarn("Seçili kullanıcı bulunamadı. Lütfen önce giriş yapın."); return; }
+    var chosenId = getParamId();       // 1) URL ?id=eren gibi
+    if(!chosenId){                      // 2) Yoksa localStorage yedeği
+      try{ chosenId = localStorage.getItem(STORAGE_KEY); }catch(e){}
+    }
+    if(!chosenId){ showWarn("Kullanıcı belirtilmedi. Lütfen önce giriş yapın veya URL’ye ?id=ayse ekleyin."); return; }
 
     loadUsers(function(data){
       var users = (data && data.users) ? data.users : [];
-      var found = null;
-      for(var i=0;i<users.length;i++){
-        if(users[i].id === id){ found = users[i]; break; }
-      }
-      if(!found){ showWarn("Seçili kullanıcı verilerde yok. Lütfen tekrar giriş yapın."); return; }
+      var found=null; for(var i=0;i<users.length;i++){ if(users[i].id===chosenId){ found=users[i]; break; } }
+      if(!found){ showWarn("Belirtilen kullanıcı bulunamadı: " + chosenId); return; }
       renderUser(found);
     });
   }
 
   document.addEventListener("DOMContentLoaded", function(){
     init();
-    var btn = document.getElementById("btnClear");
+    var btn=document.getElementById("btnClear");
     if(btn){
       btn.addEventListener("click", function(){
-        try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
-        location.href = "login.html";
+        try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+        location.href="login.html";
       });
     }
   });
