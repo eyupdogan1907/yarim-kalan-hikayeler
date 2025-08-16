@@ -1,82 +1,138 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yarım Kalan Hikayeler — Giriş</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{--bg:#0f1222;--card:#171a2e;--line:#263056;--txt:#eef;--muted:#9aa3d9;--accent:#7aa2ff}
+    html,body{margin:0;height:100%}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+    header{padding:18px;text-align:center;border-bottom:1px solid var(--line)}
+    h1{margin:0;font-size:20px}
+    .wrap{max-width:920px;margin:0 auto;padding:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    select,button{background:#0e1430;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px}
+    button{cursor:pointer}
+    .muted{color:var(--muted)}
+    .notice{border-left:4px solid var(--accent);padding:10px 12px;background:#10163a;border-radius:8px;margin-top:10px}
+    .footer{opacity:.7;text-align:center;padding:18px}
+    a{color:var(--accent);text-decoration:none}
+    noscript{display:block;margin:16px 0;color:#ffb}
+  </style>
+</head>
+<body>
+  <header><h1>Yarım Kalan Hikayeler — Giriş</h1></header>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="muted">Demo • yerel depolama ile çalışır</div>
+        <a href="profil.html">Profil sayfasına git →</a>
+      </div>
+
+      <p class="muted">Kullanıcı seç ve giriş yap. Veri dosyası bulunamazsa yerleşik yedek devreye girer.</p>
+
+      <div class="row">
+        <label for="userSelect" class="muted">Kullanıcı</label>
+        <select id="userSelect" aria-label="Kullanıcı seçimi"></select>
+        <button id="btnLogin">Giriş</button>
+        <button id="btnReset" title="Seçimi sıfırla">Sıfırla</button>
+      </div>
+
+      <div id="status" class="notice">Durum: başlatılıyor…</div>
+      <noscript>Bu sayfa JavaScript gerektirir.</noscript>
+    </div>
+
+    <div class="footer">© 2025 Yarım Kalan Hikayeler — Demo</div>
+  </div>
+
 <script>
-const STORAGE_KEY = "ykh_currentUserId";
-const FALLBACK = {
-  "users": [
-    {
-      "id": "ayse",
-      "name": "Ayşe Yılmaz",
-      "age": 27,
-      "job": "Endüstri Mühendisi",
-      "city": "İstanbul",
-      "bio": "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
-      "photo": "",
-      "interests": ["kitap","kahve","koşu","müzik"],
-      "lastSeen": "2025-08-12 18:40"
-    },
-    {
-      "id": "ali",
-      "name": "Ali Demir",
-      "age": 30,
-      "job": "Yazılım Geliştirici",
-      "city": "İstanbul",
-      "bio": "Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.",
-      "photo": "",
-      "interests": ["bisiklet","sinema","oyun","tekno"],
-      "lastSeen": "2025-08-16 08:25"
-    }
-  ]
-};
+// === Güvenli, hataya dayanıklı sürüm ===
+(function(){
+  const STORAGE_KEY = "ykh_currentUserId";
+  const FALLBACK = {
+    "users":[
+      {"id":"ayse","name":"Ayşe Yılmaz","age":27,"job":"Endüstri Mühendisi","city":"İstanbul","bio":"Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.","photo":"","interests":["kitap","kahve","koşu","müzik"],"lastSeen":"2025-08-12 18:40"},
+      {"id":"ali","name":"Ali Demir","age":30,"job":"Yazılım Geliştirici","city":"İstanbul","bio":"Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.","photo":"","interests":["bisiklet","sinema","oyun","tekno"],"lastSeen":"2025-08-16 08:25"}
+    ]
+  };
 
-function setStatus(msg) {
-  document.getElementById("status").textContent = "Durum: " + msg;
-}
+  function setStatus(msg){
+    var el = document.getElementById("status");
+    if(el) el.textContent = "Durum: " + msg;
+  }
 
-async function loadUsers() {
-  const candidates = ["data/users.json","./data/users.json","users.json","./users.json"];
-  for(const url of candidates){
-    try {
-      const res = await fetch(url, {cache:"no-store"});
-      if(res.ok){
-        const data = await res.json();
-        console.info("Kullanıcı verisi:", url);
-        return data;
+  async function loadUsers(){
+    const paths = ["data/users.json","./data/users.json","users.json","./users.json"];
+    for (let i=0;i<paths.length;i++){
+      const url = paths[i];
+      try{
+        const res = await fetch(url, {cache:"no-store"});
+        if(res.ok){
+          const data = await res.json();
+          console.info("Kullanıcı verisi:", url);
+          return data;
+        }
+      }catch(e){
+        console.warn("Yüklenemedi:", url, e);
       }
-    } catch(e) {
-      console.warn("Yüklenemedi:", url, e);
+    }
+    console.warn("FALLBACK kullanıldı");
+    return FALLBACK;
+  }
+
+  function fillSelect(list){
+    const sel = document.getElementById("userSelect");
+    if(!sel) return;
+    sel.innerHTML = "";
+    (list.users||[]).forEach(function(u){
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = (u.name||"İsimsiz") + (u.city ? (" — " + u.city) : "");
+      sel.appendChild(opt);
+    });
+  }
+
+  async function init(){
+    try{
+      setStatus("kullanıcılar yükleniyor…");
+      const data = await loadUsers();
+      fillSelect(data);
+      setStatus("hazır");
+    }catch(err){
+      console.error(err);
+      setStatus("hata: " + (err && err.message ? err.message : "bilinmeyen"));
     }
   }
-  console.warn("FALLBACK kullanıldı");
-  return FALLBACK;
-}
 
-function fillSelect(list) {
-  const sel = document.getElementById("userSelect");
-  sel.innerHTML = "";
-  for(const u of list.users){
-    const opt = document.createElement("option");
-    opt.value = u.id;
-    opt.textContent = ${u.name} — ${u.city||""};
-    sel.appendChild(opt);
-  }
-}
+  document.addEventListener("DOMContentLoaded", function(){
+    init();
 
-(async function init() {
-  setStatus("kullanıcılar yükleniyor…");
-  const data = await loadUsers();
-  fillSelect(data);
-  setStatus("hazır");
+    const btnLogin = document.getElementById("btnLogin");
+    const btnReset = document.getElementById("btnReset");
+
+    if(btnLogin){
+      btnLogin.addEventListener("click", function(){
+        const sel = document.getElementById("userSelect");
+        const id = sel && sel.value;
+        if(!id){ setStatus("lütfen bir kullanıcı seç"); return; }
+        localStorage.setItem(STORAGE_KEY, id);
+        setStatus("giriş yapıldı → profil…");
+        location.href = "profil.html";
+      });
+    }
+
+    if(btnReset){
+      btnReset.addEventListener("click", function(){
+        localStorage.removeItem(STORAGE_KEY);
+        setStatus("seçim sıfırlandı");
+      });
+    }
+  });
 })();
-
-document.getElementById("btnLogin").addEventListener("click", ()=>{
-  const id = document.getElementById("userSelect").value;
-  if(!id) return setStatus("lütfen bir kullanıcı seç");
-  localStorage.setItem(STORAGE_KEY, id);
-  setStatus("giriş yapıldı → profil…");
-  location.href = "profil.html";
-});
-
-document.getElementById("btnReset").addEventListener("click", ()=>{
-  localStorage.removeItem(STORAGE_KEY);
-  setStatus("seçim sıfırlandı");
-});
 </script>
+</body>
+</html>
