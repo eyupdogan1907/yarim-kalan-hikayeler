@@ -6,87 +6,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     *{box-sizing:border-box}
+    :root{
+      --bg:#0f1222; --panel:#171a2e; --border:#263056; --text:#eef; --muted:#a8b0d9;
+      --chip:#212749;
+    }
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-         background:#0f1222;color:#eef}
-    header{padding:20px;text-align:center}
-    h1{margin:0;font-size:24px}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
-    .profile{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
-    .ph{width:180px;height:180px;border-radius:14px;object-fit:cover;
-        background:#22263f;border:1px solid #263056}
-    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:14px;margin-top:12px}
-    .muted{opacity:.75}
-    ul{padding-left:20px;margin:6px 0}
-    a{color:#8bd3ff}
-    .back{display:inline-block;margin-top:12px;font-size:14px}
+         background:#0f1222;color:var(--text)}
+    header{padding:18px; border-bottom:1px solid var(--border); background:#12152b; position:sticky; top:0; z-index:2}
+    .wrap{max-width:980px; margin:0 auto; padding:16px}
+    h1{font-size:20px; margin:0}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center}
+    .btn{padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#111736; color:var(--text); cursor:pointer; font-weight:600}
+    .btn.primary{background:linear-gradient(180deg,#6ea8fe,#8bd3ff); color:#09122a; border-color:transparent}
+    .profile{display:grid; grid-template-columns:220px 1fr; gap:18px; align-items:start}
+    @media (max-width:880px){.profile{grid-template-columns:1fr}}
+    .ph{width:220px; height:220px; border-radius:14px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
+    .card{background:#171a2e; border:1px solid var(--border); border-radius:12px; padding:14px}
+    .muted{opacity:.78}
+    .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+    .chip{background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px}
+    .mini-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px}
+    .mini{display:flex; gap:10px; align-items:center; background:#111736; border:1px solid var(--border); border-radius:12px; padding:10px}
+    .mini img{width:44px; height:44px; border-radius:8px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
+    .mini .nm{font-weight:600}
+    a.boxlink{color:inherit; text-decoration:none}
   </style>
 </head>
 <body>
   <header>
-    <h1 id="name">Profil</h1>
-  </header>
-  <div class="wrap">
-    <div class="profile card">
-      <img id="photo" class="ph" src="" alt="profil" />
-      <div>
-        <p><b>Yaş:</b> <span id="age"></span></p>
-        <p><b>Meslek:</b> <span id="job"></span></p>
-        <p><b>Şehir:</b> <span id="city"></span></p>
-        <p><b>Hakkında:</b> <span id="about"></span></p>
-        <p><b>İlgi alanları:</b></p>
-        <ul id="interests"></ul>
+    <div class="wrap">
+      <h1>Yarım Kalan Hikayeler — Profil</h1>
+      <div class="actions">
+        <button class="btn" id="backBtn">◀ Kullanıcı değiştir</button>
+        <button class="btn primary" id="refreshBtn">Verileri yenile</button>
       </div>
     </div>
+  </header>
 
-    <div class="card">
-      <h3>Yolda Karşılaştıkların</h3>
-      <ul id="connections"></ul>
-    </div>
+  <main class="wrap">
+    <section class="profile">
+      <img id="foto" class="ph" alt="Profil fotoğrafı" src="images/placeholder.jpg" />
+      <div class="card">
+        <h2 id="isim" style="margin:0 0 6px">—</h2>
+        <div class="muted" id="meta">—</div>
+        <div class="chips" id="chips"></div>
+        <div style="height:8px"></div>
+        <p id="hakkinda" style="margin:10px 0 0">—</p>
+        <div id="err" style="color:#ffb3b3; margin-top:10px; display:none"></div>
+      </div>
+    </section>
 
-    <a class="back" href="login.html">← Başka kullanıcı seç</a>
-  </div>
+    <section class="card" style="margin-top:16px">
+      <h3 style="margin:0 0 10px">Yolda Karşılaştıkların</h3>
+      <div id="karsilastiklar" class="mini-grid"></div>
+      <div class="muted" id="karsBos" style="display:none">Henüz kayıtlı karşılaşma yok.</div>
+    </section>
+  </main>
 
 <script>
-async function loadProfile(id){
-  try{
-    const res = await fetch("data/users.json",{cache:"no-store"});
-    const users = await res.json();
-    const user = users.find(u=>u.id==id);
-    if(user){
-      document.getElementById("name").textContent = user.name;
-      document.getElementById("age").textContent = user.age + " yaş";
-      document.getElementById("job").textContent = user.job;
-      document.getElementById("city").textContent = user.city;
-      document.getElementById("about").textContent = user.about;
-      document.getElementById("photo").src = user.photo;
+  // users.json için MUTLAK URL — siyah ekranı çözer
+  const USERS_URL = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json";
 
-      // İlgi alanları
-      const intList=document.getElementById("interests");
-      intList.innerHTML="";
-      (user.interests||[]).forEach(i=>{
-        const li=document.createElement("li"); li.textContent=i; intList.appendChild(li);
-      });
+  let allUsers = [];
 
-      // Karşılaştıkların
-      const connList=document.getElementById("connections");
-      connList.innerHTML="";
-      (user.connections||[]).forEach(cid=>{
-        const cu=users.find(u=>u.id==cid);
-        if(cu){
-          const li=document.createElement("li");
-          li.innerHTML=<a href="profil.html?id=${cu.id}">${cu.name}</a>;
-          connList.appendChild(li);
-        }
-      });
+  function safe(v,f="—"){ return (v==null||v==="")?f:String(v); }
+  function goLogin(){ window.location.href = "login.html"; }
+
+  async function fetchUsers(){
+    const res = await fetch(USERS_URL, {cache:"no-store"});
+    if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
+    const raw = await res.json();
+    // Şema Türkçe: isim, yas, meslek, sehir, foto, hakkinda, ilgi, karsilastiklar…
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  function findUserById(id){ return allUsers.find(u => String(u.id)===String(id)); }
+
+  function renderProfile(u){
+    document.getElementById("isim").textContent = safe(u.isim,"İsimsiz");
+    const meta = [];
+    if(u.yas!=null) meta.push(u.yas+" yaş");
+    if(u.meslek)   meta.push(u.meslek);
+    if(u.sehir)    meta.push(u.sehir);
+    document.getElementById("meta").textContent = meta.join(" • ") || "Bilgi eklenmemiş";
+
+    const img = document.getElementById("foto");
+    img.src = u.foto || "images/placeholder.jpg";
+    img.onerror = ()=>{ img.onerror=null; img.src="images/placeholder.jpg"; };
+
+    document.getElementById("hakkinda").textContent = safe(u.hakkinda, "Henüz bir açıklama yok.");
+
+    // rozetler
+    const chips = document.getElementById("chips");
+    chips.innerHTML = "";
+    const tags = [];
+    if(u.sehir) tags.push(u.sehir);
+    if(Array.isArray(u.ilgi)) tags.push(...u.ilgi);
+    if(u.universite) tags.push(u.universite);
+    tags.slice(0,8).forEach(t=>{
+      const c=document.createElement("div"); c.className="chip"; c.textContent=String(t);
+      chips.appendChild(c);
+    });
+
+    // karşılaştıkların
+    const box = document.getElementById("karsilastiklar");
+    const bos = document.getElementById("karsBos");
+    box.innerHTML = "";
+    const ids = Array.isArray(u.karsilastiklar)? u.karsilastiklar : [];
+    if(ids.length===0){ bos.style.display="block"; return; }
+    bos.style.display="none";
+
+    ids.forEach(uid=>{
+      const k = findUserById(uid); if(!k) return;
+      const a = document.createElement("a"); a.href="#"; a.className="boxlink";
+      const item = document.createElement("div"); item.className="mini";
+      const im = document.createElement("img"); im.src = k.foto || "images/placeholder.jpg";
+      im.onerror = ()=>{ im.onerror=null; im.src="images/placeholder.jpg"; };
+      const wrap = document.createElement("div");
+      const nm = document.createElement("div"); nm.className="nm"; nm.textContent = safe(k.isim,"Kullanıcı");
+      const meta = document.createElement("div"); meta.style.fontSize="12px"; meta.style.opacity=".7";
+      meta.textContent = [(k.yas!=null? k.yas+" yaş":""), safe(k.sehir,"")].filter(Boolean).join(" • ");
+      wrap.appendChild(nm); wrap.appendChild(meta);
+      item.appendChild(im); item.appendChild(wrap);
+      a.appendChild(item);
+      a.addEventListener("click", (e)=>{ e.preventDefault(); localStorage.setItem("selectedUser", String(k.id)); loadProfile(); });
+      box.appendChild(a);
+    });
+  }
+
+  async function loadProfile(){
+    const err = document.getElementById("err"); err.style.display="none";
+    const selectedId = localStorage.getItem("selectedUser");
+    if(!selectedId){ return goLogin(); }
+
+    try{
+      allUsers = await fetchUsers();
+      const user = findUserById(selectedId);
+      if(!user){ localStorage.removeItem("selectedUser"); return goLogin(); }
+      renderProfile(user);
+    }catch(e){
+      err.textContent = "Hata: " + e.message;
+      err.style.display = "block";
     }
-  }catch(e){console.error(e);}
-}
+  }
 
-document.addEventListener("DOMContentLoaded",()=>{
-  let id=new URLSearchParams(location.search).get("id");
-  if(!id){ id=localStorage.getItem("selectedUser"); }
-  if(id){ loadProfile(id); }
-});
+  document.getElementById("backBtn").addEventListener("click", goLogin);
+  document.getElementById("refreshBtn").addEventListener("click", loadProfile);
+
+  loadProfile();
 </script>
 </body>
 </html>
