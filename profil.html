@@ -2,149 +2,133 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Yarım Kalan Hikayeler — Profil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     *{box-sizing:border-box}
-    :root{--bg:#0f1222;--card:#171a2e;--line:#263056;--txt:#eef;--muted:#9aa3d9;--accent:#7aa2ff}
-    html,body{margin:0;height:100%}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:var(--bg);color:var(--txt)}
-    header{padding:18px;text-align:center;border-bottom:1px solid var(--line)}
-    h1{margin:0;font-size:20px}
-    .wrap{max-width:920px;margin:0 auto;padding:16px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
-    a{color:var(--accent);text-decoration:none}
-    .row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .grid{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:start;margin-top:8px}
-    .avatar{width:96px;height:96px;border-radius:16px;background:#101432;border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:28px;color:var(--muted);overflow:hidden}
-    .muted{color:var(--muted)}
-    ul{margin:8px 0 0 16px}
-    hr{border:none;border-top:1px solid var(--line);margin:12px 0}
-    .notice{border-left:4px solid var(--accent);padding:10px 12px;background:#10163a;border-radius:8px;margin:10px 0}
-    .footer{opacity:.7;text-align:center;padding:18px}
+    :root{
+      --bg:#0f1222; --panel:#171a2e; --border:#263056; --text:#eef; --muted:#a8b0d9;
+      --chip:#212749; --ok:#79ffa3; --bad:#ffb3b3;
+    }
+    body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; background:#0f1222; color:var(--text)}
+    header{padding:18px; border-bottom:1px solid var(--border); background:#12152b; position:sticky; top:0; z-index:2}
+    .wrap{max-width:980px; margin:0 auto; padding:16px}
+    h1{font-size:20px; margin:0}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .btn{padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#111736; color:var(--text); cursor:pointer; font-weight:600}
+    .btn.primary{background:linear-gradient(180deg,#6ea8fe,#8bd3ff); color:#09122a; border-color:transparent}
+    .profile{display:grid; grid-template-columns:220px 1fr; gap:18px; align-items:start}
+    @media (max-width:880px){.profile{grid-template-columns:1fr}}
+    .ph{width:220px; height:220px; border-radius:14px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
+    .card{background:#171a2e; border:1px solid var(--border); border-radius:12px; padding:14px}
+    .muted{opacity:.78}
+    .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+    .chip{background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px}
+    .err{color:var(--bad); margin-top:10px; display:none}
   </style>
 </head>
 <body>
-  <header><h1>Yarım Kalan Hikayeler — Profil</h1></header>
-
-  <div class="wrap">
-    <div class="card">
-      <div class="row">
-        <a href="login.html">← Kullanıcı değiştir</a>
-        <button id="btnClear">Çıkış</button>
-      </div>
-
-      <div id="warn" class="notice" style="display:none"></div>
-
-      <div class="grid">
-        <div class="avatar" id="avatar">?</div>
-        <div>
-          <h2 id="name" style="margin:0 0 6px 0">—</h2>
-          <div class="muted" id="subtitle">—</div>
-          <hr/>
-          <p id="bio">—</p>
-          <p><strong>İlgi alanları:</strong></p>
-          <ul id="interests"></ul>
-          <p class="muted" id="lastSeen" style="margin-top:10px">Son görülme: —</p>
-        </div>
+  <header>
+    <div class="wrap">
+      <h1>Yarım Kalan Hikayeler — Profil</h1>
+      <div class="actions">
+        <button class="btn" id="backBtn">◀ Kullanıcı değiştir</button>
+        <button class="btn primary" id="refreshBtn">Verileri yenile</button>
       </div>
     </div>
+  </header>
 
-    <div class="footer">© 2025 Yarım Kalan Hikayeler — Demo</div>
-  </div>
+  <main class="wrap">
+    <section class="profile">
+      <img id="foto" class="ph" alt="Profil fotoğrafı" src="images/placeholder.jpg" />
+      <div class="card">
+        <h2 id="isim" style="margin:0 0 6px">—</h2>
+        <div class="muted" id="meta">—</div>
+        <div class="chips" id="chips"></div>
+        <div style="height:8px"></div>
+        <p id="hakkinda" style="margin:10px 0 0">—</p>
+        <div id="errorBox" class="err"></div>
+      </div>
+    </section>
+  </main>
 
-<script>
-/* === ES5 uyumlu — URL ?id= desteği + localStorage yedeği === */
-(function(){
-  var STORAGE_KEY = "ykh_currentUserId";
-  var FALLBACK = {"users":[
-    {"id":"ayse","name":"Ayşe Yılmaz","age":27,"job":"Endüstri Mühendisi","city":"İstanbul","bio":"Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.","photo":"assets/ayse.jpg","interests":["kitap","kahve","koşu","müzik"],"lastSeen":"2025-08-12 18:40"}
-  ]};
+  <script>
+    const USERS_URL = "data/users.json";
 
-  function showWarn(msg){ var w=document.getElementById("warn"); w.textContent=msg; w.style.display="block"; }
-  function initials(name){ if(!name) return "?"; var p=name.replace(/\s+/g," ").trim().split(" "); var a=p[0]?p[0].charAt(0):""; var b=p[1]?p[1].charAt(0):""; return (a+b||a||"?").toUpperCase(); }
+    function safeText(v, fallback="—"){ return (v===undefined||v===null||v==="") ? fallback : String(v); }
 
-  function httpGetJSON(url, ok, err){
-    try{
-      var x=new XMLHttpRequest();
-      x.open("GET", url+"?t="+Date.now(), true);
-      x.onreadystatechange=function(){
-        if(x.readyState===4){
-          if(x.status>=200&&x.status<300){
-            try{ ok(JSON.parse(x.responseText)); }catch(e){ err&&err(e); }
-          }else{ err&&err(new Error("HTTP "+x.status)); }
+    function goLogin(reason){
+      if(reason) sessionStorage.setItem("profileError", reason);
+      window.location.href = "login.html";
+    }
+
+    async function loadProfile(){
+      const err = document.getElementById("errorBox");
+      err.style.display = "none";
+
+      const selectedId = localStorage.getItem("selectedUser");
+      if(!selectedId){
+        return goLogin("Önce bir kullanıcı seçmelisin.");
+      }
+
+      try{
+        const res = await fetch(USERS_URL, {cache:"no-store"});
+        if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
+        const users = await res.json();
+        const user = users.find(u => String(u.id) === String(selectedId));
+        if(!user){
+          localStorage.removeItem("selectedUser");
+          return goLogin("Seçili kullanıcı bulunamadı.");
         }
-      };
-      x.send();
-    }catch(e){ err&&err(e); }
-  }
 
-  function loadUsers(cb){
-    var paths=["data/users.json","./data/users.json","users.json","./users.json"];
-    var i=0;
-    (function next(){
-      if(i>=paths.length) return cb(FALLBACK);
-      var u=paths[i++]; httpGetJSON(u, function(d){ cb(d); }, function(){ next(); });
-    })();
-  }
+        // Alanlar
+        document.getElementById("isim").textContent = safeText(user.isim,"İsimsiz");
+        const metaParts = [];
+        if(user.yas!=null) metaParts.push(user.yas+" yaş");
+        if(user.meslek) metaParts.push(user.meslek);
+        document.getElementById("meta").textContent = metaParts.length? metaParts.join(" • ") : "Bilgi eklenmemiş";
 
-  function renderUser(u){
-    document.getElementById("name").textContent = u.name || "İsimsiz";
-    var sub=[]; if(u.age) sub.push(String(u.age)); if(u.job) sub.push(u.job); if(u.city) sub.push(u.city);
-    document.getElementById("subtitle").textContent = sub.join(" • ") || "—";
-    document.getElementById("bio").textContent = u.bio || "—";
-    document.getElementById("lastSeen").textContent = "Son görülme: " + (u.lastSeen || "—");
+        const img = document.getElementById("foto");
+        img.src = safeText(user.foto, "images/placeholder.jpg");
+        img.onerror = ()=>{ img.src = "images/placeholder.jpg"; };
 
-    var ul=document.getElementById("interests"); ul.innerHTML="";
-    var arr=u.interests||[]; for(var i=0;i<arr.length;i++){ var li=document.createElement("li"); li.textContent=arr[i]; ul.appendChild(li); }
+        document.getElementById("hakkinda").textContent = safeText(user.hakkinda, "Henüz bir açıklama yok.");
 
-    var av=document.getElementById("avatar"); av.innerHTML="";
-    if(u.photo){
-      var img=new Image(); img.alt=u.name||""; img.style.width="100%"; img.style.height="100%"; img.style.objectFit="cover";
-      img.onerror=function(){ av.textContent=initials(u.name); };
-      img.src = u.photo; // yol JSON'dan geldiği gibi kullanılır (assets/Eren.jpg vs.)
-      av.appendChild(img);
-    }else{ av.textContent=initials(u.name); }
-  }
+        // Basit rozetler (örnek: şehir, ilgi alanları, vb. varsa)
+        const chips = document.getElementById("chips");
+        chips.innerHTML = "";
+        // users.json’a eklersen otomatik görünür:
+        // sehir, ilgi (dizi), universite gibi
+        const extra = [];
+        if(user.sehir) extra.push(user.sehir);
+        if(Array.isArray(user.ilgi)) extra.push(...user.ilgi);
+        if(user.universite) extra.push(user.universite);
+        extra.slice(0,6).forEach(t=>{
+          const c=document.createElement("div");
+          c.className="chip"; c.textContent=String(t);
+          chips.appendChild(c);
+        });
 
-  function getParamId(){
-    // URLSearchParams yerine manuel, ES5 uyumlu okuyucu
-    var s = window.location.search || "";
-    if(s.indexOf("?")===0) s = s.substring(1);
-    var parts = s.split("&");
-    for(var i=0;i<parts.length;i++){
-      var kv = parts[i].split("=");
-      if(kv[0]==="id") return decodeURIComponent(kv[1]||"");
+      }catch(e){
+        err.textContent = "Hata: " + e.message + " — Dosya yolu doğru mu?";
+        err.style.display = "block";
+      }
     }
-    return null;
-  }
 
-  function init(){
-    var chosenId = getParamId();       // 1) URL ?id=eren gibi
-    if(!chosenId){                      // 2) Yoksa localStorage yedeği
-      try{ chosenId = localStorage.getItem(STORAGE_KEY); }catch(e){}
+    document.getElementById("backBtn").addEventListener("click", ()=> goLogin(""));
+    document.getElementById("refreshBtn").addEventListener("click", loadProfile);
+
+    // login sayfasından olası hata mesajını göster
+    const lastErr = sessionStorage.getItem("profileError");
+    if(lastErr){
+      sessionStorage.removeItem("profileError");
+      setTimeout(()=>{
+        const err = document.getElementById("errorBox");
+        err.textContent = lastErr; err.style.display = "block";
+      }, 50);
     }
-    if(!chosenId){ showWarn("Kullanıcı belirtilmedi. Lütfen önce giriş yapın veya URL’ye ?id=ayse ekleyin."); return; }
 
-    loadUsers(function(data){
-      var users = (data && data.users) ? data.users : [];
-      var found=null; for(var i=0;i<users.length;i++){ if(users[i].id===chosenId){ found=users[i]; break; } }
-      if(!found){ showWarn("Belirtilen kullanıcı bulunamadı: " + chosenId); return; }
-      renderUser(found);
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", function(){
-    init();
-    var btn=document.getElementById("btnClear");
-    if(btn){
-      btn.addEventListener("click", function(){
-        try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-        location.href="login.html";
-      });
-    }
-  });
-})();
-</script>
+    loadProfile();
+  </script>
 </body>
 </html>
