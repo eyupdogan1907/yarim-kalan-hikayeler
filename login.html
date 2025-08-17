@@ -11,8 +11,8 @@
       background: #0f1222;
       color: #eef;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
     }
     .card {
@@ -20,33 +20,34 @@
       border: 1px solid #263056;
       border-radius: 12px;
       padding: 20px;
-      max-width: 360px;
-      width: 100%;
+      width: 320px;
       text-align: center;
     }
     select, button {
-      width: 100%;
+      margin-top: 12px;
       padding: 10px;
-      margin: 8px 0;
+      width: 100%;
       border-radius: 8px;
       border: 1px solid #263056;
       background: #22263f;
-      color: #eef;
-      font-size: 15px;
+      color: #fff;
+      font-size: 14px;
     }
     button {
       cursor: pointer;
-      background: #3145d6;
+      background: #3142a8;
     }
     button:hover {
-      background: #3e54f0;
+      background: #3d4fc7;
     }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>Kullanıcı Seç</h2>
-    <select id="userSelect"></select>
+    <select id="userSelect">
+      <option value="">-- Seçin --</option>
+    </select>
     <button onclick="login()">Giriş Yap</button>
   </div>
 
@@ -56,12 +57,11 @@
         const response = await fetch("kullanicilar.json");
         const users = await response.json();
         const select = document.getElementById("userSelect");
-
         users.forEach(user => {
-          const option = document.createElement("option");
-          option.value = user.id;
-          option.textContent = user.name;
-          select.appendChild(option);
+          const opt = document.createElement("option");
+          opt.value = user.id;
+          opt.textContent = user.name;
+          select.appendChild(opt);
         });
       } catch (err) {
         console.error("Kullanıcılar yüklenemedi:", err);
