@@ -6,67 +6,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     *{box-sizing:border-box}
-    body{
-      margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-      background:#0f1222;color:#eef;display:flex;align-items:center;justify-content:center;height:100vh
-    }
-    .card{width:340px;background:#171a2e;border:1px solid #263056;border-radius:14px;padding:20px;text-align:center}
-    h1{margin:0 0 14px}
-    label{display:block;margin:8px 0 6px;opacity:.8}
-    select,button{width:100%;padding:12px;border-radius:10px;border:1px solid #263056;background:#22263f;color:#eef;font-size:15px}
-    button{margin-top:10px;background:#3a5ad9;border:none;cursor:pointer}
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .err{margin-top:8px;color:#ffb3b3;display:none;font-size:14px}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+      background:#0f1222;color:#eef;display:flex;justify-content:center;align-items:center;
+      height:100vh}
+    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:24px;
+      width:320px;text-align:center}
+    select,button{width:100%;padding:12px;margin-top:12px;border-radius:8px;border:1px solid #263056;
+      background:#0f1222;color:#eef;font-size:16px}
+    button{background:#2563eb;cursor:pointer}
+    button:hover{background:#1e4fc1}
   </style>
 </head>
 <body>
   <div class="card">
     <h1>✨ Yarım Kalan Hikayeler</h1>
-    <label for="userSelect">Kullanıcı seç</label>
+    <label for="userSelect">Kullanıcı seç:</label>
     <select id="userSelect">
-      <option value="" selected disabled>Bir kullanıcı seçin…</option>
+      <option value="">Bir kullanıcı seçin…</option>
     </select>
-    <button id="loginBtn" disabled>Giriş Yap</button>
-    <div id="err" class="err"></div>
+    <button onclick="login()">Giriş Yap</button>
   </div>
 
   <script>
-    // Eski anahtarları temizleyelim
-    localStorage.removeItem("selectedUser");
-    localStorage.removeItem("userId");
-
-    const select = document.getElementById('userSelect');
-    const btn = document.getElementById('loginBtn');
-    const errBox = document.getElementById('err');
-
-    // Kullanıcıları yükle
-    fetch('data/users.json', {cache:'no-store'})
-      .then(r => {
-        if(!r.ok) throw new Error('users.json yüklenemedi ('+r.status+')');
-        return r.json();
-      })
-      .then(users => {
-        users.forEach(u => {
-          const opt = document.createElement('option');
-          opt.value = u.id;                                      // 🔑 ID
-          opt.textContent = ${u.isim} (${u.sehir});
+    async function loadUsers(){
+      try {
+        const res = await fetch("data/users.json");
+        const users = await res.json();
+        const select = document.getElementById("userSelect");
+        users.forEach(u=>{
+          const opt=document.createElement("option");
+          opt.value=u.id;
+          opt.textContent=${u.isim} (${u.sehir});
           select.appendChild(opt);
         });
-      })
-      .catch(e => { errBox.textContent='Hata: '+e.message; errBox.style.display='block'; });
+      } catch(e){
+        console.error("JSON yüklenemedi:", e);
+      }
+    }
 
-    // Seçim yapıldığında butonu aç
-    select.addEventListener('change', () => {
-      btn.disabled = !select.value;
-    });
+    function login(){
+      const userId=document.getElementById("userSelect").value;
+      if(!userId){ alert("Lütfen kullanıcı seçin"); return; }
+      localStorage.setItem("currentUserId", userId);
+      window.location.href="profil.html";
+    }
 
-    // Giriş: ID'yi URL'e ekleyerek profile git (ayrıca yedek olarak localStorage'a yaz)
-    btn.addEventListener('click', () => {
-      const id = select.value;
-      if(!id) return;
-      localStorage.setItem('currentUserId', String(id));
-      window.location.href = profil.html?id=${encodeURIComponent(id)};
-    });
+    loadUsers();
   </script>
 </body>
 </html>
