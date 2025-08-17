@@ -25,6 +25,11 @@
     .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
     .chip{background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px}
     .err{color:var(--bad); margin-top:10px; display:none}
+    .mini-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px}
+    .mini{display:flex; gap:10px; align-items:center; background:#111736; border:1px solid var(--border); border-radius:12px; padding:10px}
+    .mini img{width:44px; height:44px; border-radius:8px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
+    .mini .nm{font-weight:600}
+    a.boxlink{color:inherit; text-decoration:none}
   </style>
 </head>
 <body>
@@ -50,84 +55,96 @@
         <div id="errorBox" class="err"></div>
       </div>
     </section>
+
+    <section class="card" style="margin-top:16px">
+      <h3 style="margin:0 0 10px">Yolda Karşılaştıkların</h3>
+      <div id="karsilastiklar" class="mini-grid"></div>
+      <div class="muted" id="karsBos" style="display:none">Henüz kayıtlı karşılaşma yok.</div>
+    </section>
   </main>
 
   <script>
     const USERS_URL = "data/users.json";
+    let allUsers = [];
 
-    function safeText(v, fallback="—"){ return (v===undefined||v===null||v==="") ? fallback : String(v); }
+    function safe(v,f="—"){ return (v==null||v==="")?f:String(v); }
+    function goLogin(reason){ if(reason) sessionStorage.setItem("profileError", reason); window.location.href = "login.html"; }
 
-    function goLogin(reason){
-      if(reason) sessionStorage.setItem("profileError", reason);
-      window.location.href = "login.html";
+    async function loadAllUsers(){
+      const res = await fetch(USERS_URL, {cache:"no-store"});
+      if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
+      allUsers = await res.json();
+    }
+
+    function findUserById(id){ return allUsers.find(u=> String(u.id)===String(id)); }
+
+    function renderProfile(user){
+      document.getElementById("isim").textContent = safe(user.isim,"İsimsiz");
+      const metaParts = [];
+      if(user.yas!=null) metaParts.push(user.yas+" yaş");
+      if(user.meslek) metaParts.push(user.meslek);
+      if(user.sehir) metaParts.push(user.sehir);
+      document.getElementById("meta").textContent = metaParts.length? metaParts.join(" • ") : "Bilgi eklenmemiş";
+
+      const img = document.getElementById("foto");
+      img.src = user.foto || "images/placeholder.jpg";
+      img.onerror = ()=>{ img.onerror=null; img.src="images/placeholder.jpg"; };
+
+      document.getElementById("hakkinda").textContent = safe(user.hakkinda, "Henüz bir açıklama yok.");
+
+      // Rozetler
+      const chips = document.getElementById("chips");
+      chips.innerHTML="";
+      const extra = [];
+      if(user.sehir) extra.push(user.sehir);
+      if(Array.isArray(user.ilgi)) extra.push(...user.ilgi);
+      if(user.universite) extra.push(user.universite);
+      extra.slice(0,8).forEach(t=>{
+        const c=document.createElement("div"); c.className="chip"; c.textContent=String(t);
+        chips.appendChild(c);
+      });
+
+      // Karşılaştıkların
+      const box = document.getElementById("karsilastiklar");
+      const bos = document.getElementById("karsBos");
+      box.innerHTML="";
+      const ids = Array.isArray(user.karsilastiklar)? user.karsilastiklar : [];
+      if(ids.length===0){ bos.style.display="block"; return; }
+      bos.style.display="none";
+      ids.forEach(uid=>{
+        const u = findUserById(uid); if(!u) return;
+        const a = document.createElement("a"); a.href="#"; a.className="boxlink";
+        const item = document.createElement("div"); item.className="mini";
+        const im = document.createElement("img"); im.src=u.foto||"images/placeholder.jpg"; im.onerror=()=>{im.src="images/placeholder.jpg";}
+        const wrap=document.createElement("div");
+        const nm=document.createElement("div"); nm.className="nm"; nm.textContent=safe(u.isim,"Kullanıcı");
+        const meta=document.createElement("div"); meta.style.fontSize="12px"; meta.style.opacity=".7";
+        const yp=(u.yas!=null)?u.yas+" yaş":"";
+        meta.textContent=[yp, safe(u.sehir,"")].filter(Boolean).join(" • ");
+        wrap.appendChild(nm); wrap.appendChild(meta);
+        item.appendChild(im); item.appendChild(wrap);
+        a.appendChild(item);
+        a.addEventListener("click",(e)=>{ e.preventDefault(); localStorage.setItem("selectedUser", String(u.id)); loadProfile(); });
+        box.appendChild(a);
+      });
     }
 
     async function loadProfile(){
-      const err = document.getElementById("errorBox");
-      err.style.display = "none";
-
+      const err = document.getElementById("errorBox"); err.style.display="none";
       const selectedId = localStorage.getItem("selectedUser");
-      if(!selectedId){
-        return goLogin("Önce bir kullanıcı seçmelisin.");
-      }
-
+      if(!selectedId) return goLogin("Önce bir kullanıcı seçmelisin.");
       try{
-        const res = await fetch(USERS_URL, {cache:"no-store"});
-        if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
-        const users = await res.json();
-        const user = users.find(u => String(u.id) === String(selectedId));
-        if(!user){
-          localStorage.removeItem("selectedUser");
-          return goLogin("Seçili kullanıcı bulunamadı.");
-        }
-
-        // Alanlar
-        document.getElementById("isim").textContent = safeText(user.isim,"İsimsiz");
-        const metaParts = [];
-        if(user.yas!=null) metaParts.push(user.yas+" yaş");
-        if(user.meslek) metaParts.push(user.meslek);
-        document.getElementById("meta").textContent = metaParts.length? metaParts.join(" • ") : "Bilgi eklenmemiş";
-
-        const img = document.getElementById("foto");
-        img.src = safeText(user.foto, "images/placeholder.jpg");
-        img.onerror = ()=>{ img.src = "images/placeholder.jpg"; };
-
-        document.getElementById("hakkinda").textContent = safeText(user.hakkinda, "Henüz bir açıklama yok.");
-
-        // Basit rozetler (örnek: şehir, ilgi alanları, vb. varsa)
-        const chips = document.getElementById("chips");
-        chips.innerHTML = "";
-        // users.json’a eklersen otomatik görünür:
-        // sehir, ilgi (dizi), universite gibi
-        const extra = [];
-        if(user.sehir) extra.push(user.sehir);
-        if(Array.isArray(user.ilgi)) extra.push(...user.ilgi);
-        if(user.universite) extra.push(user.universite);
-        extra.slice(0,6).forEach(t=>{
-          const c=document.createElement("div");
-          c.className="chip"; c.textContent=String(t);
-          chips.appendChild(c);
-        });
-
+        await loadAllUsers();
+        const user = findUserById(selectedId);
+        if(!user){ localStorage.removeItem("selectedUser"); return goLogin("Seçili kullanıcı bulunamadı."); }
+        renderProfile(user);
       }catch(e){
-        err.textContent = "Hata: " + e.message + " — Dosya yolu doğru mu?";
-        err.style.display = "block";
+        err.textContent="Hata: "+e.message; err.style.display="block";
       }
     }
 
     document.getElementById("backBtn").addEventListener("click", ()=> goLogin(""));
     document.getElementById("refreshBtn").addEventListener("click", loadProfile);
-
-    // login sayfasından olası hata mesajını göster
-    const lastErr = sessionStorage.getItem("profileError");
-    if(lastErr){
-      sessionStorage.removeItem("profileError");
-      setTimeout(()=>{
-        const err = document.getElementById("errorBox");
-        err.textContent = lastErr; err.style.display = "block";
-      }, 50);
-    }
-
     loadProfile();
   </script>
 </body>
