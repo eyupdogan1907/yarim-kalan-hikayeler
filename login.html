@@ -13,23 +13,21 @@
     html,body{height:100%}
     body{
       margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-      background:linear-gradient(180deg,#0f1222 0%, #121633 100%); color:var(--text);
-      display:flex; align-items:center; justify-content:center; padding:24px;
+      background:radial-gradient(60% 60% at 50% 0%, #1a2150 0%, #0f1222 60%);
+      color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px;
     }
-    .card{width:min(900px,95vw); background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:20px;}
+    .card{width:min(980px,95vw); background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:22px; box-shadow:0 10px 40px rgba(0,0,0,.35)}
     h1{margin:0 0 8px; font-size:22px}
     p{margin:6px 0 18px; color:var(--muted)}
-    .row{display:grid; grid-template-columns:1.1fr 1fr; gap:18px}
+    .row{display:grid; grid-template-columns:1.05fr 1fr; gap:18px}
     @media (max-width:880px){.row{grid-template-columns:1fr}}
     .box{border:1px solid var(--border); border-radius:12px; padding:14px; background:#12152b}
     label{display:block; font-size:14px; color:var(--muted); margin-bottom:8px}
-    select,button{
-      width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:#0f1329; color:var(--text); font-size:16px;
-    }
-    button{cursor:pointer; border-color:transparent; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#09122a; font-weight:700}
-    button[disabled]{opacity:.6; cursor:not-allowed; filter:saturate(.5)}
-    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px}
-    .user{background:#0f1329; border:1px solid var(--border); border-radius:10px; padding:10px; display:flex; gap:10px; align-items:center}
+    select,button{width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:#0f1329; color:var(--text); font-size:16px}
+    button{cursor:pointer; border-color:transparent; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#09122a; font-weight:700; transition:transform .1s}
+    button:hover{transform:translateY(-1px)}
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px}
+    .user{background:#0f1329; border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center}
     .ph{width:48px; height:48px; border-radius:8px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
     .name{font-weight:600}
     .err{margin-top:10px; color:#ffb3b3; font-size:14px; display:none}
@@ -63,73 +61,50 @@
   <script>
     const USERS_URL = "data/users.json";
 
-    function safeText(v, fallback="") {
-      return (v===undefined || v===null) ? fallback : String(v);
-    }
+    function safe(v,f=""){return (v==null||v==="")?f:String(v);}
 
     async function loadUsers(){
       const select = document.getElementById("userSelect");
       const grid = document.getElementById("userGrid");
-      const err = document.getElementById("errorBox");
-      err.style.display = "none";
+      const err  = document.getElementById("errorBox");
+      err.style.display="none";
 
       try{
-        const res = await fetch(USERS_URL, {cache:"no-store"});
+        const res = await fetch(USERS_URL,{cache:"no-store"});
         if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
         const users = await res.json();
 
-        // select doldur
         users.forEach(u=>{
           const opt = document.createElement("option");
           opt.value = u.id;
-          opt.textContent = safeText(u.isim, "İsimsiz")+" (#"+u.id+")";
+          opt.textContent = safe(u.isim,"İsimsiz")+" (#"+u.id+")";
           select.appendChild(opt);
         });
 
-        // grid doldur (küçük önizleme)
-        grid.innerHTML = "";
+        grid.innerHTML="";
         users.forEach(u=>{
-          const item = document.createElement("div");
-          item.className = "user";
-          const img = document.createElement("img");
-          img.className = "ph";
-          img.alt = safeText(u.isim,"Kullanıcı");
-          img.src = safeText(u.foto,"images/placeholder.jpg");
+          const item = document.createElement("div"); item.className="user";
+          const img = document.createElement("img"); img.className="ph"; img.alt=safe(u.isim,"Kullanıcı");
+          img.src = safe(u.foto,"images/placeholder.jpg"); img.onerror=()=>{img.src="images/placeholder.jpg";}
           const wrap = document.createElement("div");
-          const nm = document.createElement("div");
-          nm.className = "name";
-          nm.textContent = safeText(u.isim,"İsimsiz");
-          const meta = document.createElement("div");
-          meta.style.fontSize = "12px";
-          meta.style.opacity = ".7";
-          const yas = (u.yas!=null) ? u.yas+" yaş" : "";
-          const meslek = safeText(u.meslek,"");
-          meta.textContent = [yas, meslek].filter(Boolean).join(" • ");
+          const nm = document.createElement("div"); nm.className="name"; nm.textContent=safe(u.isim,"İsimsiz");
+          const meta = document.createElement("div"); meta.style.fontSize="12px"; meta.style.opacity=".7";
+          const yas = (u.yas!=null)?u.yas+" yaş":"";
+          const meslek = safe(u.meslek,"");
+          const sehir = safe(u.sehir,"");
+          meta.textContent=[yas, meslek, sehir].filter(Boolean).join(" • ");
           wrap.appendChild(nm); wrap.appendChild(meta);
           item.appendChild(img); item.appendChild(wrap);
           grid.appendChild(item);
         });
 
       }catch(e){
-        err.textContent = "Hata: " + e.message + " — Dosya yolu doğru mu?";
-        err.style.display = "block";
+        err.textContent="Hata: "+e.message; err.style.display="block";
       }
     }
 
-    function handleSelect(){
-      const v = document.getElementById("userSelect").value;
-      document.getElementById("loginBtn").disabled = !v;
-    }
-
-    function login(){
-      const id = document.getElementById("userSelect").value;
-      if(!id) return;
-      // Seçili kullanıcıyı sakla ve profil sayfasına git
-      localStorage.setItem("selectedUser", String(id));
-      // Küçük bir güvenlik: önce temizle
-      sessionStorage.removeItem("profileError");
-      window.location.href = "profil.html";
-    }
+    function handleSelect(){ document.getElementById("loginBtn").disabled = !document.getElementById("userSelect").value; }
+    function login(){ const id=document.getElementById("userSelect").value; if(!id) return; localStorage.setItem("selectedUser",String(id)); window.location.href="profil.html"; }
 
     document.getElementById("userSelect").addEventListener("change", handleSelect);
     document.getElementById("loginBtn").addEventListener("click", login);
