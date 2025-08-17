@@ -4,16 +4,51 @@
     "isim": "Ayşe",
     "yas": 25,
     "meslek": "Öğrenci",
+    "sehir": "İstanbul",
+    "universite": "İÜ",
+    "ilgi": ["kitap", "yoga", "gezmek"],
     "foto": "images/ayse.png",
-    "hakkinda": "Kitap okumayı ve yeni insanlarla tanışmayı seviyorum."
+    "hakkinda": "Kitap okumayı ve yeni insanlarla tanışmayı seviyorum.",
+    "karsilastiklar": [2, 3],
+    "pi": "ayse_demo" 
   },
   {
     "id": 2,
     "isim": "Mehmet",
     "yas": 28,
     "meslek": "Mühendis",
+    "sehir": "İstanbul",
+    "universite": "YTÜ",
+    "ilgi": ["futbol", "teknoloji"],
     "foto": "images/mehmet.jpg",
-    "hakkinda": "Teknolojiye meraklıyım, boş zamanlarımda futbol oynarım."
+    "hakkinda": "Teknolojiye meraklıyım, boş zamanlarımda futbol oynarım.",
+    "karsilastiklar": [1],
+    "pi": "mehmet_demo"
+  },
+  {
+    "id": 3,
+    "isim": "Zeynep",
+    "yas": 26,
+    "meslek": "Hemşire",
+    "sehir": "Ankara",
+    "universite": "HÜ",
+    "ilgi": ["koşu", "kahve"],
+    "foto": "images/zeynep.jpg",
+    "hakkinda": "Koşu ve kahve buluşmalarını severim.",
+    "karsilastiklar": [1, 4],
+    "pi": "zeynep_demo"
+  },
+  {
+    "id": 4,
+    "isim": "Ali",
+    "yas": 30,
+    "meslek": "Öğretmen",
+    "sehir": "İzmir",
+    "universite": "EÜ",
+    "ilgi": ["bisiklet", "fotoğraf"],
+    "foto": "images/ali.jpg",
+    "hakkinda": "Hafta sonları bisiklete binerim.",
+    "karsilastiklar": [],
+    "pi": "ali_demo"
   }
 ]
-
