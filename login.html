@@ -1,20 +1,89 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>Yarım Kalan Hikayeler — Giriş</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    *{box-sizing:border-box}
-    :root{
-      --bg:#0d1024; --panel:#141935; --panel-2:#10162e; --border:#263056; --text:#eef; --muted:#a8b0d9;
-      --accent:#6ea8fe; --accent-2:#8bd3ff;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+      background: #0f1222;
+      color: #eef;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    html,body{height:100%}
-    body{
-      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-      color:var(--text); background:radial-gradient(90% 70% at 50% 0%, #1b2256 0%, var(--bg) 60%);
-      display:flex; align-items:center; justify-content:center; padding:18px;
+    h1 {
+      margin-bottom: 20px;
     }
-    header{
-      position:fixed; top:0; left:0; right:0; paddin…
+    .card {
+      background: #171a2e;
+      border: 1px solid #263056;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      width: 300px;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #263056;
+      background: #22263f;
+      color: #eef;
+      font-size: 15px;
+    }
+    button {
+      background: #3a5ad9;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background: #5874e6;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>✨ Yarım Kalan Hikayeler</h1>
+    <p>Kullanıcı seç:</p>
+    <select id="userSelect"></select>
+    <button onclick="login()">Giriş Yap</button>
+  </div>
+
+  <script>
+    let users = [];
+
+    // JSON dosyasını yükle
+    fetch("data/users.json")  // ✅ Burada baştaki / kaldırıldı
+      .then(res => res.json())
+      .then(data => {
+        users = data;
+        const select = document.getElementById("userSelect");
+        users.forEach(u => {
+          let opt = document.createElement("option");
+          opt.value = u.id;
+          opt.textContent = u.isim + " (" + u.sehir + ")";
+          select.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        console.error("JSON yüklenemedi:", err);
+      });
+
+    // Giriş fonksiyonu
+    function login() {
+      const id = document.getElementById("userSelect").value;
+      if (id) {
+        localStorage.setItem("currentUserId", id);
+        window.location.href = "profil.html";
+      }
+    }
+  </script>
+</body>
+</html>
