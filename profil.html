@@ -1,57 +1,77 @@
-<script>
-  const USERS_URL = "data/users.json";
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Yarım Kalan Hikayeler — Profil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
+    header{padding:20px;text-align:center}
+    h1{margin:0;font-size:22px}
+    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    .profile{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
+    .ph{width:180px;height:180px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
+    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:14px}
+    .muted{opacity:.75}
+    .err{color:#ffb3b3;margin-top:10px;display:none}
+  </style>
+</head>
+<body>
+  <header><h1>📖 Yarım Kalan Hikayeler</h1></header>
+  <div class="wrap">
+    <div id="profile" class="card">Yükleniyor…</div>
+    <div id="e" class="err"></div>
+    <div style="margin-top:10px"><a href="login.html">← Başka kullanıcı seç</a></div>
+  </div>
 
-  // 🔑 Hangi anahtarı okuyacağımız:
-  function getActiveUserId(){
-    // URL'de ?id= varsa onu kullan
-    const urlId = new URLSearchParams(location.search).get("id");
-    if (urlId) return urlId;
-
-    // Yeni sistem: login.html'in yazdığı anahtar
-    const lsId = localStorage.getItem("currentUserId");
-    if (lsId) return lsId;
-
-    // Eski sistemlerden kalma olabilir (temizlik)
-    const old = localStorage.getItem("selectedUser") || localStorage.getItem("userId");
-    return old;
-  }
-
-  async function loadProfile(){
-    const id = getActiveUserId();
-    if (!id) { location.href = "login.html"; return; }
-
-    const res = await fetch(USERS_URL, {cache:"no-store"});
-    const users = await res.json();
-
-    const user = users.find(u => String(u.id) === String(id));
-    if (!user) { 
-      // yanlış/eksikse giriş sayfasına dön
-      localStorage.removeItem("currentUserId");
-      localStorage.removeItem("selectedUser");
-      localStorage.removeItem("userId");
-      location.href = "login.html";
-      return;
+  <script>
+    function getActiveUserId(){
+      const urlId = new URLSearchParams(location.search).get("id");
+      if (urlId) return urlId;
+      const lsId = localStorage.getItem("currentUserId"); // 🔑 login.html’in yazdığı
+      if (lsId) return lsId;
+      // Eski kalıntılar:
+      return localStorage.getItem("selectedUser") || localStorage.getItem("userId");
     }
 
-    // --- buradan sonrası: ekrana basma ---
-    document.title = Yarım Kalan Hikayeler — ${user.isim};
-    document.getElementById("profile").innerHTML = `
-      <div class="profile">
-        <img class="ph" src="${user.foto}" alt="${user.isim}">
-        <div>
-          <h2>${user.isim}, ${user.yas}</h2>
-          <p class="muted">${user.meslek} — ${user.sehir}</p>
-          <p><b>Üniversite:</b> ${user.universite ?? "-"}</p>
-          <p><b>İlgi Alanları:</b> ${(user.ilgi||[]).join(", ")}</p>
-          <p>${user.hakkinda ?? ""}</p>
-        </div>
-      </div>`;
-  }
+    async function loadProfile(){
+      const err = document.getElementById("e");
+      const box = document.getElementById("profile");
+      try{
+        const id = getActiveUserId();
+        if(!id){ location.href = "login.html"; return; }
 
-  // Eski anahtar kalmışsa temizle (karışmasın):
-  localStorage.removeItem("selectedUser");
-  localStorage.removeItem("userId");
+        const res = await fetch("data/users.json", {cache:"no-store"});
+        if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
+        const users = await res.json();
+        const u = users.find(x => String(x.id) === String(id));
+        if(!u){ localStorage.removeItem("currentUserId"); location.href="login.html"; return; }
 
-  // Yükle
-  document.addEventListener("DOMContentLoaded", loadProfile);
-</script>
+        document.title = Yarım Kalan Hikayeler — ${u.isim};
+        box.innerHTML = `
+          <div class="profile">
+            <img src="${u.foto}" alt="${u.isim}" class="ph">
+            <div>
+              <h2>${u.isim}, ${u.yas}</h2>
+              <p class="muted">${u.meslek} — ${u.sehir}</p>
+              ${u.universite ? <p><b>Üniversite:</b> ${u.universite}</p> : ""}
+              <p><b>İlgi Alanları:</b> ${(u.ilgi||[]).join(", ")}</p>
+              <p>${u.hakkinda || ""}</p>
+            </div>
+          </div>
+        `;
+      }catch(e){
+        err.textContent = "Hata: "+e.message;
+        err.style.display = "block";
+      }
+    }
+
+    // Eski anahtarları temizleyelim ki karışmasın
+    localStorage.removeItem("selectedUser");
+    localStorage.removeItem("userId");
+
+    document.addEventListener("DOMContentLoaded", loadProfile);
+  </script>
+</body>
+</html>
