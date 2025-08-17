@@ -2,135 +2,71 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8">
-  <title>Yarım Kalan Hikayeler — Giriş (Tanılı)</title>
+  <title>Yarım Kalan Hikayeler — Giriş</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root{--bg:#0f1222;--panel:#171a2e;--border:#263056;--text:#eef;--err:#ffb3b3}
+    :root{--bg:#0f1222;--panel:#171a2e;--border:#263056;--text:#eef}
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:var(--bg);color:var(--text);
-         display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-    .card{width:min(420px,94vw);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
-    h1{margin:0 0 8px;font-size:20px}
-    .muted{opacity:.75;margin:0 0 12px}
-    select,button{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#1a2144;color:var(--text);font-size:15px}
-    button{margin-top:10px;background:#3a5ad9;border:none;cursor:pointer}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+         background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{width:min(360px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+    select,button{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid var(--border);font-size:15px}
+    select{background:#1a2144;color:var(--text)}
+    button{background:#3a5ad9;color:#fff;cursor:pointer;border:none}
     button:disabled{opacity:.6;cursor:not-allowed}
-    .err{margin-top:10px;background:#331b1b;border:1px solid #7a3a3a;color:var(--err);padding:10px;border-radius:8px;display:none;white-space:pre-wrap}
-    .ok{margin-top:8px;font-size:12px;opacity:.8}
-    code{background:#10162e;border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+    .err{margin-top:10px;color:#ffb3b3;display:none;font-size:14px}
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>✨ Yarım Kalan Hikayeler</h1>
-    <p class="muted">Kullanıcı seç ve devam et. Bu sayfa otomatik olarak doğru JSON dosyasını bulur.</p>
-
-    <label for="userSelect" style="display:block;margin:6px 0 6px;opacity:.85">Kullanıcı seç</label>
+    <h2>Kullanıcı Seç</h2>
     <select id="userSelect">
-      <option value="" selected disabled>Bir kullanıcı seçin…</option>
+      <option value="" selected disabled>— Seçin —</option>
     </select>
     <button id="goBtn" disabled>Giriş Yap</button>
-
     <div id="err" class="err"></div>
-    <div id="ok" class="ok"></div>
   </div>
 
-<script>
-(function(){
-  const CANDIDATES = ["kullanicilar.json", "data/users.json", "users.json"]; // sırayla dene
-  const selectEl = document.getElementById("userSelect");
-  const goBtn = document.getElementById("goBtn");
-  const errBox = document.getElementById("err");
-  const okBox  = document.getElementById("ok");
+  <script>
+    (async function(){
+      const select = document.getElementById('userSelect');
+      const btn    = document.getElementById('goBtn');
+      const errBox = document.getElementById('err');
 
-  // karışıklık olmasın
-  try { localStorage.removeItem("selectedUser"); localStorage.removeItem("userId"); } catch(_){}
+      // Eski anahtarları temizle
+      try{ localStorage.removeItem('selectedUser'); localStorage.removeItem('userId'); }catch(_){}
 
-  function logOk(msg){ okBox.textContent = msg; }
-  function showErr(msg, e){
-    errBox.style.display="block";
-    errBox.textContent = msg + (e ? ("\n\nDetay:\n" + (e.message||e)) : "");
-    console.error("[login]", msg, e||"");
-  }
-
-  async function tryFetch(url){
-    console.log("[login] dene:", url);
-    const res = await fetch(url, {cache:"no-store"});
-    if(!res.ok) throw new Error(url + " " + res.status);
-    const data = await res.json();
-    if (!data) throw new Error("Boş JSON: " + url);
-    return {url, data};
-  }
-
-  function normalize(raw){
-    // Hem [{…}] hem {users:[…]} destekle
-    const arr = Array.isArray(raw) ? raw : (Array.isArray(raw.users) ? raw.users : []);
-    // Şema eşleştirme
-    return arr.map(u => ({
-      id: u.id,
-      isim: u.isim || u.name || u.ad || "",
-      sehir: u.sehir || u.city || "",
-      yas: u.yas ?? u.age ?? "",
-      meslek: u.meslek || u.job || "",
-      foto: u.foto || u.photo || "",
-      hakkinda: u.hakkinda || u.about || "",
-      ilgi: u.ilgi || u.interests || [],
-      pi: u.pi
-    })).filter(u => u.id!=null && u.isim);
-  }
-
-  async function loadUsers(){
-    errBox.style.display="none"; okBox.textContent="";
-    let lastErr = null;
-
-    for(const url of CANDIDATES){
+      // JSON'u YÜKLE (SENDE BU ÇALIŞIYOR: data/users.json)
       try{
-        const {url:foundUrl, data} = await tryFetch(url);
-        const users = normalize(data);
-        if(!users.length) throw new Error("JSON bulundu ama alan adları beklenenden farklı (id/isim gerekli).");
+        const res = await fetch('data/users.json', {cache:'no-store'});
+        if(!res.ok) throw new Error('users.json bulunamadı ('+res.status+')');
+        const users = await res.json();
 
-        // Dropdown doldur
         users.forEach(u=>{
-          const opt=document.createElement("option");
+          const opt = document.createElement('option');
           opt.value = u.id;
-          opt.textContent = ${u.isim}${u.sehir? " ("+u.sehir+")":""};
-          selectEl.appendChild(opt);
+          opt.textContent = ${u.isim} (${u.sehir});
+          select.appendChild(opt);
         });
-
-        // Profil sayfası da kullansın diye normalize edilmiş listeyi saklayalım
-        try { localStorage.setItem("usersNormalized", JSON.stringify(users)); } catch(_){}
-
-        logOk(Kaynak: <${foundUrl}> — ${users.length} kullanıcı yüklendi.);
-        return; // başarı
       }catch(e){
-        lastErr = e;
-        console.warn("[login] kaynak olmadı:", url, e);
-        // sıradakine geç
+        errBox.textContent = 'Hata: Kullanıcılar yüklenemedi. ' + (e.message||e);
+        errBox.style.display = 'block';
+        console.error(e);
+        return;
       }
-    }
-    // Hepsi patladıysa:
-    showErr(
-      "Hiçbir JSON kaynağı yüklenemedi.\nLütfen bu dosyalardan biri repo kökünde olsun:\n" +
-      " - kullanicilar.json  (önerilen)\n - data/users.json\n - users.json\n" +
-      "Ayrıca JSON'un her kullanıcı için en az 'id' ve 'isim' (veya 'name') alanı içerdiğinden emin ol.",
-      lastErr
-    );
-  }
 
-  // Etkinleştirme ve giriş
-  selectEl.addEventListener("change", ()=> { goBtn.disabled = !selectEl.value; });
+      // Seçim yapılınca butonu aç
+      select.addEventListener('change', ()=>{ btn.disabled = !select.value; });
 
-  goBtn.addEventListener("click", ()=>{
-    const id = selectEl.value;
-    if(!id){ return; }
-    try { localStorage.setItem("currentUserId", String(id)); } catch(_){}
-    // URL ile de gönder (profil.html eski olursa bile doğru kişiyi açsın)
-    window.location.href = profil.html?id=${encodeURIComponent(id)};
-  });
-
-  // Başlat
-  loadUsers();
-})();
-</script>
+      // GİRİŞ
+      btn.addEventListener('click', ()=>{
+        const id = select.value;
+        if(!id) return;
+        localStorage.setItem('currentUserId', String(id));
+        // 🔑 BURASI DOĞRU: backtick ile template string
+        window.location.href = profil.html?id=${encodeURIComponent(id)};
+      });
+    })();
+  </script>
 </body>
 </html>
