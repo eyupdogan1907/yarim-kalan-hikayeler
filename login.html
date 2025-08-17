@@ -8,7 +8,7 @@
     *{box-sizing:border-box}
     :root{
       --bg:#0d1024; --panel:#141935; --panel-2:#10162e; --border:#263056; --text:#eef; --muted:#a8b0d9;
-      --accent:#6ea8fe; --accent-2:#8bd3ff; --ok:#79ffa3;
+      --accent:#6ea8fe; --accent-2:#8bd3ff;
     }
     html,body{height:100%}
     body{
@@ -24,8 +24,7 @@
     header .title{font-weight:700}
     header .pill{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:#0f1530}
     .card{width:min(980px,96vw); background:linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--border);
-      border-radius:16px; padding:18px; box-shadow:0 12px 45px rgba(0,0,0,.35); margin-top:54px; animation:pop .25s ease-out}
-    @keyframes pop{from{transform:translateY(6px); opacity:.7} to{transform:none; opacity:1}}
+      border-radius:16px; padding:18px; box-shadow:0 12px 45px rgba(0,0,0,.35); margin-top:54px}
     h1{margin:0 0 8px; font-size:22px}
     p{margin:6px 0 18px; color:var(--muted)}
     .row{display:grid; grid-template-columns:1.05fr 1fr; gap:18px}
@@ -33,8 +32,8 @@
     .box{border:1px solid var(--border); border-radius:12px; padding:14px; background:#0f1530}
     label{display:block; font-size:14px; color:var(--muted); margin-bottom:8px}
     select,button{width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:#0f1329; color:var(--text); font-size:16px}
-    button{cursor:pointer; border-color:transparent; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#09122a; font-weight:800; transition:transform .08s}
-    button:hover{transform:translateY(-1px)}
+    button{cursor:pointer; border-color:transparent; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#09122a; font-weight:800}
+    button:disabled{opacity:.6; cursor:not-allowed}
     .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px}
     .user{background:#0e1430; border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center}
     .ph{width:48px; height:48px; border-radius:8px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
@@ -43,7 +42,7 @@
     .footer{margin-top:16px; font-size:13px; color:var(--muted)}
     .piBtn{display:none; margin-top:8px; background:linear-gradient(180deg,#ffd43b,#ffb703); color:#1b1405}
   </style>
-  <!-- İstersen SDK’yı manuel ekleyebilirsin; Pi Browser genelde kendisi sağlar -->
+  <!-- (Gerekirse) Pi SDK -->
   <!-- <script src="https://sdk.minepi.com/pi-sdk.js"></script> -->
 </head>
 <body>
@@ -79,7 +78,7 @@
   <script>
     const USERS_URL = "data/users.json";
 
-    function safe(v,f=""){return (v==null||v==="")?f:String(v);}
+    function safe(v,f=""){ return (v==null||v==="")?f:String(v); }
 
     async function loadUsers(){
       const select = document.getElementById("userSelect");
@@ -92,6 +91,7 @@
         if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
         const users = await res.json();
 
+        // select doldur
         users.forEach(u=>{
           const opt = document.createElement("option");
           opt.value = u.id;
@@ -99,27 +99,91 @@
           select.appendChild(opt);
         });
 
+        // önizleme doldur
         grid.innerHTML="";
         users.forEach(u=>{
           const item = document.createElement("div"); item.className="user";
           const img = document.createElement("img"); img.className="ph"; img.alt=safe(u.isim,"Kullanıcı");
-          img.src = safe(u.foto,"images/placeholder.jpg"); img.onerror=()=>{img.src="images/placeholder.jpg";}
+          img.src = safe(u.foto,"images/placeholder.jpg");
+          img.onerror = ()=>{ img.src="images/placeholder.jpg"; };
           const wrap = document.createElement("div");
           const nm = document.createElement("div"); nm.className="name"; nm.textContent=safe(u.isim,"İsimsiz");
           const meta = document.createElement("div"); meta.style.fontSize="12px"; meta.style.opacity=".7";
           const yas = (u.yas!=null)?u.yas+" yaş":"";
           const meslek = safe(u.meslek,"");
           const sehir = safe(u.sehir,"");
-          meta.textContent=[yas, meslek, sehir].filter(Boolean).join(" • ");
+          meta.textContent = [yas, meslek, sehir].filter(Boolean).join(" • ");
           wrap.appendChild(nm); wrap.appendChild(meta);
           item.appendChild(img); item.appendChild(wrap);
           grid.appendChild(item);
         });
 
       }catch(e){
-        err.textContent="Hata: "+e.message; err.style.display="block";
+        err.textContent = "Hata: "+e.message+" — Dosya yolu doğru mu? (data/users.json)";
+        err.style.display="block";
       }
     }
 
-    function handleSelect(){ document.getElementById("loginBtn").disabled = !document.getElementById("userSelect").value; }
-    function classic
+    function handleSelect(){
+      const v = document.getElementById("userSelect").value;
+      document.getElementById("loginBtn").disabled = !v;
+    }
+
+    function classicLogin(){
+      const id = document.getElementById("userSelect").value;
+      if(!id) return;
+      localStorage.setItem("selectedUser", String(id));
+      window.location.href = "profil.html";
+    }
+
+    async function tryPiLogin(){
+      const btn = document.getElementById("piLoginBtn");
+      const err = document.getElementById("errorBox");
+      err.style.display="none";
+
+      if(typeof window.Pi === "undefined"){
+        // Normal tarayıcı: klasik girişe yönlendir
+        return classicLogin();
+      }
+      try{
+        const scopes = ["username"];
+        const auth = await window.Pi.authenticate(scopes, ()=>{});
+        const username = auth?.user?.username;
+
+        const res = await fetch(USERS_URL,{cache:"no-store"});
+        const users = await res.json();
+        const match = users.find(u => String(u.pi||"").toLowerCase() === String(username||"").toLowerCase());
+
+        if(match){
+          localStorage.setItem("selectedUser", String(match.id));
+          window.location.href = "profil.html";
+        }else{
+          err.textContent = "Pi hesabın yerel kullanıcıyla eşleşmedi. Lütfen listeden kullanıcı seç.";
+          err.style.display="block";
+        }
+      }catch(e){
+        err.textContent = "Pi girişi başarısız: " + e.message;
+        err.style.display="block";
+      }
+    }
+
+    function detectPiAndToggle(){
+      const piBtn = document.getElementById("piLoginBtn");
+      if(typeof window.Pi !== "undefined"){
+        piBtn.style.display = "inline-block";
+      }else{
+        piBtn.style.display = "none";
+      }
+    }
+
+    // eventler
+    document.getElementById("userSelect").addEventListener("change", handleSelect);
+    document.getElementById("loginBtn").addEventListener("click", classicLogin);
+    document.getElementById("piLoginBtn").addEventListener("click", tryPiLogin);
+
+    // başlangıç
+    detectPiAndToggle();
+    loadUsers();
+  </script>
+</body>
+</html>
