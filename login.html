@@ -7,46 +7,64 @@
   <style>
     *{box-sizing:border-box}
     :root{
-      --bg:#0f1222; --panel:#171a2e; --border:#263056; --text:#eaf; --muted:#a8b0d9;
-      --accent:#6ea8fe; --accent-2:#8bd3ff;
+      --bg:#0d1024; --panel:#141935; --panel-2:#10162e; --border:#263056; --text:#eef; --muted:#a8b0d9;
+      --accent:#6ea8fe; --accent-2:#8bd3ff; --ok:#79ffa3;
     }
     html,body{height:100%}
     body{
       margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-      background:radial-gradient(60% 60% at 50% 0%, #1a2150 0%, #0f1222 60%);
-      color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px;
+      color:var(--text); background:radial-gradient(90% 70% at 50% 0%, #1b2256 0%, var(--bg) 60%);
+      display:flex; align-items:center; justify-content:center; padding:18px;
     }
-    .card{width:min(980px,95vw); background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:22px; box-shadow:0 10px 40px rgba(0,0,0,.35)}
+    header{
+      position:fixed; top:0; left:0; right:0; padding:10px 14px;
+      display:flex; gap:10px; align-items:center; justify-content:center;
+      background:rgba(16,22,46,.55); backdrop-filter: blur(6px); border-bottom:1px solid rgba(38,48,86,.5);
+    }
+    header .title{font-weight:700}
+    header .pill{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:#0f1530}
+    .card{width:min(980px,96vw); background:linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--border);
+      border-radius:16px; padding:18px; box-shadow:0 12px 45px rgba(0,0,0,.35); margin-top:54px; animation:pop .25s ease-out}
+    @keyframes pop{from{transform:translateY(6px); opacity:.7} to{transform:none; opacity:1}}
     h1{margin:0 0 8px; font-size:22px}
     p{margin:6px 0 18px; color:var(--muted)}
     .row{display:grid; grid-template-columns:1.05fr 1fr; gap:18px}
     @media (max-width:880px){.row{grid-template-columns:1fr}}
-    .box{border:1px solid var(--border); border-radius:12px; padding:14px; background:#12152b}
+    .box{border:1px solid var(--border); border-radius:12px; padding:14px; background:#0f1530}
     label{display:block; font-size:14px; color:var(--muted); margin-bottom:8px}
     select,button{width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:#0f1329; color:var(--text); font-size:16px}
-    button{cursor:pointer; border-color:transparent; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#09122a; font-weight:700; transition:transform .1s}
+    button{cursor:pointer; border-color:transparent; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#09122a; font-weight:800; transition:transform .08s}
     button:hover{transform:translateY(-1px)}
     .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px}
-    .user{background:#0f1329; border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center}
+    .user{background:#0e1430; border:1px solid var(--border); border-radius:12px; padding:10px; display:flex; gap:10px; align-items:center}
     .ph{width:48px; height:48px; border-radius:8px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
-    .name{font-weight:600}
+    .name{font-weight:700}
     .err{margin-top:10px; color:#ffb3b3; font-size:14px; display:none}
     .footer{margin-top:16px; font-size:13px; color:var(--muted)}
+    .piBtn{display:none; margin-top:8px; background:linear-gradient(180deg,#ffd43b,#ffb703); color:#1b1405}
   </style>
+  <!-- İstersen SDK’yı manuel ekleyebilirsin; Pi Browser genelde kendisi sağlar -->
+  <!-- <script src="https://sdk.minepi.com/pi-sdk.js"></script> -->
 </head>
 <body>
+  <header>
+    <span class="title">Yarım Kalan Hikayeler</span>
+    <span class="pill">Demo • v0.2</span>
+  </header>
+
   <main class="card">
-    <h1>Yarım Kalan Hikayeler</h1>
-    <p>Giriş yap ve profilini açalım.</p>
+    <h1>Giriş</h1>
+    <p>Bir kullanıcı seç ve profilini açalım. Pi Browser’daysan “Pi ile Giriş Yap” butonu da görünür.</p>
 
     <div class="row">
       <section class="box">
         <label for="userSelect">Kullanıcı seç</label>
-        <select id="userSelect" aria-label="Kullanıcı seçimi">
+        <select id="userSelect">
           <option value="" selected disabled>Bir kullanıcı seçin…</option>
         </select>
         <div style="height:12px"></div>
         <button id="loginBtn" disabled>Devam</button>
+        <button id="piLoginBtn" class="piBtn">Pi ile Giriş Yap</button>
         <div id="errorBox" class="err"></div>
         <div class="footer">Veriler <code>data/users.json</code> dosyasından yüklenir.</div>
       </section>
@@ -104,11 +122,4 @@
     }
 
     function handleSelect(){ document.getElementById("loginBtn").disabled = !document.getElementById("userSelect").value; }
-    function login(){ const id=document.getElementById("userSelect").value; if(!id) return; localStorage.setItem("selectedUser",String(id)); window.location.href="profil.html"; }
-
-    document.getElementById("userSelect").addEventListener("change", handleSelect);
-    document.getElementById("loginBtn").addEventListener("click", login);
-    loadUsers();
-  </script>
-</body>
-</html>
+    function classic
