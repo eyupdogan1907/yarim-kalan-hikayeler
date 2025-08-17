@@ -5,68 +5,86 @@
   <title>Yarım Kalan Hikayeler — Giriş</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root{--bg:#0f1222;--panel:#171a2e;--border:#263056;--text:#eef}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-         background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center}
-    .card{width:min(360px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
-    select,button{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid var(--border);font-size:15px}
-    select{background:#1a2144;color:var(--text)}
-    button{background:#3a5ad9;color:#fff;cursor:pointer;border:none}
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .err{margin-top:10px;color:#ffb3b3;display:none;font-size:14px}
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+      background: #0f1222;
+      color: #eef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: #171a2e;
+      border: 1px solid #263056;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      width: 300px;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: 20px;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #263056;
+      background: #22263f;
+      color: #eef;
+      font-size: 15px;
+    }
+    button {
+      cursor: pointer;
+      background: #3040a0;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #4050c0;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>Kullanıcı Seç</h2>
+    <h1>Kullanıcı Seç</h1>
     <select id="userSelect">
-      <option value="" selected disabled>— Seçin —</option>
+      <option value="">— Seçin —</option>
     </select>
-    <button id="goBtn" disabled>Giriş Yap</button>
-    <div id="err" class="err"></div>
+    <button onclick="login()">Giriş Yap</button>
   </div>
 
   <script>
-    (async function(){
-      const select = document.getElementById('userSelect');
-      const btn    = document.getElementById('goBtn');
-      const errBox = document.getElementById('err');
-
-      // Eski anahtarları temizle
-      try{ localStorage.removeItem('selectedUser'); localStorage.removeItem('userId'); }catch(_){}
-
-      // JSON'u YÜKLE (SENDE BU ÇALIŞIYOR: data/users.json)
-      try{
-        const res = await fetch('data/users.json', {cache:'no-store'});
-        if(!res.ok) throw new Error('users.json bulunamadı ('+res.status+')');
+    async function loadUsers() {
+      try {
+        const res = await fetch("kullanicilar.json");
         const users = await res.json();
-
-        users.forEach(u=>{
-          const opt = document.createElement('option');
+        const select = document.getElementById("userSelect");
+        users.forEach(u => {
+          const opt = document.createElement("option");
           opt.value = u.id;
-          opt.textContent = ${u.isim} (${u.sehir});
+          opt.textContent = u.ad;
           select.appendChild(opt);
         });
-      }catch(e){
-        errBox.textContent = 'Hata: Kullanıcılar yüklenemedi. ' + (e.message||e);
-        errBox.style.display = 'block';
-        console.error(e);
-        return;
+      } catch (err) {
+        console.error("Kullanıcılar yüklenemedi:", err);
       }
+    }
 
-      // Seçim yapılınca butonu aç
-      select.addEventListener('change', ()=>{ btn.disabled = !select.value; });
-
-      // GİRİŞ
-      btn.addEventListener('click', ()=>{
-        const id = select.value;
-        if(!id) return;
-        localStorage.setItem('currentUserId', String(id));
-        // 🔑 BURASI DOĞRU: backtick ile template string
+    function login() {
+      const id = document.getElementById("userSelect").value;
+      if (id) {
+        // ✅ Düzeltildi: backtick ile çalışacak
         window.location.href = profil.html?id=${encodeURIComponent(id)};
-      });
-    })();
+      } else {
+        alert("Lütfen bir kullanıcı seçin.");
+      }
+    }
+
+    loadUsers();
   </script>
 </body>
 </html>
