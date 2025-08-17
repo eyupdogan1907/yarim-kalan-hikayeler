@@ -31,42 +31,41 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const select = document.getElementById("userSelect");
-      const btn = document.getElementById("loginBtn");
-      const err = document.getElementById("err");
+    // Eski anahtarları temizleyelim
+    localStorage.removeItem("selectedUser");
+    localStorage.removeItem("userId");
 
-      // Eski anahtarları temizle
-      localStorage.removeItem("selectedUser");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("currentUserId");
+    const select = document.getElementById('userSelect');
+    const btn = document.getElementById('loginBtn');
+    const errBox = document.getElementById('err');
 
-      try {
-        const res = await fetch("data/users.json", { cache: "no-store" });
-        if (!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
-        const users = await res.json();
-
+    // Kullanıcıları yükle
+    fetch('data/users.json', {cache:'no-store'})
+      .then(r => {
+        if(!r.ok) throw new Error('users.json yüklenemedi ('+r.status+')');
+        return r.json();
+      })
+      .then(users => {
         users.forEach(u => {
-          const opt = document.createElement("option");
-          opt.value = u.id;                        // id -> profil sayfasında kullanılacak
+          const opt = document.createElement('option');
+          opt.value = u.id;                                      // 🔑 ID
           opt.textContent = ${u.isim} (${u.sehir});
           select.appendChild(opt);
         });
-      } catch (e) {
-        err.textContent = "Hata: " + e.message;
-        err.style.display = "block";
-      }
+      })
+      .catch(e => { errBox.textContent='Hata: '+e.message; errBox.style.display='block'; });
 
-      select.addEventListener("change", () => {
-        btn.disabled = !select.value;
-      });
+    // Seçim yapıldığında butonu aç
+    select.addEventListener('change', () => {
+      btn.disabled = !select.value;
+    });
 
-      btn.addEventListener("click", () => {
-        const id = select.value;
-        if (!id) return;
-        localStorage.setItem("currentUserId", String(id)); // 🔑 doğru anahtar
-        window.location.href = "profil.html";
-      });
+    // Giriş: ID'yi URL'e ekleyerek profile git (ayrıca yedek olarak localStorage'a yaz)
+    btn.addEventListener('click', () => {
+      const id = select.value;
+      if(!id) return;
+      localStorage.setItem('currentUserId', String(id));
+      window.location.href = profil.html?id=${encodeURIComponent(id)};
     });
   </script>
 </body>
