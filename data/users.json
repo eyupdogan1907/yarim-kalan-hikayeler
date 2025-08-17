@@ -1,46 +1,55 @@
+
 [
   {
     "id": 1,
-    "name": "Ayşe",
-    "age": 24,
-    "job": "Öğrenci",
-    "city": "İstanbul",
-    "about": "Kitap okumayı, kahve içmeyi ve yeni insanlarla tanışmayı seviyor.",
-    "photo": "images/ayse.png",
-    "interests": ["Kitaplar", "Kahve", "Yürüyüş"],
-    "connections": [2,3]
+    "isim": "Ayşe",
+    "yas": 25,
+    "meslek": "Öğrenci",
+    "sehir": "İstanbul",
+    "universite": "İstanbul Üniversitesi",
+    "ilgi": ["kitap", "yoga", "gezmek"],
+    "foto": "images/ayse.png",
+    "hakkinda": "Kitap okumayı ve yeni insanlarla tanışmayı seviyorum.",
+    "karsilastiklar": [2, 3],
+    "pi": "ayse_demo"
   },
   {
     "id": 2,
-    "name": "Mehmet",
-    "age": 27,
-    "job": "Mühendis",
-    "city": "Ankara",
-    "about": "Seyahat etmeyi ve yeni kültürler keşfetmeyi seviyor.",
-    "photo": "images/mehmet.png",
-    "interests": ["Seyahat", "Teknoloji", "Futbol"],
-    "connections": [1,4]
+    "isim": "Mehmet",
+    "yas": 28,
+    "meslek": "Mühendis",
+    "sehir": "İstanbul",
+    "universite": "Yıldız Teknik Üniversitesi",
+    "ilgi": ["futbol", "teknoloji"],
+    "foto": "images/mehmet.jpg",
+    "hakkinda": "Teknolojiye meraklıyım, boş zamanlarımda futbol oynarım.",
+    "karsilastiklar": [1],
+    "pi": "mehmet_demo"
   },
   {
     "id": 3,
-    "name": "Zeynep",
-    "age": 25,
-    "job": "Grafik Tasarımcı",
-    "city": "İzmir",
-    "about": "Sanat galerilerini gezmek ve sahilde yürümek hobileri arasında.",
-    "photo": "images/zeynep.png",
-    "interests": ["Sanat", "Koşu", "Kahve"],
-    "connections": [1,4]
+    "isim": "Zeynep",
+    "yas": 26,
+    "meslek": "Hemşire",
+    "sehir": "Ankara",
+    "universite": "Hacettepe Üniversitesi",
+    "ilgi": ["koşu", "kahve"],
+    "foto": "images/zeynep.jpg",
+    "hakkinda": "Koşu ve kahve buluşmalarını severim.",
+    "karsilastiklar": [1, 4],
+    "pi": "zeynep_demo"
   },
   {
     "id": 4,
-    "name": "Ali",
-    "age": 28,
-    "job": "Doktor",
-    "city": "Bursa",
-    "about": "İnsanlara yardım etmekten mutlu oluyor. Boş vakitlerinde futbol oynuyor.",
-    "photo": "images/ali.png",
-    "interests": ["Futbol", "Doğa", "Kitaplar"],
-    "connections": [2,3]
+    "isim": "Ali",
+    "yas": 30,
+    "meslek": "Öğretmen",
+    "sehir": "İzmir",
+    "universite": "Ege Üniversitesi",
+    "ilgi": ["bisiklet", "fotoğraf"],
+    "foto": "images/ali.jpg",
+    "hakkinda": "Hafta sonları bisiklete binerim.",
+    "karsilastiklar": [2,3],
+    "pi": "ali_demo"
   }
 ]
