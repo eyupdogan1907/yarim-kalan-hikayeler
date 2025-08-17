@@ -1,159 +1,57 @@
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Yarım Kalan Hikayeler — Profil</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    *{box-sizing:border-box}
-    :root{
-      --bg:#0f1222; --panel:#171a2e; --border:#263056; --text:#eef; --muted:#a8b0d9;
-      --chip:#212749;
-    }
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-         background:#0f1222;color:var(--text)}
-    header{padding:18px; border-bottom:1px solid var(--border); background:#12152b; position:sticky; top:0; z-index:2}
-    .wrap{max-width:980px; margin:0 auto; padding:16px}
-    h1{font-size:20px; margin:0}
-    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center}
-    .btn{padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#111736; color:var(--text); cursor:pointer; font-weight:600}
-    .btn.primary{background:linear-gradient(180deg,#6ea8fe,#8bd3ff); color:#09122a; border-color:transparent}
-    .profile{display:grid; grid-template-columns:220px 1fr; gap:18px; align-items:start}
-    @media (max-width:880px){.profile{grid-template-columns:1fr}}
-    .ph{width:220px; height:220px; border-radius:14px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
-    .card{background:#171a2e; border:1px solid var(--border); border-radius:12px; padding:14px}
-    .muted{opacity:.78}
-    .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
-    .chip{background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px}
-    .mini-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px}
-    .mini{display:flex; gap:10px; align-items:center; background:#111736; border:1px solid var(--border); border-radius:12px; padding:10px}
-    .mini img{width:44px; height:44px; border-radius:8px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
-    .mini .nm{font-weight:600}
-    a.boxlink{color:inherit; text-decoration:none}
-  </style>
-</head>
-<body>
-  <header>
-    <div class="wrap">
-      <h1>Yarım Kalan Hikayeler — Profil</h1>
-      <div class="actions">
-        <button class="btn" id="backBtn">◀ Kullanıcı değiştir</button>
-        <button class="btn primary" id="refreshBtn">Verileri yenile</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <section class="profile">
-      <img id="foto" class="ph" alt="Profil fotoğrafı" src="images/placeholder.jpg" />
-      <div class="card">
-        <h2 id="isim" style="margin:0 0 6px">—</h2>
-        <div class="muted" id="meta">—</div>
-        <div class="chips" id="chips"></div>
-        <div style="height:8px"></div>
-        <p id="hakkinda" style="margin:10px 0 0">—</p>
-        <div id="err" style="color:#ffb3b3; margin-top:10px; display:none"></div>
-      </div>
-    </section>
-
-    <section class="card" style="margin-top:16px">
-      <h3 style="margin:0 0 10px">Yolda Karşılaştıkların</h3>
-      <div id="karsilastiklar" class="mini-grid"></div>
-      <div class="muted" id="karsBos" style="display:none">Henüz kayıtlı karşılaşma yok.</div>
-    </section>
-  </main>
-
 <script>
-  // users.json için MUTLAK URL — siyah ekranı çözer
-  const USERS_URL = "https://eyupdogan1907.github.io/yarim-kalan-hikayeler/data/users.json";
+  const USERS_URL = "data/users.json";
 
-  let allUsers = [];
+  // 🔑 Hangi anahtarı okuyacağımız:
+  function getActiveUserId(){
+    // URL'de ?id= varsa onu kullan
+    const urlId = new URLSearchParams(location.search).get("id");
+    if (urlId) return urlId;
 
-  function safe(v,f="—"){ return (v==null||v==="")?f:String(v); }
-  function goLogin(){ window.location.href = "login.html"; }
+    // Yeni sistem: login.html'in yazdığı anahtar
+    const lsId = localStorage.getItem("currentUserId");
+    if (lsId) return lsId;
 
-  async function fetchUsers(){
-    const res = await fetch(USERS_URL, {cache:"no-store"});
-    if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
-    const raw = await res.json();
-    // Şema Türkçe: isim, yas, meslek, sehir, foto, hakkinda, ilgi, karsilastiklar…
-    return Array.isArray(raw) ? raw : [];
-  }
-
-  function findUserById(id){ return allUsers.find(u => String(u.id)===String(id)); }
-
-  function renderProfile(u){
-    document.getElementById("isim").textContent = safe(u.isim,"İsimsiz");
-    const meta = [];
-    if(u.yas!=null) meta.push(u.yas+" yaş");
-    if(u.meslek)   meta.push(u.meslek);
-    if(u.sehir)    meta.push(u.sehir);
-    document.getElementById("meta").textContent = meta.join(" • ") || "Bilgi eklenmemiş";
-
-    const img = document.getElementById("foto");
-    img.src = u.foto || "images/placeholder.jpg";
-    img.onerror = ()=>{ img.onerror=null; img.src="images/placeholder.jpg"; };
-
-    document.getElementById("hakkinda").textContent = safe(u.hakkinda, "Henüz bir açıklama yok.");
-
-    // rozetler
-    const chips = document.getElementById("chips");
-    chips.innerHTML = "";
-    const tags = [];
-    if(u.sehir) tags.push(u.sehir);
-    if(Array.isArray(u.ilgi)) tags.push(...u.ilgi);
-    if(u.universite) tags.push(u.universite);
-    tags.slice(0,8).forEach(t=>{
-      const c=document.createElement("div"); c.className="chip"; c.textContent=String(t);
-      chips.appendChild(c);
-    });
-
-    // karşılaştıkların
-    const box = document.getElementById("karsilastiklar");
-    const bos = document.getElementById("karsBos");
-    box.innerHTML = "";
-    const ids = Array.isArray(u.karsilastiklar)? u.karsilastiklar : [];
-    if(ids.length===0){ bos.style.display="block"; return; }
-    bos.style.display="none";
-
-    ids.forEach(uid=>{
-      const k = findUserById(uid); if(!k) return;
-      const a = document.createElement("a"); a.href="#"; a.className="boxlink";
-      const item = document.createElement("div"); item.className="mini";
-      const im = document.createElement("img"); im.src = k.foto || "images/placeholder.jpg";
-      im.onerror = ()=>{ im.onerror=null; im.src="images/placeholder.jpg"; };
-      const wrap = document.createElement("div");
-      const nm = document.createElement("div"); nm.className="nm"; nm.textContent = safe(k.isim,"Kullanıcı");
-      const meta = document.createElement("div"); meta.style.fontSize="12px"; meta.style.opacity=".7";
-      meta.textContent = [(k.yas!=null? k.yas+" yaş":""), safe(k.sehir,"")].filter(Boolean).join(" • ");
-      wrap.appendChild(nm); wrap.appendChild(meta);
-      item.appendChild(im); item.appendChild(wrap);
-      a.appendChild(item);
-      a.addEventListener("click", (e)=>{ e.preventDefault(); localStorage.setItem("selectedUser", String(k.id)); loadProfile(); });
-      box.appendChild(a);
-    });
+    // Eski sistemlerden kalma olabilir (temizlik)
+    const old = localStorage.getItem("selectedUser") || localStorage.getItem("userId");
+    return old;
   }
 
   async function loadProfile(){
-    const err = document.getElementById("err"); err.style.display="none";
-    const selectedId = localStorage.getItem("selectedUser");
-    if(!selectedId){ return goLogin(); }
+    const id = getActiveUserId();
+    if (!id) { location.href = "login.html"; return; }
 
-    try{
-      allUsers = await fetchUsers();
-      const user = findUserById(selectedId);
-      if(!user){ localStorage.removeItem("selectedUser"); return goLogin(); }
-      renderProfile(user);
-    }catch(e){
-      err.textContent = "Hata: " + e.message;
-      err.style.display = "block";
+    const res = await fetch(USERS_URL, {cache:"no-store"});
+    const users = await res.json();
+
+    const user = users.find(u => String(u.id) === String(id));
+    if (!user) { 
+      // yanlış/eksikse giriş sayfasına dön
+      localStorage.removeItem("currentUserId");
+      localStorage.removeItem("selectedUser");
+      localStorage.removeItem("userId");
+      location.href = "login.html";
+      return;
     }
+
+    // --- buradan sonrası: ekrana basma ---
+    document.title = Yarım Kalan Hikayeler — ${user.isim};
+    document.getElementById("profile").innerHTML = `
+      <div class="profile">
+        <img class="ph" src="${user.foto}" alt="${user.isim}">
+        <div>
+          <h2>${user.isim}, ${user.yas}</h2>
+          <p class="muted">${user.meslek} — ${user.sehir}</p>
+          <p><b>Üniversite:</b> ${user.universite ?? "-"}</p>
+          <p><b>İlgi Alanları:</b> ${(user.ilgi||[]).join(", ")}</p>
+          <p>${user.hakkinda ?? ""}</p>
+        </div>
+      </div>`;
   }
 
-  document.getElementById("backBtn").addEventListener("click", goLogin);
-  document.getElementById("refreshBtn").addEventListener("click", loadProfile);
+  // Eski anahtar kalmışsa temizle (karışmasın):
+  localStorage.removeItem("selectedUser");
+  localStorage.removeItem("userId");
 
-  loadProfile();
+  // Yükle
+  document.addEventListener("DOMContentLoaded", loadProfile);
 </script>
-</body>
-</html>
