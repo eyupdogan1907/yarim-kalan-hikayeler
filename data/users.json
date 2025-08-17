@@ -1,92 +1,18 @@
-{
-  "users": [
-    {
-      "id": "ayse",
-      "name": "Ayşe Yılmaz",
-      "age": 27,
-      "job": "Endüstri Mühendisi",
-      "city": "İstanbul",
-      "bio": "Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.",
-      "photo": "assets/ayse.jpg",
-      "interests": ["kitap", "kahve", "koşu", "müzik"],
-      "lastSeen": "2025-08-12 18:40"
-    },
-    {
-      "id": "mehmet",
-      "name": "Mehmet Kaya",
-      "age": 29,
-      "job": "Grafiker",
-      "city": "İzmir",
-      "bio": "Sanatı teknolojiyle birleştirmeye çalışan bir hayalperest.",
-      "photo": "assets/mehmet.jpg",
-      "interests": ["çizim", "fotoğraf", "müzik"],
-      "lastSeen": "2025-08-15 14:22"
-    },
-    {
-      "id": "tugce",
-      "name": "Tuğçe Demir",
-      "age": 26,
-      "job": "Psikolog",
-      "city": "Ankara",
-      "bio": "İnsan hikayelerini dinlemeyi seven bir yol arkadaşı.",
-      "photo": "assets/tugce.png",
-      "interests": ["kitap", "yoga", "gezmek"],
-      "lastSeen": "2025-08-16 09:15"
-    },
-    {
-      "id": "yasemin",
-      "name": "Yasemin Öz",
-      "age": 24,
-      "job": "Öğretmen",
-      "city": "Bursa",
-      "bio": "Öğrencilerinden öğrenmeyi seven bir öğretmen.",
-      "photo": "assets/yasemin.png",
-      "interests": ["dans", "kitap", "kahve"],
-      "lastSeen": "2025-08-17 12:40"
-    },
-    {
-      "id": "zeynep",
-      "name": "Zeynep Aksoy",
-      "age": 25,
-      "job": "Veri Analisti",
-      "city": "İstanbul",
-      "bio": "Toplu taşımada kulaklığımda lo-fi, aklımda yeni tanışmalar.",
-      "photo": "assets/zeynep.jpg",
-      "interests": ["yürüyüş", "kahve", "veri", "fotoğraf"],
-      "lastSeen": "2025-08-17 10:05"
-    },
-    {
-      "id": "eren",
-      "name": "Eren Yıldız",
-      "age": 28,
-      "job": "Elektrik Mühendisi",
-      "city": "İstanbul",
-      "bio": "Her gün aynı metro vagonu, belki bugün farklı bir sohbet.",
-      "photo": "assets/Eren.jpg",
-      "interests": ["koşu", "teknoloji", "oyun"],
-      "lastSeen": "2025-08-16 21:30"
-    },
-    {
-      "id": "elif",
-      "name": "Elif Karaca",
-      "age": 23,
-      "job": "Öğrenci",
-      "city": "İstanbul",
-      "bio": "Yarım kalan hikayeleri tamamlamak için buradayım.",
-      "photo": "assets/Elif.jpg",
-      "interests": ["kitap", "müzik", "puzzle"],
-      "lastSeen": "2025-08-17 08:12"
-    },
-    {
-      "id": "kerem",
-      "name": "Kerem Ateş",
-      "age": 31,
-      "job": "Satış Uzmanı",
-      "city": "İstanbul",
-      "bio": "Tesadüfler, cesaret edenleri sever.",
-      "photo": "assets/Kerem.jpg",
-      "interests": ["sinema", "basketbol", "yemek"],
-      "lastSeen": "2025-08-15 19:48"
-    }
-  ]
-}
+[
+  {
+    "id": 1,
+    "isim": "Ayşe",
+    "yas": 25,
+    "meslek": "Öğrenci",
+    "foto": "images/ayse.jpg",
+    "hakkinda": "Kitap okumayı ve yeni insanlarla tanışmayı seviyorum."
+  },
+  {
+    "id": 2,
+    "isim": "Mehmet",
+    "yas": 28,
+    "meslek": "Mühendis",
+    "foto": "images/mehmet.jpg",
+    "hakkinda": "Teknolojiye meraklıyım, boş zamanlarımda futbol oynarım."
+  }
+]
