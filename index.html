@@ -1,20 +1,63 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>Yarım Kalan Hikayeler</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{--text:#111}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#ffdb00;color:var(--text)}
+    .wrap{max-width:960px;margin:0 auto;padding:40px 16px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+    h1{font-size:36px;margin:0 0 10px}
+    p{max-width:56ch;line-height:1.5}
+    button{margin-top:16px;padding:12px 18px;border-radius:12px;border:none;background:#2b6fff;color:#fff;font-weight:700;cursor:pointer;font-size:16px}
+    .muted{opacity:.75;margin-top:10px}
+  </style>
+  <!-- (İsteğe bağlı) Pi SDK: Pi Browser çoğu zaman otomatik sağlar -->
+  <!-- <script src="https://sdk.minepi.com/pi-sdk.js"></script> -->
 </head>
 <body>
-  <h1>Yarım Kalan Hikayeler</h1>
-  <p>Bu uygulama toplu taşımada yolları kesişen insanların yeniden bağlantı kurmasını sağlar.</p>
-  <p>Bu demo, Pi Network DApp altyapısı için hazırlanmıştır.</p>
-
-  <div style="text-align: center;">
-    <a href="login.html">
-  <button class="login-btn">Pi ile Giriş Yap</button>
-</a>
+  <div class="wrap">
+    <h1>Yarım Kalan Hikayeler</h1>
+    <p>Bu uygulama toplu taşımada yolları kesişen insanların yeniden bağlantı kurmasını sağlar.
+    Bu demo, Pi Network DApp altyapısı için hazırlanmıştır.</p>
+    <button id="piBtn">Pi ile Giriş Yap</button>
+    <div id="msg" class="muted"></div>
+    <div style="height:10px"></div>
+    <button onclick="location.href='login.html'">Klasik Giriş</button>
   </div>
+
+  <script>
+    async function tryPiFromIndex(){
+      const msg = document.getElementById("msg");
+      if (typeof window.Pi === "undefined") {
+        // Normal tarayıcı: klasik akış
+        msg.textContent = "Pi SDK yok, klasik girişe gidebilirsin.";
+        return;
+      }
+      try{
+        msg.textContent = "Pi ile kimlik doğrulanıyor…";
+        const auth = await window.Pi.authenticate(["username"], ()=>{});
+        const username = auth?.user?.username;
+
+        const res = await fetch("data/users.json",{cache:"no-store"});
+        const users = await res.json();
+        const match = users.find(u => String(u.pi||"").toLowerCase() === String(username||"").toLowerCase());
+
+        if (match){
+          localStorage.setItem("selectedUser", String(match.id));
+          window.location.href = "profil.html";
+        } else {
+          msg.textContent = "Pi kullanıcı adı yerel kullanıcılarda yok. Klasik girişe gidiyorsun…";
+          setTimeout(()=>{ window.location.href = "login.html"; }, 800);
+        }
+      }catch(e){
+        msg.textContent = "Pi girişi başarısız: " + e.message + ". Klasik girişe yönlendiriyorum…";
+        setTimeout(()=>{ window.location.href = "login.html"; }, 800);
+      }
+    }
+    document.getElementById("piBtn").addEventListener("click", tryPiFromIndex);
+  </script>
 </body>
 </html>
 
