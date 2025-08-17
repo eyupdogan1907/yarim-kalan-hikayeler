@@ -2,146 +2,138 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Yarım Kalan Hikayeler — Giriş</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     *{box-sizing:border-box}
-    :root{--bg:#0f1222;--card:#171a2e;--line:#263056;--txt:#eef;--muted:#9aa3d9;--accent:#7aa2ff}
-    html,body{margin:0;height:100%}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:var(--bg);color:var(--txt)}
-    header{padding:18px;text-align:center;border-bottom:1px solid var(--line)}
-    h1{margin:0;font-size:20px}
-    .wrap{max-width:920px;margin:0 auto;padding:16px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
-    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    select,button{background:#0e1430;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px}
-    button{cursor:pointer}
-    .muted{color:var(--muted)}
-    .notice{border-left:4px solid var(--accent);padding:10px 12px;background:#10163a;border-radius:8px;margin-top:10px}
-    .footer{opacity:.7;text-align:center;padding:18px}
-    a{color:var(--accent);text-decoration:none}
+    :root{
+      --bg:#0f1222; --panel:#171a2e; --border:#263056; --text:#eaf; --muted:#a8b0d9;
+      --accent:#6ea8fe; --accent-2:#8bd3ff;
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+      background:linear-gradient(180deg,#0f1222 0%, #121633 100%); color:var(--text);
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .card{width:min(900px,95vw); background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:20px;}
+    h1{margin:0 0 8px; font-size:22px}
+    p{margin:6px 0 18px; color:var(--muted)}
+    .row{display:grid; grid-template-columns:1.1fr 1fr; gap:18px}
+    @media (max-width:880px){.row{grid-template-columns:1fr}}
+    .box{border:1px solid var(--border); border-radius:12px; padding:14px; background:#12152b}
+    label{display:block; font-size:14px; color:var(--muted); margin-bottom:8px}
+    select,button{
+      width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:#0f1329; color:var(--text); font-size:16px;
+    }
+    button{cursor:pointer; border-color:transparent; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#09122a; font-weight:700}
+    button[disabled]{opacity:.6; cursor:not-allowed; filter:saturate(.5)}
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px}
+    .user{background:#0f1329; border:1px solid var(--border); border-radius:10px; padding:10px; display:flex; gap:10px; align-items:center}
+    .ph{width:48px; height:48px; border-radius:8px; object-fit:cover; background:#22263f; border:1px solid var(--border)}
+    .name{font-weight:600}
+    .err{margin-top:10px; color:#ffb3b3; font-size:14px; display:none}
+    .footer{margin-top:16px; font-size:13px; color:var(--muted)}
   </style>
 </head>
 <body>
-  <header><h1>Yarım Kalan Hikayeler — Giriş</h1></header>
+  <main class="card">
+    <h1>Yarım Kalan Hikayeler</h1>
+    <p>Giriş yap ve profilini açalım.</p>
 
-  <div class="wrap">
-    <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <div class="muted">Demo • yerel depolama ile çalışır</div>
-        <a href="profil.html">Profil sayfasına git →</a>
-      </div>
+    <div class="row">
+      <section class="box">
+        <label for="userSelect">Kullanıcı seç</label>
+        <select id="userSelect" aria-label="Kullanıcı seçimi">
+          <option value="" selected disabled>Bir kullanıcı seçin…</option>
+        </select>
+        <div style="height:12px"></div>
+        <button id="loginBtn" disabled>Devam</button>
+        <div id="errorBox" class="err"></div>
+        <div class="footer">Veriler <code>data/users.json</code> dosyasından yüklenir.</div>
+      </section>
 
-      <p class="muted">Kullanıcı seç ve giriş yap. Veri dosyası bulunamazsa yerleşik yedek devreye girer.</p>
-
-      <div class="row">
-        <label for="userSelect" class="muted">Kullanıcı</label>
-        <select id="userSelect" aria-label="Kullanıcı seçimi"></select>
-        <button id="btnLogin">Giriş</button>
-        <button id="btnReset" title="Seçimi sıfırla">Sıfırla</button>
-      </div>
-
-      <div id="status" class="notice">Durum: başlatılıyor…</div>
+      <section class="box">
+        <label>Önizleme</label>
+        <div id="userGrid" class="grid" aria-live="polite"></div>
+      </section>
     </div>
+  </main>
 
-    <div class="footer">© 2025 Yarım Kalan Hikayeler — Demo</div>
-  </div>
+  <script>
+    const USERS_URL = "data/users.json";
 
-<script>
-// === ES5 uyumlu sürüm (eski tarayıcıda bile çalışır) ===
-(function(){
-  var STORAGE_KEY = "ykh_currentUserId";
-  var FALLBACK = {
-    "users":[
-      {"id":"ayse","name":"Ayşe Yılmaz","age":27,"job":"Endüstri Mühendisi","city":"İstanbul","bio":"Kitap kurdu, toplu taşımada romantik tesadüflerin peşinde.","photo":"","interests":["kitap","kahve","koşu","müzik"],"lastSeen":"2025-08-12 18:40"},
-      {"id":"ali","name":"Ali Demir","age":30,"job":"Yazılım Geliştirici","city":"İstanbul","bio":"Metroda denk geldiğimiz o kişi belki de sensin. Merhaba demek için küçük bir cesaret yeter.","photo":"","interests":["bisiklet","sinema","oyun","tekno"],"lastSeen":"2025-08-16 08:25"}
-    ]
-  };
+    function safeText(v, fallback="") {
+      return (v===undefined || v===null) ? fallback : String(v);
+    }
 
-  function setStatus(msg){
-    var el = document.getElementById("status");
-    if(el) el.textContent = "Durum: " + msg;
-  }
+    async function loadUsers(){
+      const select = document.getElementById("userSelect");
+      const grid = document.getElementById("userGrid");
+      const err = document.getElementById("errorBox");
+      err.style.display = "none";
 
-  function httpGetJSON(url, onOk, onErr){
-    try{
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", url + "?t=" + Date.now(), true); // cache kır
-      xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-          if(xhr.status >= 200 && xhr.status < 300){
-            try { onOk(JSON.parse(xhr.responseText)); }
-            catch(e){ onErr && onErr(e); }
-          } else {
-            onErr && onErr(new Error("HTTP " + xhr.status));
-          }
-        }
-      };
-      xhr.send();
-    }catch(e){ onErr && onErr(e); }
-  }
+      try{
+        const res = await fetch(USERS_URL, {cache:"no-store"});
+        if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
+        const users = await res.json();
 
-  function loadUsers(callback){
-    var paths = ["data/users.json","./data/users.json","users.json","./users.json"];
-    var i = 0;
-    function tryNext(){
-      if(i >= paths.length){
-        console.warn("FALLBACK kullanıldı");
-        return callback(FALLBACK);
+        // select doldur
+        users.forEach(u=>{
+          const opt = document.createElement("option");
+          opt.value = u.id;
+          opt.textContent = safeText(u.isim, "İsimsiz")+" (#"+u.id+")";
+          select.appendChild(opt);
+        });
+
+        // grid doldur (küçük önizleme)
+        grid.innerHTML = "";
+        users.forEach(u=>{
+          const item = document.createElement("div");
+          item.className = "user";
+          const img = document.createElement("img");
+          img.className = "ph";
+          img.alt = safeText(u.isim,"Kullanıcı");
+          img.src = safeText(u.foto,"images/placeholder.jpg");
+          const wrap = document.createElement("div");
+          const nm = document.createElement("div");
+          nm.className = "name";
+          nm.textContent = safeText(u.isim,"İsimsiz");
+          const meta = document.createElement("div");
+          meta.style.fontSize = "12px";
+          meta.style.opacity = ".7";
+          const yas = (u.yas!=null) ? u.yas+" yaş" : "";
+          const meslek = safeText(u.meslek,"");
+          meta.textContent = [yas, meslek].filter(Boolean).join(" • ");
+          wrap.appendChild(nm); wrap.appendChild(meta);
+          item.appendChild(img); item.appendChild(wrap);
+          grid.appendChild(item);
+        });
+
+      }catch(e){
+        err.textContent = "Hata: " + e.message + " — Dosya yolu doğru mu?";
+        err.style.display = "block";
       }
-      var url = paths[i++];
-      httpGetJSON(url, function(data){ callback(data); }, function(){ tryNext(); });
-    }
-    tryNext();
-  }
-
-  function fillSelect(list){
-    var sel = document.getElementById("userSelect");
-    if(!sel) return;
-    sel.innerHTML = "";
-    var arr = (list && list.users) ? list.users : [];
-    for(var i=0;i<arr.length;i++){
-      var u = arr[i];
-      var opt = document.createElement("option");
-      opt.value = u.id;
-      opt.text = (u.name || "İsimsiz") + (u.city ? (" — " + u.city) : "");
-      sel.appendChild(opt);
-    }
-  }
-
-  function init(){
-    setStatus("kullanıcılar yükleniyor…");
-    loadUsers(function(data){
-      fillSelect(data);
-      setStatus("hazır");
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", function(){
-    init();
-
-    var btnLogin = document.getElementById("btnLogin");
-    var btnReset = document.getElementById("btnReset");
-
-    if(btnLogin){
-      btnLogin.addEventListener("click", function(){
-        var sel = document.getElementById("userSelect");
-        var id = sel && sel.value;
-        if(!id){ setStatus("lütfen bir kullanıcı seç"); return; }
-        try { localStorage.setItem(STORAGE_KEY, id); } catch(e){}
-        setStatus("giriş yapıldı → profil…");
-        location.href = "profil.html";
-      });
     }
 
-    if(btnReset){
-      btnReset.addEventListener("click", function(){
-        try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
-        setStatus("seçim sıfırlandı");
-      });
+    function handleSelect(){
+      const v = document.getElementById("userSelect").value;
+      document.getElementById("loginBtn").disabled = !v;
     }
-  });
-})();
-</script>
+
+    function login(){
+      const id = document.getElementById("userSelect").value;
+      if(!id) return;
+      // Seçili kullanıcıyı sakla ve profil sayfasına git
+      localStorage.setItem("selectedUser", String(id));
+      // Küçük bir güvenlik: önce temizle
+      sessionStorage.removeItem("profileError");
+      window.location.href = "profil.html";
+    }
+
+    document.getElementById("userSelect").addEventListener("change", handleSelect);
+    document.getElementById("loginBtn").addEventListener("click", login);
+    loadUsers();
+  </script>
 </body>
 </html>
