@@ -1,55 +1,32 @@
-
 [
   {
-    "id": 1,
-    "isim": "Ayşe",
-    "yas": 25,
-    "meslek": "Öğrenci",
-    "sehir": "İstanbul",
-    "universite": "İstanbul Üniversitesi",
-    "ilgi": ["kitap", "yoga", "gezmek"],
-    "foto": "images/ayse.png",
-    "hakkinda": "Kitap okumayı ve yeni insanlarla tanışmayı seviyorum.",
-    "karsilastiklar": [2, 3],
-    "pi": "ayse_demo"
-  },
-  {
-    "id": 2,
-    "isim": "Mehmet",
-    "yas": 28,
-    "meslek": "Mühendis",
-    "sehir": "İstanbul",
-    "universite": "Yıldız Teknik Üniversitesi",
-    "ilgi": ["futbol", "teknoloji"],
-    "foto": "images/mehmet.jpg",
-    "hakkinda": "Teknolojiye meraklıyım, boş zamanlarımda futbol oynarım.",
-    "karsilastiklar": [1],
-    "pi": "mehmet_demo"
-  },
-  {
-    "id": 3,
-    "isim": "Zeynep",
-    "yas": 26,
-    "meslek": "Hemşire",
-    "sehir": "Ankara",
-    "universite": "Hacettepe Üniversitesi",
-    "ilgi": ["koşu", "kahve"],
-    "foto": "images/zeynep.jpg",
-    "hakkinda": "Koşu ve kahve buluşmalarını severim.",
-    "karsilastiklar": [1, 4],
-    "pi": "zeynep_demo"
-  },
-  {
-    "id": 4,
-    "isim": "Ali",
-    "yas": 30,
+    "id": "1",
+    "ad": "Ayşe",
+    "yas": 27,
+    "konum": "İstanbul",
     "meslek": "Öğretmen",
-    "sehir": "İzmir",
-    "universite": "Ege Üniversitesi",
-    "ilgi": ["bisiklet", "fotoğraf"],
-    "foto": "images/ali.jpg",
-    "hakkinda": "Hafta sonları bisiklete binerim.",
-    "karsilastiklar": [2,3],
-    "pi": "ali_demo"
+    "bio": "Metroda birkaç kez göz göze geldiğin kişi. Kitap kurdu, sakin.",
+    "ilgiAlanlari": ["Kitap", "Kahve", "Yürüyüş"],
+    "foto": "assets/ayse.jpg"
+  },
+  {
+    "id": "2",
+    "ad": "Efe",
+    "yas": 29,
+    "konum": "İstanbul",
+    "meslek": "Grafik Tasarımcı",
+    "bio": "Müzik kulaklığı hiç çıkmıyor; indie rock seviyor.",
+    "ilgiAlanlari": ["Müzik", "Bisiklet", "Tasarım"],
+    "foto": "assets/efe.jpg"
+  },
+  {
+    "id": "3",
+    "ad": "Zeynep",
+    "yas": 25,
+    "konum": "İstanbul",
+    "meslek": "Yazılım Test Uzmanı",
+    "bio": "Toplu taşımada sudoku çözen, sakin ve güler yüzlü.",
+    "ilgiAlanlari": ["Bulmaca", "Koşu", "Kahvaltı"],
+    "foto": "assets/zeynep.jpg"
   }
 ]
