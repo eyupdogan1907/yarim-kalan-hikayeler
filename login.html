@@ -1,88 +1,78 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Yarım Kalan Hikayeler — Giriş</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
-      background: #0f1222;
-      color: #eef;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .card {
-      background: #171a2e;
-      border: 1px solid #263056;
-      border-radius: 12px;
-      padding: 24px;
-      text-align: center;
-      width: 300px;
-    }
-    h1 {
-      margin: 0 0 16px;
-      font-size: 20px;
-    }
-    select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: 1px solid #263056;
-      background: #22263f;
-      color: #eef;
-      font-size: 15px;
-    }
-    button {
-      cursor: pointer;
-      background: #3040a0;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #4050c0;
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
+    .wrap{max-width:900px;margin:0 auto;padding:24px}
+    header{padding:24px 0;text-align:center}
+    h1{margin:0 0 6px;font-size:26px}
+    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:18px}
+    label{display:block;margin:8px 0 6px}
+    select,button{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #2c3560;background:#0f1222;color:#eef}
+    button{cursor:pointer;margin-top:12px;background:#3942a5;border-color:#4852c8}
+    button:hover{filter:brightness(1.08)}
+    .muted{opacity:.75}
+    footer{opacity:.7;text-align:center;margin-top:18px;font-size:13px}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Kullanıcı Seç</h1>
-    <select id="userSelect">
-      <option value="">— Seçin —</option>
-    </select>
-    <button onclick="login()">Giriş Yap</button>
+  <div class="wrap">
+    <header>
+      <h1>Yarım Kalan Hikayeler</h1>
+      <div class="muted">Giriş (kullanıcı seç)</div>
+    </header>
+
+    <div class="card">
+      <label for="userSelect">Bir kullanıcı seç:</label>
+      <select id="userSelect">
+        <option value="">— Seç —</option>
+      </select>
+      <button id="btnLogin">Giriş Yap</button>
+      <p id="status" class="muted" style="margin-top:10px"></p>
+    </div>
+
+    <footer>
+      <small>Demo • Pi ile giriş akışı daha sonra eklenecek</small>
+    </footer>
   </div>
 
   <script>
-    async function loadUsers() {
-      try {
-        const res = await fetch("kullanicilar.json");
+    const statusEl = document.getElementById('status');
+    const selectEl = document.getElementById('userSelect');
+
+    async function loadUsers(){
+      try{
+        statusEl.textContent = 'Kullanıcılar yükleniyor...';
+        // Aynı origin ve aynı repo kökü içinde çalışır.
+        const res = await fetch('data/users.json', {cache:'no-store'});
+        if(!res.ok) throw new Error('users.json bulunamadı veya erişilemedi');
         const users = await res.json();
-        const select = document.getElementById("userSelect");
-        users.forEach(u => {
-          const opt = document.createElement("option");
+        users.forEach(u=>{
+          const opt = document.createElement('option');
           opt.value = u.id;
-          opt.textContent = u.ad;
-          select.appendChild(opt);
+          opt.textContent = ${u.ad} (${u.konum});
+          selectEl.appendChild(opt);
         });
-      } catch (err) {
-        console.error("Kullanıcılar yüklenemedi:", err);
+        statusEl.textContent = 'Hazır.';
+      }catch(err){
+        console.error(err);
+        statusEl.textContent = 'Hata: Kullanıcı listesi yüklenemedi. (F12 > Console kontrol et)';
+        alert('Hata: data/users.json erişilemiyor. Dosya yolunu doğrula.');
       }
     }
 
-    function login() {
-      const id = document.getElementById("userSelect").value;
-      if (id) {
-        // ✅ Düzeltildi: backtick ile çalışacak
-        window.location.href = profil.html?id=${encodeURIComponent(id)};
-      } else {
-        alert("Lütfen bir kullanıcı seçin.");
-      }
-    }
+    document.getElementById('btnLogin').addEventListener('click', ()=>{
+      const id = selectEl.value;
+      if(!id){ alert('Lütfen bir kullanıcı seç.'); return; }
+      // Hem URL param, hem de localStorage kaydı
+      try{ localStorage.setItem('ykh_user_id', id); }catch(e){}
+      // profil.html'e id ile git
+      location.href = profil.html?id=${encodeURIComponent(id)};
+    });
 
     loadUsers();
   </script>
