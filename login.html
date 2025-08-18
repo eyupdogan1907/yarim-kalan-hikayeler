@@ -40,21 +40,22 @@
     </footer>
   </div>
 
-  <!-- Failsafe: JSON yedeği -->
-  <script type="application/json" id="usersData">
-  [
-    {"id":"1","ad":"Ayşe","yas":27,"konum":"İstanbul","meslek":"Öğretmen","bio":"Kitap kurdu, sakin.","ilgiAlanlari":["Kitap","Kahve","Yürüyüş"],"foto":"assets/ayse.jpg"},
-    {"id":"2","ad":"Efe","yas":29,"konum":"İstanbul","meslek":"Grafik Tasarımcı","bio":"Indie rock seviyor.","ilgiAlanlari":["Müzik","Bisiklet","Tasarım"],"foto":"assets/efe.jpg"},
-    {"id":"3","ad":"Zeynep","yas":25,"konum":"İstanbul","meslek":"Test Uzmanı","bio":"Sudoku sever, güler yüzlü.","ilgiAlanlari":["Bulmaca","Koşu","Kahvaltı"],"foto":"assets/zeynep.jpg"}
-  ]
-  </script>
-
   <script>
+    // Yedek kullanıcılar (harici JSON çalışmazsa kullanılacak)
+    const FALLBACK_USERS = [
+      {"id":"1","ad":"Ayşe","yas":27,"konum":"İstanbul","meslek":"Öğretmen","bio":"Kitap kurdu, sakin.","ilgiAlanlari":["Kitap","Kahve","Yürüyüş"],"foto":"assets/ayse.jpg"},
+      {"id":"2","ad":"Efe","yas":29,"konum":"İstanbul","meslek":"Grafik Tasarımcı","bio":"Indie rock seviyor.","ilgiAlanlari":["Müzik","Bisiklet","Tasarım"],"foto":"assets/efe.jpg"},
+      {"id":"3","ad":"Zeynep","yas":25,"konum":"İstanbul","meslek":"Test Uzmanı","bio":"Sudoku sever, güler yüzlü.","ilgiAlanlari":["Bulmaca","Koşu","Kahvaltı"],"foto":"assets/zeynep.jpg"}
+    ];
+
     const statusEl = document.getElementById('status');
     const selectEl = document.getElementById('userSelect');
 
+    // Eski kalmış olabilecek HATALI kullanım varsa… (güvenlik)
+    // <script src="data/users.json"> eklenmişse kaldırın. Bu dosyada YOK.
+
     async function loadUsers(){
-      // 1) Önce harici JSON'u dene
+      // 1) Harici JSON'u dene
       try{
         statusEl.textContent = 'Kullanıcılar yükleniyor...';
         const res = await fetch('data/users.json', {cache:'no-store'});
@@ -64,22 +65,15 @@
         statusEl.textContent = 'Hazır (harici).';
         return;
       }catch(e){
-        console.warn('Harici JSON yüklenemedi, yedek kullanılacak:', e.message);
+        console.warn('Harici JSON olmadı, yedek kullanılacak:', e.message);
       }
-      // 2) Olmazsa yerel yedeği kullan
-      try{
-        const txt = document.getElementById('usersData').textContent.trim();
-        const users = JSON.parse(txt);
-        fill(users);
-        statusEl.textContent = 'Hazır (yerel yedek).';
-      }catch(err){
-        console.error(err);
-        statusEl.textContent = 'Hata: Kullanıcılar yüklenemedi.';
-        alert('Kritik hata: Kullanıcı verisi yok.');
-      }
+      // 2) Yedek diziyi kullan
+      fill(FALLBACK_USERS);
+      statusEl.textContent = 'Hazır (yerel yedek).';
     }
 
     function fill(users){
+      selectEl.innerHTML = '<option value="">— Seç —</option>';
       users.forEach(u=>{
         const opt = document.createElement('option');
         opt.value = u.id;
