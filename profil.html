@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Yarım Kalan Hikayeler — Profil</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
@@ -9,69 +9,114 @@
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
     header{padding:20px;text-align:center}
     h1{margin:0;font-size:22px}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    .wrap{max-width:980px;margin:0 auto;padding:16px}
     .profile{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
     .ph{width:180px;height:180px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
     .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:14px}
     .muted{opacity:.75}
-    .err{color:#ffb3b3;margin-top:10px;display:none}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .tag{padding:6px 10px;border-radius:999px;background:#0f1222;border:1px solid #2b3560;font-size:13px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{padding:10px 12px;border-radius:10px;border:1px solid #2c3560;background:#0f1222;color:#eef;cursor:pointer}
+    button.primary{background:#3942a5;border-color:#4852c8}
+    a{color:#aeb8ff}
+    @media (max-width:700px){
+      .profile{grid-template-columns:1fr}
+      .ph{width:100%;height:260px}
+    }
   </style>
 </head>
 <body>
-  <header><h1>📖 Yarım Kalan Hikayeler</h1></header>
+  <header>
+    <h1>Profil</h1>
+    <div class="muted">Seçtiğin kişi</div>
+  </header>
+
   <div class="wrap">
-    <div id="profile" class="card">Yükleniyor…</div>
-    <div id="e" class="err"></div>
-    <div style="margin-top:10px"><a href="login.html">← Başka kullanıcı seç</a></div>
+    <div id="err" class="card" style="display:none"></div>
+
+    <div class="card profile" id="profile" style="display:none">
+      <img id="foto" class="ph" alt="Profil fotoğrafı"
+           onerror="this.src='data:image/svg+xml;utf8,\
+           &lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22&gt;\
+           &lt;rect width=%22100%25%22 height=%22100%25%22 fill=%22%2322263f%22/&gt;\
+           &lt;text x=%2250%25%22 y=%2250%25%22 fill=%22%23aab%22 font-size=%2220%22 font-family=%22Arial%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22&gt;Foto yok&lt;/text&gt;\
+           &lt;/svg&gt;';" />
+
+      <div>
+        <h2 id="ad" style="margin:0 0 6px 0"></h2>
+        <div class="muted" id="meta"></div>
+        <p id="bio" style="margin:10px 0 0 0"></p>
+
+        <div class="tags" id="tags"></div>
+
+        <div class="actions">
+          <button class="primary" id="btnEsles">Eşleşme İsteği Gönder</button>
+          <button id="btnGeri">Kullanıcı Seçimine Dön</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <small class="muted">
+        İpucu: URL’de <code>?id=...</code> yoksa otomatik olarak <em>son seçilen</em> kullanıcıyı localStorage’tan yükler.
+      </small>
+    </div>
   </div>
 
   <script>
-    function getActiveUserId(){
-      const urlId = new URLSearchParams(location.search).get("id");
-      if (urlId) return urlId;
-      const lsId = localStorage.getItem("currentUserId"); // 🔑 login.html’in yazdığı
-      if (lsId) return lsId;
-      // Eski kalıntılar:
-      return localStorage.getItem("selectedUser") || localStorage.getItem("userId");
+    const qs = new URLSearchParams(location.search);
+    let userId = qs.get('id') || localStorage.getItem('ykh_user_id') || '';
+
+    const elErr   = document.getElementById('err');
+    const elProf  = document.getElementById('profile');
+    const elAd    = document.getElementById('ad');
+    const elMeta  = document.getElementById('meta');
+    const elBio   = document.getElementById('bio');
+    const elTags  = document.getElementById('tags');
+    const elFoto  = document.getElementById('foto');
+
+    if(!userId){
+      // Ne URL paramı ne de localStorage var → login'e
+      location.replace('login.html');
     }
 
-    async function loadProfile(){
-      const err = document.getElementById("e");
-      const box = document.getElementById("profile");
+    async function load(){
       try{
-        const id = getActiveUserId();
-        if(!id){ location.href = "login.html"; return; }
-
-        const res = await fetch("data/users.json", {cache:"no-store"});
-        if(!res.ok) throw new Error("users.json yüklenemedi ("+res.status+")");
+        const res = await fetch('data/users.json', {cache:'no-store'});
+        if(!res.ok) throw new Error('users.json yüklenemedi');
         const users = await res.json();
-        const u = users.find(x => String(x.id) === String(id));
-        if(!u){ localStorage.removeItem("currentUserId"); location.href="login.html"; return; }
+        const u = users.find(x=> String(x.id) === String(userId));
+        if(!u) throw new Error('Kullanıcı bulunamadı (id=' + userId + ')');
 
-        document.title = Yarım Kalan Hikayeler — ${u.isim};
-        box.innerHTML = `
-          <div class="profile">
-            <img src="${u.foto}" alt="${u.isim}" class="ph">
-            <div>
-              <h2>${u.isim}, ${u.yas}</h2>
-              <p class="muted">${u.meslek} — ${u.sehir}</p>
-              ${u.universite ? <p><b>Üniversite:</b> ${u.universite}</p> : ""}
-              <p><b>İlgi Alanları:</b> ${(u.ilgi||[]).join(", ")}</p>
-              <p>${u.hakkinda || ""}</p>
-            </div>
-          </div>
-        `;
-      }catch(e){
-        err.textContent = "Hata: "+e.message;
-        err.style.display = "block";
+        // Render
+        elAd.textContent = u.ad;
+        elMeta.textContent = [u.yas && (u.yas + ' yaş'), u.konum, u.meslek].filter(Boolean).join(' • ');
+        elBio.textContent = u.bio || '';
+        elFoto.src = u.foto || '';
+
+        elTags.innerHTML = '';
+        (u.ilgiAlanlari || []).forEach(t=>{
+          const span = document.createElement('span');
+          span.className = 'tag';
+          span.textContent = t;
+          elTags.appendChild(span);
+        });
+
+        elProf.style.display = '';
+      }catch(err){
+        console.error(err);
+        elErr.style.display = '';
+        elErr.textContent = 'Hata: ' + err.message + ' — Yol ve dosya adlarını kontrol et (F12 > Network).';
       }
     }
 
-    // Eski anahtarları temizleyelim ki karışmasın
-    localStorage.removeItem("selectedUser");
-    localStorage.removeItem("userId");
+    document.getElementById('btnGeri').onclick = ()=> location.href = 'login.html';
+    document.getElementById('btnEsles').onclick = ()=>{
+      alert('Demo: Eşleşme isteği gönderildi (simülasyon).');
+    };
 
-    document.addEventListener("DOMContentLoaded", loadProfile);
+    load();
   </script>
 </body>
 </html>
