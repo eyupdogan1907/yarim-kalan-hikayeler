@@ -19,7 +19,6 @@
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     button{padding:10px 12px;border-radius:10px;border:1px solid #2c3560;background:#0f1222;color:#eef;cursor:pointer}
     button.primary{background:#3942a5;border-color:#4852c8}
-    a{color:#aeb8ff}
     @media (max-width:700px){
       .profile{grid-template-columns:1fr}
       .ph{width:100%;height:260px}
@@ -40,14 +39,13 @@
            onerror="this.src='data:image/svg+xml;utf8,\
            &lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22&gt;\
            &lt;rect width=%22100%25%22 height=%22100%25%22 fill=%22%2322263f%22/&gt;\
-           &lt;text x=%2250%25%22 y=%2250%25%22 fill=%22%23aab%22 font-size=%2220%22 font-family=%22Arial%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22&gt;Foto yok&lt;/text&gt;\
+           &lt;text x=%22550%25%22 y=%2250%25%22 fill=%22%23aab%22 font-size=%2220%22 font-family=%22Arial%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22&gt;Foto yok&lt;/text&gt;\
            &lt;/svg&gt;';" />
 
       <div>
         <h2 id="ad" style="margin:0 0 6px 0"></h2>
         <div class="muted" id="meta"></div>
         <p id="bio" style="margin:10px 0 0 0"></p>
-
         <div class="tags" id="tags"></div>
 
         <div class="actions">
@@ -64,32 +62,49 @@
     </div>
   </div>
 
+  <!-- Failsafe: JSON yedeği -->
+  <script type="application/json" id="usersData">
+  [
+    {"id":"1","ad":"Ayşe","yas":27,"konum":"İstanbul","meslek":"Öğretmen","bio":"Kitap kurdu, sakin.","ilgiAlanlari":["Kitap","Kahve","Yürüyüş"],"foto":"assets/ayse.jpg"},
+    {"id":"2","ad":"Efe","yas":29,"konum":"İstanbul","meslek":"Grafik Tasarımcı","bio":"Indie rock seviyor.","ilgiAlanlari":["Müzik","Bisiklet","Tasarım"],"foto":"assets/efe.jpg"},
+    {"id":"3","ad":"Zeynep","yas":25,"konum":"İstanbul","meslek":"Test Uzmanı","bio":"Sudoku sever, güler yüzlü.","ilgiAlanlari":["Bulmaca","Koşu","Kahvaltı"],"foto":"assets/zeynep.jpg"}
+  ]
+  </script>
+
   <script>
     const qs = new URLSearchParams(location.search);
     let userId = qs.get('id') || localStorage.getItem('ykh_user_id') || '';
 
-    const elErr   = document.getElementById('err');
-    const elProf  = document.getElementById('profile');
-    const elAd    = document.getElementById('ad');
-    const elMeta  = document.getElementById('meta');
-    const elBio   = document.getElementById('bio');
-    const elTags  = document.getElementById('tags');
-    const elFoto  = document.getElementById('foto');
+    const elErr  = document.getElementById('err');
+    const elProf = document.getElementById('profile');
+    const elAd   = document.getElementById('ad');
+    const elMeta = document.getElementById('meta');
+    const elBio  = document.getElementById('bio');
+    const elTags = document.getElementById('tags');
+    const elFoto = document.getElementById('foto');
 
-    if(!userId){
-      // Ne URL paramı ne de localStorage var → login'e
-      location.replace('login.html');
+    if(!userId){ location.replace('login.html'); }
+
+    async function getUsers(){
+      // 1) Harici JSON
+      try{
+        const res = await fetch('data/users.json', {cache:'no-store'});
+        if(!res.ok) throw new Error('users.json yok');
+        return await res.json();
+      }catch(e){
+        console.warn('Harici JSON yok, yedek kullanılacak:', e.message);
+      }
+      // 2) Yerel yedek
+      const txt = document.getElementById('usersData').textContent.trim();
+      return JSON.parse(txt);
     }
 
     async function load(){
       try{
-        const res = await fetch('data/users.json', {cache:'no-store'});
-        if(!res.ok) throw new Error('users.json yüklenemedi');
-        const users = await res.json();
+        const users = await getUsers();
         const u = users.find(x=> String(x.id) === String(userId));
         if(!u) throw new Error('Kullanıcı bulunamadı (id=' + userId + ')');
 
-        // Render
         elAd.textContent = u.ad;
         elMeta.textContent = [u.yas && (u.yas + ' yaş'), u.konum, u.meslek].filter(Boolean).join(' • ');
         elBio.textContent = u.bio || '';
@@ -107,14 +122,12 @@
       }catch(err){
         console.error(err);
         elErr.style.display = '';
-        elErr.textContent = 'Hata: ' + err.message + ' — Yol ve dosya adlarını kontrol et (F12 > Network).';
+        elErr.textContent = 'Hata: ' + err.message + ' — (F12 > Network/Console kontrol et).';
       }
     }
 
     document.getElementById('btnGeri').onclick = ()=> location.href = 'login.html';
-    document.getElementById('btnEsles').onclick = ()=>{
-      alert('Demo: Eşleşme isteği gönderildi (simülasyon).');
-    };
+    document.getElementById('btnEsles').onclick = ()=> alert('Demo: Eşleşme isteği gönderildi.');
 
     load();
   </script>
