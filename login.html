@@ -40,37 +40,58 @@
     </footer>
   </div>
 
+  <!-- Failsafe: JSON yedeği -->
+  <script type="application/json" id="usersData">
+  [
+    {"id":"1","ad":"Ayşe","yas":27,"konum":"İstanbul","meslek":"Öğretmen","bio":"Kitap kurdu, sakin.","ilgiAlanlari":["Kitap","Kahve","Yürüyüş"],"foto":"assets/ayse.jpg"},
+    {"id":"2","ad":"Efe","yas":29,"konum":"İstanbul","meslek":"Grafik Tasarımcı","bio":"Indie rock seviyor.","ilgiAlanlari":["Müzik","Bisiklet","Tasarım"],"foto":"assets/efe.jpg"},
+    {"id":"3","ad":"Zeynep","yas":25,"konum":"İstanbul","meslek":"Test Uzmanı","bio":"Sudoku sever, güler yüzlü.","ilgiAlanlari":["Bulmaca","Koşu","Kahvaltı"],"foto":"assets/zeynep.jpg"}
+  ]
+  </script>
+
   <script>
     const statusEl = document.getElementById('status');
     const selectEl = document.getElementById('userSelect');
 
     async function loadUsers(){
+      // 1) Önce harici JSON'u dene
       try{
         statusEl.textContent = 'Kullanıcılar yükleniyor...';
-        // Aynı origin ve aynı repo kökü içinde çalışır.
         const res = await fetch('data/users.json', {cache:'no-store'});
-        if(!res.ok) throw new Error('users.json bulunamadı veya erişilemedi');
+        if(!res.ok) throw new Error('users.json bulunamadı');
         const users = await res.json();
-        users.forEach(u=>{
-          const opt = document.createElement('option');
-          opt.value = u.id;
-          opt.textContent = ${u.ad} (${u.konum});
-          selectEl.appendChild(opt);
-        });
-        statusEl.textContent = 'Hazır.';
+        fill(users);
+        statusEl.textContent = 'Hazır (harici).';
+        return;
+      }catch(e){
+        console.warn('Harici JSON yüklenemedi, yedek kullanılacak:', e.message);
+      }
+      // 2) Olmazsa yerel yedeği kullan
+      try{
+        const txt = document.getElementById('usersData').textContent.trim();
+        const users = JSON.parse(txt);
+        fill(users);
+        statusEl.textContent = 'Hazır (yerel yedek).';
       }catch(err){
         console.error(err);
-        statusEl.textContent = 'Hata: Kullanıcı listesi yüklenemedi. (F12 > Console kontrol et)';
-        alert('Hata: data/users.json erişilemiyor. Dosya yolunu doğrula.');
+        statusEl.textContent = 'Hata: Kullanıcılar yüklenemedi.';
+        alert('Kritik hata: Kullanıcı verisi yok.');
       }
+    }
+
+    function fill(users){
+      users.forEach(u=>{
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = ${u.ad} (${u.konum});
+        selectEl.appendChild(opt);
+      });
     }
 
     document.getElementById('btnLogin').addEventListener('click', ()=>{
       const id = selectEl.value;
       if(!id){ alert('Lütfen bir kullanıcı seç.'); return; }
-      // Hem URL param, hem de localStorage kaydı
       try{ localStorage.setItem('ykh_user_id', id); }catch(e){}
-      // profil.html'e id ile git
       location.href = profil.html?id=${encodeURIComponent(id)};
     });
 
