@@ -1,95 +1,29 @@
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Yarım Kalan Hikayeler — Giriş</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
-    .wrap{max-width:900px;margin:0 auto;padding:24px}
-    header{padding:24px 0;text-align:center}
-    h1{margin:0 0 6px;font-size:26px}
-    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:18px}
-    label{display:block;margin:8px 0 6px}
-    select,button{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #2c3560;background:#0f1222;color:#eef}
-    button{cursor:pointer;margin-top:12px;background:#3942a5;border-color:#4852c8}
-    button:hover{filter:brightness(1.08)}
-    .muted{opacity:.75}
-    footer{opacity:.7;text-align:center;margin-top:18px;font-size:13px}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Yarım Kalan Hikayeler</h1>
-      <div class="muted">Giriş (kullanıcı seç)</div>
-    </header>
+<script>
+  async function loadUsers() {
+    try {
+      const response = await fetch("data/users.json");
+      const users = await response.json();
+      const select = document.getElementById("userSelect");
 
-    <div class="card">
-      <label for="userSelect">Bir kullanıcı seç:</label>
-      <select id="userSelect">
-        <option value="">— Seç —</option>
-      </select>
-      <button id="btnLogin">Giriş Yap</button>
-      <p id="status" class="muted" style="margin-top:10px"></p>
-    </div>
-
-    <footer>
-      <small>Demo • Pi ile giriş akışı daha sonra eklenecek</small>
-    </footer>
-  </div>
-
-  <script>
-    // Yedek kullanıcılar (harici JSON çalışmazsa kullanılacak)
-    const FALLBACK_USERS = [
-      {"id":"1","ad":"Ayşe","yas":27,"konum":"İstanbul","meslek":"Öğretmen","bio":"Kitap kurdu, sakin.","ilgiAlanlari":["Kitap","Kahve","Yürüyüş"],"foto":"assets/ayse.jpg"},
-      {"id":"2","ad":"Efe","yas":29,"konum":"İstanbul","meslek":"Grafik Tasarımcı","bio":"Indie rock seviyor.","ilgiAlanlari":["Müzik","Bisiklet","Tasarım"],"foto":"assets/efe.jpg"},
-      {"id":"3","ad":"Zeynep","yas":25,"konum":"İstanbul","meslek":"Test Uzmanı","bio":"Sudoku sever, güler yüzlü.","ilgiAlanlari":["Bulmaca","Koşu","Kahvaltı"],"foto":"assets/zeynep.jpg"}
-    ];
-
-    const statusEl = document.getElementById('status');
-    const selectEl = document.getElementById('userSelect');
-
-    // Eski kalmış olabilecek HATALI kullanım varsa… (güvenlik)
-    // <script src="data/users.json"> eklenmişse kaldırın. Bu dosyada YOK.
-
-    async function loadUsers(){
-      // 1) Harici JSON'u dene
-      try{
-        statusEl.textContent = 'Kullanıcılar yükleniyor...';
-        const res = await fetch('data/users.json', {cache:'no-store'});
-        if(!res.ok) throw new Error('users.json bulunamadı');
-        const users = await res.json();
-        fill(users);
-        statusEl.textContent = 'Hazır (harici).';
-        return;
-      }catch(e){
-        console.warn('Harici JSON olmadı, yedek kullanılacak:', e.message);
-      }
-      // 2) Yedek diziyi kullan
-      fill(FALLBACK_USERS);
-      statusEl.textContent = 'Hazır (yerel yedek).';
-    }
-
-    function fill(users){
-      selectEl.innerHTML = '<option value="">— Seç —</option>';
-      users.forEach(u=>{
-        const opt = document.createElement('option');
-        opt.value = u.id;
-        opt.textContent = ${u.ad} (${u.konum});
-        selectEl.appendChild(opt);
+      users.forEach(user => {
+        const option = document.createElement("option");
+        option.value = user.id;
+        option.textContent = user.isim;
+        select.appendChild(option);
       });
+    } catch (err) {
+      console.error("Kullanıcılar yüklenemedi:", err);
     }
+  }
 
-    document.getElementById('btnLogin').addEventListener('click', ()=>{
-      const id = selectEl.value;
-      if(!id){ alert('Lütfen bir kullanıcı seç.'); return; }
-      try{ localStorage.setItem('ykh_user_id', id); }catch(e){}
-      location.href = profil.html?id=${encodeURIComponent(id)};
-    });
+  function login() {
+    const id = document.getElementById("userSelect").value;
+    if (id) {
+      window.location.href = profil.html?id=${id};
+    } else {
+      alert("Lütfen bir kullanıcı seçin.");
+    }
+  }
 
-    loadUsers();
-  </script>
-</body>
-</html>
+  loadUsers();
+</script>
