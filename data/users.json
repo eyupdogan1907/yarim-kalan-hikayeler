@@ -1,32 +1,14 @@
 [
   {
-    "id": "1",
-    "ad": "Ayşe",
-    "yas": 27,
-    "konum": "İstanbul",
-    "meslek": "Öğretmen",
-    "bio": "Metroda birkaç kez göz göze geldiğin kişi. Kitap kurdu, sakin.",
-    "ilgiAlanlari": ["Kitap", "Kahve", "Yürüyüş"],
-    "foto": "assets/ayse.jpg"
+    "id": 1,
+    "isim": "Ayşe",
+    "sehir": "İstanbul",
+    "foto": "resimler/ayse.jpg"
   },
   {
-    "id": "2",
-    "ad": "Efe",
-    "yas": 29,
-    "konum": "İstanbul",
-    "meslek": "Grafik Tasarımcı",
-    "bio": "Müzik kulaklığı hiç çıkmıyor; indie rock seviyor.",
-    "ilgiAlanlari": ["Müzik", "Bisiklet", "Tasarım"],
-    "foto": "assets/efe.jpg"
-  },
-  {
-    "id": "3",
-    "ad": "Zeynep",
-    "yas": 25,
-    "konum": "İstanbul",
-    "meslek": "Yazılım Test Uzmanı",
-    "bio": "Toplu taşımada sudoku çözen, sakin ve güler yüzlü.",
-    "ilgiAlanlari": ["Bulmaca", "Koşu", "Kahvaltı"],
-    "foto": "assets/zeynep.jpg"
+    "id": 2,
+    "isim": "Mehmet",
+    "sehir": "Ankara",
+    "foto": "resimler/mehmet.jpg"
   }
 ]
