@@ -1,29 +1,80 @@
-<script>
-  async function loadUsers() {
-    try {
-      const response = await fetch("data/users.json");
-      const users = await response.json();
-      const select = document.getElementById("userSelect");
-
-      users.forEach(user => {
-        const option = document.createElement("option");
-        option.value = user.id;
-        option.textContent = user.isim;
-        select.appendChild(option);
-      });
-    } catch (err) {
-      console.error("Kullanıcılar yüklenemedi:", err);
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yarım Kalan Hikayeler - Giriş</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f1222;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-  }
-
-  function login() {
-    const id = document.getElementById("userSelect").value;
-    if (id) {
-      window.location.href = profil.html?id=${id};
-    } else {
-      alert("Lütfen bir kullanıcı seçin.");
+    .card {
+      background: #171a2e;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      text-align: center;
     }
-  }
+    select, button {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Yarım Kalan Hikayeler</h1>
+    <p>Giriş (kullanıcı seç)</p>
 
-  loadUsers();
-</script>
+    <select id="userSelect">
+      <option value="">— Seç —</option>
+    </select>
+    <br>
+    <button onclick="login()">Giriş Yap</button>
+  </div>
+
+  <script>
+    async function loadUsers() {
+      try {
+        const response = await fetch("data/users.json");
+        const users = await response.json();
+        const select = document.getElementById("userSelect");
+
+        users.forEach(user => {
+          const option = document.createElement("option");
+          option.value = user.id;
+          option.textContent = user.isim;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        console.error("Kullanıcılar yüklenemedi:", err);
+      }
+    }
+
+    function login() {
+      const id = document.getElementById("userSelect").value;
+      if (id) {
+        window.location.href = profil.html?id=${id};
+      } else {
+        alert("Lütfen bir kullanıcı seçin.");
+      }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>
