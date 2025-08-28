@@ -1,25 +1,4 @@
-<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Yarım Kalan Hikayeler — Profil</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=3">
-</head>
-<body>
-  <header>
-    <h1>Yarım Kalan Hikayeler — Profil</h1>
-  </header>
-  <div class="wrap wide">
-    <div id="profileCard" class="card">Yükleniyor…</div>
-    <div class="navrow">
-      <button class="nav" id="prevBtn" type="button">← Önceki</button>
-      <button class="nav" id="backBtn" type="button">Başka kullanıcı seç</button>
-      <button…
-<!doctype html>
+[11:47, 28.08.2025] Eyup: <!doctype html>
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
@@ -41,3 +20,154 @@
 
       <!-- DİKKAT: Absolute link — GitHub Pages’te %100 çalışır -->
       <a class="btn" id="b…
+[11:51, 28.08.2025] Eyup: <!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Yarım Kalan Hikayeler — Profil</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+  <header>
+    <h1>Yarım Kalan Hikayeler — Profil</h1>
+  </header>
+  <div class="wrap wide">
+    <div id="profileCard" class="card">Yükleniyor…</div>
+    <div class="navrow">
+      <button class="nav" id="prevBtn" type="button">← Önceki</button>
+      <button class="nav" id="backBtn" type="button">Başka kullanıcı seç</button>
+      <button class="nav" id="nextBtn" type="button">Sonraki →</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var list = [];
+
+      function getParam(name){
+        var p = new URLSearchParams(window.location.search);
+        return p.get(name);
+      }
+
+      function el(tag, props, children){
+        var e = document.createElement(tag);
+        if (props) {
+          Object.keys(props).forEach(function(k){
+            if (k === 'class') e.className = props[k];
+            else if (k === 'text') e.textContent = props[k];
+            else e.setAttribute(k, props[k]);
+          });
+        }
+        if (children){
+          children.forEach(function(c){
+            if (typeof c === 'string') e.appendChild(document.createTextNode(c));
+            else if (c) e.appendChild(c);
+          });
+        }
+        return e;
+      }
+
+      function renderUser(u){
+        var container = document.getElementById('profileCard');
+        container.innerHTML = '';
+
+        var img = el('img', {class:'ph', src:u.foto, alt:u.ad});
+        img.onerror = function(){ this.onerror=null; this.src='https://via.placeholder.com/180'; };
+
+        var name = el('h2', null, [
+          u.ad + ' ',
+          el('span', {class:'muted'}, ['(' + u.yas + ')'])
+        ]);
+        name.style.margin = '0 0 6px';
+
+        var desc = el('div', {class:'muted'}, [u.aciklama || '']);
+
+        var chipsWrap = el('div', {class:'chips'});
+        (u.ulassim || []).forEach(function(t){
+          chipsWrap.appendChild(el('span', {class:'chip'}, [t]));
+        });
+
+        var timeWrap = el('div', {class:'chips'});
+        (u.karsilasma || []).forEach(function(t){
+          timeWrap.appendChild(el('span', {class:'chip'}, [t]));
+        });
+
+        var right = el('div', null, [name, desc, chipsWrap, timeWrap]);
+        var grid = el('div', {class:'profile'}, [img, right]);
+
+        container.appendChild(grid);
+      }
+
+      function goTo(id){
+        localStorage.setItem('ykh_selected_user_id', id);
+        window.location.href = 'profil.html?id=' + encodeURIComponent(id);
+      }
+
+      function wireNav(currentId){
+        var idx = list.findIndex(function(x){ return String(x.id)===String(currentId); });
+        var prevBtn = document.getElementById('prevBtn');
+        var nextBtn = document.getElementById('nextBtn');
+
+        prevBtn.disabled = (idx <= 0);
+        nextBtn.disabled = (idx === -1 || idx >= list.length - 1);
+
+        prevBtn.onclick = function(){ if (idx > 0) goTo(list[idx-1].id); };
+        nextBtn.onclick = function(){ if (idx < list.length - 1) goTo(list[idx+1].id); };
+      }
+
+      function wireBack(){
+        var back = document.getElementById('backBtn');
+        back.onclick = function(){
+          // Bulunduğun dosyanın klasörünü al (…/profil.html -> …/)
+          var base = window.location.pathname.replace(/[^/]+$/, '');
+          // O klasördeki login.html'e git
+          window.location.href = base + 'login.html';
+          // Alternatif daha sağlam çözüm:
+          // window.location.href = new URL('login.html', window.location.href).href;
+        };
+      }
+
+      function loadProfile(){
+        var urlId = getParam('id');
+        var storedId = localStorage.getItem('ykh_selected_user_id');
+        var userId = urlId || storedId;
+        var container = document.getElementById('profileCard');
+
+        if(!userId){
+          container.innerHTML = 'Kullanıcı seçilmedi. Lütfen <a href="login.html">giriş sayfasına</a> dönün.';
+          return;
+        }
+
+        fetch('data/users.json?v=' + Date.now())
+          .then(function(res){
+            if(!res.ok){ throw new Error('users.json yüklenemedi (' + res.status + ')'); }
+            return res.json();
+          })
+          .then(function(arr){
+            list = arr;
+            var u = list.find(function(x){ return String(x.id) === String(userId); });
+            if(!u){
+              container.innerHTML = 'Kullanıcı bulunamadı. <a href="login.html">Geri dön</a>.';
+              return;
+            }
+            renderUser(u);
+            wireNav(userId);
+          })
+          .catch(function(err){
+            console.error(err);
+            container.textContent = 'Bir hata oluştu: ' + err.message;
+          });
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        wireBack();
+        loadProfile();
+      });
+    })();
+  </script>
+</body>
+</html>
