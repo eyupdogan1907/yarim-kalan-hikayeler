@@ -1,6 +1,4 @@
-{<div id="count" class="muted"></div>
-<div id="timesPreview" class="muted"></div>
-  <script>
+<script>
   (function () {
     var allUsers = [];
     var currentFilter = 'Tümü';
