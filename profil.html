@@ -47,11 +47,13 @@
 
       function el(tag, props, children){
         var e = document.createElement(tag);
-        if (props) Object.keys(props).forEach(function(k){
-          if (k === 'class') e.className = props[k];
-          else if (k === 'text') e.textContent = props[k];
-          else e.setAttribute(k, props[k]);
-        });
+        if (props) {
+          Object.keys(props).forEach(function(k){
+            if (k === 'class') e.className = props[k];
+            else if (k === 'text') e.textContent = props[k];
+            else e.setAttribute(k, props[k]);
+          });
+        }
         if (children){
           children.forEach(function(c){
             if (typeof c === 'string') e.appendChild(document.createTextNode(c));
@@ -76,14 +78,19 @@
 
         var desc = el('div', {class:'muted'}, [u.aciklama || '']);
 
+        // Ulaşım etiketleri
         var chipsWrap = el('div', {class:'chips'});
-        if (Array.isArray(u.ulassim)){
-          u.ulassim.forEach(function(t){
-            chipsWrap.appendChild(el('span', {class:'chip'}, [t]));
-          });
-        }
+        (u.ulassim || []).forEach(function(t){
+          chipsWrap.appendChild(el('span', {class:'chip'}, [t]));
+        });
 
-        var right = el('div', null, [name, desc, chipsWrap]);
+        // Karşılaşma zaman aralıkları
+        var timeWrap = el('div', {class:'chips'});
+        (u.karsilasma || []).forEach(function(t){
+          timeWrap.appendChild(el('span', {class:'chip'}, [t]));
+        });
+
+        var right = el('div', null, [name, desc, chipsWrap, timeWrap]);
         var grid = el('div', {class:'profile'}, [img, right]);
 
         container.appendChild(grid);
@@ -99,15 +106,11 @@
         var prevBtn = document.getElementById('prevBtn');
         var nextBtn = document.getElementById('nextBtn');
 
-        prevBtn.disabled = (idx<=0);
-        nextBtn.disabled = (idx===-1 || idx>=list.length-1);
+        prevBtn.disabled = (idx <= 0);
+        nextBtn.disabled = (idx === -1 || idx >= list.length - 1);
 
-        prevBtn.onclick = function(){
-          if (idx>0) goTo(list[idx-1].id);
-        };
-        nextBtn.onclick = function(){
-          if (idx<list.length-1) goTo(list[idx+1].id);
-        };
+        prevBtn.onclick = function(){ if (idx > 0) goTo(list[idx-1].id); };
+        nextBtn.onclick = function(){ if (idx < list.length - 1) goTo(list[idx+1].id); };
       }
 
       function loadProfile(){
