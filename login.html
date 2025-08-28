@@ -13,6 +13,7 @@
     .wrap{max-width:720px;margin:0 auto;padding:24px}
     h1{font-size:22px;margin:12px 0 18px}
     .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:16px}
+    label{display:block;margin-bottom:8px}
     select,button{width:100%;padding:12px;border-radius:10px;border:1px solid #2a3663;background:#0f142b;color:#eef}
     button{margin-top:12px;cursor:pointer}
     .muted{opacity:.8;font-size:14px;margin-top:10px}
@@ -26,44 +27,49 @@
       <select id="userSelect">
         <option value="">Seçiniz…</option>
       </select>
-      <button id="loginBtn">Giriş Yap</button>
+      <button id="loginBtn" type="button">Giriş Yap</button>
       <div class="muted">Sorun olursa sayfayı yenileyip tekrar deneyin.</div>
     </div>
   </div>
 
   <script>
-    async function loadUsers() {
-      try {
-        // GitHub Pages önbelleğini kırmak için versiyon ekliyoruz:
-        const res = await fetch('data/users.json?v=' + Date.now());
-        if (!res.ok) throw new Error('users.json bulunamadı');
-        const users = await res.json();
-        const sel = document.getElementById('userSelect');
-        users.forEach(u => {
-          const opt = document.createElement('option');
-          opt.value = u.id;
-          opt.textContent = ${u.ad} (${u.yas});
-          sel.appendChild(opt);
-        });
-        // Daha önce seçili kullanıcı varsa seçenek olarak işaretle
-        const savedId = localStorage.getItem('ykh_selected_user_id');
-        if (savedId) sel.value = savedId;
-      } catch (e) {
-        alert('Kullanıcılar yüklenemedi: ' + e.message);
-        console.error(e);
+    document.addEventListener('DOMContentLoaded', () => {
+      async function loadUsers() {
+        try {
+          const res = await fetch('data/users.json?v=' + Date.now());
+          if (!res.ok) throw new Error('users.json bulunamadı');
+          const users = await res.json();
+
+          const sel = document.getElementById('userSelect');
+          users.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = String(u.id);
+            opt.textContent = ${u.ad} (${u.yas});
+            sel.appendChild(opt);
+          });
+
+          const savedId = localStorage.getItem('ykh_selected_user_id');
+          if (savedId) sel.value = savedId;
+        } catch (e) {
+          console.error(e);
+          alert('Kullanıcılar yüklenemedi: ' + e.message);
+        }
       }
-    }
 
-    function goProfile() {
-      const id = document.getElementById('userSelect').value;
-      if (!id) { alert('Lütfen bir kullanıcı seçin.'); return; }
-      localStorage.setItem('ykh_selected_user_id', id);
-      // Aynı klasörde olduğumuzu varsayarak relatif yönlendirme:
-      window.location.href = 'profil.html?id=' + encodeURIComponent(id);
-    }
+      function goProfile() {
+        const sel = document.getElementById('userSelect');
+        const id = sel.value;
+        if (!id) {
+          alert('Lütfen bir kullanıcı seçin.');
+          return;
+        }
+        localStorage.setItem('ykh_selected_user_id', id);
+        window.location.href = 'profil.html?id=' + encodeURIComponent(id);
+      }
 
-    document.getElementById('loginBtn').addEventListener('click', goProfile);
-    loadUsers();
+      document.getElementById('loginBtn').addEventListener('click', goProfile);
+      loadUsers();
+    });
   </script>
 </body>
 </html>
