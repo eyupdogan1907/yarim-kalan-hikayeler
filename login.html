@@ -10,30 +10,104 @@
   <style>
     *{box-sizing:border-box}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
-    .wrap{max-width:720px;margin:0 auto;padding:24px}
+    .wrap{max-width:760px;margin:0 auto;padding:24px}
     h1{font-size:22px;margin:12px 0 18px}
     .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:16px}
     label{display:block;margin-bottom:8px}
     select,button{width:100%;padding:12px;border-radius:10px;border:1px solid #2a3663;background:#0f142b;color:#eef}
     button{margin-top:12px;cursor:pointer}
     .muted{opacity:.8;font-size:14px;margin-top:10px}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+    .chip{padding:8px 12px;border:1px solid #2a3663;border-radius:999px;background:#0f142b;cursor:pointer;font-size:13px}
+    .chip.active{outline:2px solid #3a52a3}
+    .row{display:grid;grid-template-columns:1fr 160px;gap:10px}
+    @media (max-width:600px){ .row{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Yarım Kalan Hikayeler — Giriş</h1>
     <div class="card">
-      <label for="userSelect">Giriş için kullanıcı seç:</label>
-      <select id="userSelect">
-        <option value="">Seçiniz…</option>
-      </select>
-      <button id="loginBtn" type="button">Giriş Yap</button>
-      <div class="muted">Sorun olursa sayfayı yenileyip tekrar deneyin.</div>
+      <div class="filters" id="filters"></div>
+      <div class="row">
+        <div>
+          <label for="userSelect">Giriş için kullanıcı seç:</label>
+          <select id="userSelect">
+            <option value="">Seçiniz…</option>
+          </select>
+          <div id="count" class="muted"></div>
+        </div>
+        <div>
+          <button id="loginBtn" type="button">Giriş Yap</button>
+        </div>
+      </div>
+      <div class="muted">İpucu: Klavyeden <strong>Enter</strong> ile giriş yapabilirsin.</div>
     </div>
   </div>
 
   <script>
     (function () {
+      var allUsers = [];
+      var currentFilter = 'Tümü';
+
+      function uniq(arr){
+        var m = {};
+        arr.forEach(function(x){ m[x]=true; });
+        return Object.keys(m);
+      }
+
+      function buildFilters(){
+        var filtersEl = document.getElementById('filters');
+        filtersEl.innerHTML = '';
+        var tags = ['Tümü'];
+        allUsers.forEach(function(u){
+          if (Array.isArray(u.ulassim)) {
+            u.ulassim.forEach(function(t){ tags.push(t); });
+          }
+        });
+        tags = uniq(tags);
+        tags.forEach(function(t){
+          var chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'chip' + (t===currentFilter?' active':'');
+          chip.textContent = t;
+          chip.addEventListener('click', function(){
+            currentFilter = t;
+            buildFilters();
+            fillSelect();
+          });
+          filtersEl.appendChild(chip);
+        });
+      }
+
+      function fillSelect(){
+        var sel = document.getElementById('userSelect');
+        var savedId = localStorage.getItem('ykh_selected_user_id');
+        var filtered = allUsers.filter(function(u){
+          if (currentFilter==='Tümü') return true;
+          return Array.isArray(u.ulassim) && u.ulassim.indexOf(currentFilter) !== -1;
+        });
+
+        sel.innerHTML = '';
+        var def = document.createElement('option');
+        def.value = '';
+        def.textContent = 'Seçiniz…';
+        sel.appendChild(def);
+
+        filtered.forEach(function(u){
+          var opt = document.createElement('option');
+          opt.value = String(u.id);
+          opt.textContent = (u.ad + ' (' + u.yas + ')');
+          sel.appendChild(opt);
+        });
+
+        if (savedId && filtered.some(function(u){ return String(u.id)===String(savedId); })){
+          sel.value = savedId;
+        }
+
+        document.getElementById('count').textContent = filtered.length + ' kişi bulundu' + (currentFilter!=='Tümü'?' • Filtre: '+currentFilter:'');
+      }
+
       function loadUsers() {
         fetch('data/users.json?v=' + Date.now())
           .then(function(res){
@@ -41,15 +115,9 @@
             return res.json();
           })
           .then(function(users){
-            var sel = document.getElementById('userSelect');
-            users.forEach(function(u){
-              var opt = document.createElement('option');
-              opt.value = String(u.id);
-              opt.textContent = (u.ad + ' (' + u.yas + ')');
-              sel.appendChild(opt);
-            });
-            var savedId = localStorage.getItem('ykh_selected_user_id');
-            if (savedId) { sel.value = savedId; }
+            allUsers = users;
+            buildFilters();
+            fillSelect();
           })
           .catch(function(e){
             console.error(e);
@@ -69,8 +137,10 @@
       }
 
       document.addEventListener('DOMContentLoaded', function(){
-        var btn = document.getElementById('loginBtn');
-        if (btn) { btn.addEventListener('click', goProfile); }
+        document.getElementById('loginBtn').addEventListener('click', goProfile);
+        document.getElementById('userSelect').addEventListener('keydown', function(e){
+          if (e.key === 'Enter') { goProfile(); }
+        });
         loadUsers();
       });
     })();
