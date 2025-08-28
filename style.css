@@ -1,39 +1,23 @@
-body {
-  background-color: yellow;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 50px;
-  color: #333;
-}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
+.wrap{max-width:760px;margin:0 auto;padding:24px}
+h1{font-size:22px;margin:12px 0 18px}
+.card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:16px}
+label{display:block;margin-bottom:8px}
+select,button{width:100%;padding:12px;border-radius:10px;border:1px solid #2a3663;background:#0f142b;color:#eef}
+button{margin-top:12px;cursor:pointer}
+.muted{opacity:.8;font-size:14px;margin-top:10px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.chip{padding:8px 12px;border:1px solid #2a3663;border-radius:999px;background:#0f142b;cursor:pointer;font-size:13px}
+.chip.active{outline:2px solid #3a52a3}
+.row{display:grid;grid-template-columns:1fr 160px;gap:10px}
+@media (max-width:600px){ .row{grid-template-columns:1fr} }
 
-h1 {
-  font-size: 36px;
-  color: #2c3e50;
-}
-
-p {
-  font-size: 18px;
-  margin: 10px 0;
-}
-.login-btn {
-  background-color: #6c5ce7;
-  color: white;
-  padding: 12px 24px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-.login-btn:hover {
-  background-color: #4834d4;
-}
-.login-btn:hover {
-  background-color: #4834d4;
-}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));padding:16px}
-.card{display:block;text-decoration:none;color:#111;background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 6px rgba(0,0,0,.06)}
-.card img{width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:8px;display:block}
-.card h3{margin:6px 0 2px;font-weight:700}
-.card small{color:#666}
-
+/* Profil sayfasının stilleri de burada dursun (tek yerden kontrol) */
+header{padding:20px;text-align:center}
+.wrap.wide{max-width:900px}
+.profile{display:grid;grid-template-columns:180px 1fr;gap:18px;align-items:start}
+.ph{width:180px;height:180px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+a.btn,button.nav{display:inline-block;padding:10px 14px;border:1px solid #2a3663;border-radius:10px;text-decoration:none;color:#eef;background:#0f142b;cursor:pointer}
+.navrow{display:flex;gap:8px;margin-top:12px}
