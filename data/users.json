@@ -1,14 +1,98 @@
 [
   {
-    "id": 1,
-    "isim": "Ayşe",
-    "sehir": "İstanbul",
-    "foto": "resimler/ayse.jpg"
+    "id": "1",
+    "ad": "Ayşe",
+    "yas": 26,
+    "foto": "images/ayse.png",
+    "aciklama": "Mecidiyeköy - Söğütlüçeşme hattında sık görülür.",
+    "ulassim": ["metrobüs", "metro"]
   },
   {
-    "id": 2,
-    "isim": "Mehmet",
-    "sehir": "Ankara",
-    "foto": "resimler/mehmet.jpg"
+    "id": "2",
+    "ad": "Mehmet",
+    "yas": 29,
+    "foto": "images/mehmet.jpg",
+    "aciklama": "Avcılar - Beylikdüzü hattında akşamları.",
+    "ulassim": ["metrobüs", "otobüs"]
+  },
+  {
+    "id": "3",
+    "ad": "Zeynep",
+    "yas": 24,
+    "foto": "images/zeynep.jpg",
+    "aciklama": "M2 metro hattı, Haliç civarı.",
+    "ulassim": ["metro", "tramvay"]
+  },
+  {
+    "id": "4",
+    "ad": "Ali",
+    "yas": 28,
+    "foto": "images/ali.jpg",
+    "aciklama": "34AS hattı, sabahları erken saatlerde.",
+    "ulassim": ["metrobüs"]
+  },
+  {
+    "id": "5",
+    "ad": "Yasemin",
+    "yas": 27,
+    "foto": "images/yasemin.png",
+    "aciklama": "Kadıköy - Üsküdar vapurunda görülür.",
+    "ulassim": ["vapur", "metro"]
+  },
+  {
+    "id": "6",
+    "ad": "Barış",
+    "yas": 31,
+    "foto": "images/baris.jpg",
+    "aciklama": "19SK otobüsü, sabah işe giderken.",
+    "ulassim": ["otobüs"]
+  },
+  {
+    "id": "7",
+    "ad": "Burcu",
+    "yas": 25,
+    "foto": "images/burcu.jpg",
+    "aciklama": "Beşiktaş - Kabataş vapur hattı.",
+    "ulassim": ["vapur", "otobüs"]
+  },
+  {
+    "id": "8",
+    "ad": "Ebru",
+    "yas": 30,
+    "foto": "images/ebru.jpg",
+    "aciklama": "M1 metro hattı, Aksaray durağında sık görülür.",
+    "ulassim": ["metro"]
+  },
+  {
+    "id": "9",
+    "ad": "Feyza",
+    "yas": 22,
+    "foto": "images/feyza.jpg",
+    "aciklama": "Marmaray ile sık yolculuk yapar.",
+    "ulassim": ["tren", "metro"]
+  },
+  {
+    "id": "10",
+    "ad": "Kerem",
+    "yas": 27,
+    "foto": "images/kerem.jpg",
+    "aciklama": "Otobüs 32M ile Eyüp - Mecidiyeköy arası.",
+    "ulassim": ["otobüs", "metro"]
+  },
+  {
+    "id": "11",
+    "ad": "Okan",
+    "yas": 33,
+    "foto": "images/okan.jpg",
+    "aciklama": "Avcılar - Zincirlikuyu metrobüsü.",
+    "ulassim": ["metrobüs"]
+  },
+  {
+    "id": "12",
+    "ad": "Tuğçe",
+    "yas": 23,
+    "foto": "images/tugce.png",
+    "aciklama": "Kadıköy - Moda tramvayı civarında görülür.",
+    "ulassim": ["tramvay", "metro"]
   }
 ]
