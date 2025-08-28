@@ -33,32 +33,33 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      async function loadUsers() {
-        try {
-          const res = await fetch('data/users.json?v=' + Date.now());
-          if (!res.ok) throw new Error('users.json bulunamadı');
-          const users = await res.json();
-
-          const sel = document.getElementById('userSelect');
-          users.forEach(u => {
-            const opt = document.createElement('option');
-            opt.value = String(u.id);
-            opt.textContent = ${u.ad} (${u.yas});
-            sel.appendChild(opt);
+    (function () {
+      function loadUsers() {
+        fetch('data/users.json?v=' + Date.now())
+          .then(function(res){
+            if (!res.ok) { throw new Error('users.json bulunamadı'); }
+            return res.json();
+          })
+          .then(function(users){
+            var sel = document.getElementById('userSelect');
+            users.forEach(function(u){
+              var opt = document.createElement('option');
+              opt.value = String(u.id);
+              opt.textContent = (u.ad + ' (' + u.yas + ')');
+              sel.appendChild(opt);
+            });
+            var savedId = localStorage.getItem('ykh_selected_user_id');
+            if (savedId) { sel.value = savedId; }
+          })
+          .catch(function(e){
+            console.error(e);
+            alert('Kullanıcılar yüklenemedi: ' + e.message);
           });
-
-          const savedId = localStorage.getItem('ykh_selected_user_id');
-          if (savedId) sel.value = savedId;
-        } catch (e) {
-          console.error(e);
-          alert('Kullanıcılar yüklenemedi: ' + e.message);
-        }
       }
 
       function goProfile() {
-        const sel = document.getElementById('userSelect');
-        const id = sel.value;
+        var sel = document.getElementById('userSelect');
+        var id = sel.value;
         if (!id) {
           alert('Lütfen bir kullanıcı seçin.');
           return;
@@ -67,9 +68,12 @@
         window.location.href = 'profil.html?id=' + encodeURIComponent(id);
       }
 
-      document.getElementById('loginBtn').addEventListener('click', goProfile);
-      loadUsers();
-    });
+      document.addEventListener('DOMContentLoaded', function(){
+        var btn = document.getElementById('loginBtn');
+        if (btn) { btn.addEventListener('click', goProfile); }
+        loadUsers();
+      });
+    })();
   </script>
 </body>
 </html>
