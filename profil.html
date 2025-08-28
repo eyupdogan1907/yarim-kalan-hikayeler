@@ -27,66 +27,91 @@
     <h1>Yarım Kalan Hikayeler — Profil</h1>
   </header>
   <div class="wrap">
-    <div id="profileCard" class="card">
-      Yükleniyor…
-    </div>
-    <p style="margin-top:12px">
-      <a class="btn" href="login.html">← Başka kullanıcı seç</a>
-    </p>
+    <div id="profileCard" class="card">Yükleniyor…</div>
+    <p style="margin-top:12px"><a class="btn" href="login.html">← Başka kullanıcı seç</a></p>
   </div>
 
   <script>
-    function getParam(name){
-      const p = new URLSearchParams(window.location.search);
-      return p.get(name);
-    }
+    (function(){
+      function getParam(name){
+        var p = new URLSearchParams(window.location.search);
+        return p.get(name);
+      }
 
-    async function loadProfile(){
-      try{
-        const urlId = getParam('id');
-        const storedId = localStorage.getItem('ykh_selected_user_id');
-        const userId = urlId || storedId;
+      function el(tag, props, children){
+        var e = document.createElement(tag);
+        if (props) Object.keys(props).forEach(function(k){
+          if (k === 'class') e.className = props[k];
+          else if (k === 'text') e.textContent = props[k];
+          else e.setAttribute(k, props[k]);
+        });
+        if (children){
+          children.forEach(function(c){
+            if (typeof c === 'string') e.appendChild(document.createTextNode(c));
+            else if (c) e.appendChild(c);
+          });
+        }
+        return e;
+      }
 
-        const container = document.getElementById('profileCard');
+      function renderUser(u){
+        var container = document.getElementById('profileCard');
+        container.innerHTML = '';
+
+        var img = el('img', {class:'ph', src:u.foto, alt:u.ad});
+        var name = el('h2', null, [
+          u.ad + ' ',
+          el('span', {class:'muted'}, ['(' + u.yas + ')'])
+        ]);
+        name.style.margin = '0 0 6px';
+
+        var desc = el('div', {class:'muted'}, [u.aciklama || '']);
+
+        var chipsWrap = el('div', {class:'chips'});
+        if (Array.isArray(u.ulassim)){
+          u.ulassim.forEach(function(t){
+            chipsWrap.appendChild(el('span', {class:'chip'}, [t]));
+          });
+        }
+
+        var right = el('div', null, [name, desc, chipsWrap]);
+        var grid = el('div', {class:'profile'}, [img, right]);
+
+        container.appendChild(grid);
+      }
+
+      function loadProfile(){
+        var urlId = getParam('id');
+        var storedId = localStorage.getItem('ykh_selected_user_id');
+        var userId = urlId || storedId;
+        var container = document.getElementById('profileCard');
 
         if(!userId){
           container.innerHTML = 'Kullanıcı seçilmedi. Lütfen <a href="login.html">giriş sayfasına</a> dönün.';
           return;
         }
 
-        const res = await fetch('data/users.json?v=' + Date.now());
-        if(!res.ok) throw new Error('users.json yüklenemedi');
-
-        const list = await res.json();
-        const u = list.find(x => String(x.id) === String(userId));
-
-        if(!u){
-          container.innerHTML = 'Kullanıcı bulunamadı. <a href="login.html">Geri dön</a>.';
-          return;
-        }
-
-        container.innerHTML = `
-          <div class="profile">
-            <img class="ph" src="${u.foto}" alt="${u.ad}">
-            <div>
-              <h2 style="margin:0 0 6px">${u.ad} <span class="muted">(${u.yas})</span></h2>
-              <div class="muted">${u.aciklama || ''}</div>
-              ${Array.isArray(u.ulassim) && u.ulassim.length ? `
-                <div class="chips" style="margin-top:10px">
-                  ${u.ulassim.map(t => <span class="chip">${t}</span>).join('')}
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      }catch(err){
-        console.error(err);
-        document.getElementById('profileCard').innerHTML = 'Bir hata oluştu. Lütfen sayfayı yenileyin.';
+        fetch('data/users.json?v=' + Date.now())
+          .then(function(res){
+            if(!res.ok){ throw new Error('users.json yüklenemedi (' + res.status + ')'); }
+            return res.json();
+          })
+          .then(function(list){
+            var u = list.find(function(x){ return String(x.id) === String(userId); });
+            if(!u){
+              container.innerHTML = 'Kullanıcı bulunamadı. <a href="login.html">Geri dön</a>.';
+              return;
+            }
+            renderUser(u);
+          })
+          .catch(function(err){
+            console.error(err);
+            container.textContent = 'Bir hata oluştu: ' + err.message;
+          });
       }
-    }
 
-    loadProfile();
+      document.addEventListener('DOMContentLoaded', loadProfile);
+    })();
   </script>
 </body>
 </html>
-  
