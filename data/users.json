@@ -1,9 +1,86 @@
-{
-  "id": "9",
-  "ad": "Feyza",
-  "yas": 22,
-  "foto": "images/feyza.jpg",
-  "aciklama": "Marmaray ile sık yolculuk yapar.",
-  "ulassim": ["marmaray", "metro"],
-  "karsilasma": ["18:00-19:00"]
-}
+{<div id="count" class="muted"></div>
+<div id="timesPreview" class="muted"></div>
+  <script>
+  (function () {
+    var allUsers = [];
+    var currentFilter = 'Tümü';
+    var currentTime = 'all';
+
+    // ... mevcut yardımcılar (uniq, parseHM, overlapsAny, timeWindowMinutes, buildFilters, matchesTime) aynı kalsın ...
+
+    function renderTimesPreview(id){
+      var box = document.getElementById('timesPreview');
+      if (!id) { box.textContent = ''; return; }
+      var u = allUsers.find(function(x){ return String(x.id)===String(id); });
+      if (!u || !u.karsilasma || !u.karsilasma.length) { box.textContent = ''; return; }
+      box.textContent = 'Karşılaşma saatleri: ' + u.karsilasma.join(' • ');
+    }
+
+    function fillSelect(){
+      var sel = document.getElementById('userSelect');
+      var savedId = localStorage.getItem('ykh_selected_user_id');
+
+      var filtered = allUsers.filter(function(u){
+        var passTransport = (currentFilter==='Tümü') ? true :
+           Array.isArray(u.ulassim) && u.ulassim.indexOf(currentFilter)!==-1;
+        var passTime = matchesTime(u);
+        return passTransport && passTime;
+      });
+
+      sel.innerHTML = '';
+      var def = document.createElement('option'); def.value=''; def.textContent='Seçiniz…';
+      sel.appendChild(def);
+
+      filtered.forEach(function(u){
+        var opt=document.createElement('option');
+        opt.value=String(u.id);
+        opt.textContent=u.ad+' ('+u.yas+')';
+        sel.appendChild(opt);
+      });
+
+      if (savedId && filtered.some(function(u){return String(u.id)===String(savedId)})){
+        sel.value = savedId;
+      }
+
+      var fName = (currentFilter!=='Tümü' ? ' • Ulaşım: '+currentFilter : '');
+      var tMap = {all:'', morning:' • Zaman: Sabah', noon:' • Zaman: Öğlen', evening:' • Zaman: Akşamüstü', night:' • Zaman: Gece'};
+      document.getElementById('count').textContent = filtered.length + ' kişi bulundu' + fName + (tMap[currentTime]||'');
+
+      // Seçili id'ye göre önizlemeyi güncelle
+      renderTimesPreview(sel.value);
+    }
+
+    function loadUsers() {
+      fetch('data/users.json?v=' + Date.now())
+        .then(function(res){ if(!res.ok) throw new Error('users.json bulunamadı'); return res.json(); })
+        .then(function(users){
+          allUsers=users;
+          // İsteğe bağlı: Çiplerin sırasını sabitlemek istersen burada dokunma.
+          buildFilters();
+          fillSelect();
+        })
+        .catch(function(e){ console.error(e); alert('Kullanıcılar yüklenemedi: '+e.message); });
+    }
+
+    function goProfile() {
+      var id = document.getElementById('userSelect').value;
+      if (!id) return alert('Lütfen bir kullanıcı seç.');
+      localStorage.setItem('ykh_selected_user_id', id);
+      window.location.href = 'profil.html?id=' + encodeURIComponent(id);
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      document.getElementById('loginBtn').onclick = goProfile;
+      document.getElementById('userSelect').addEventListener('change', function(e){
+        renderTimesPreview(e.target.value);
+      });
+      document.getElementById('userSelect').addEventListener('keydown', function(e){
+        if (e.key==='Enter') goProfile();
+      });
+      document.getElementById('timeFilter').onchange = function(){
+        currentTime = this.value; fillSelect();
+      };
+      loadUsers();
+    });
+  })();
+</script>
