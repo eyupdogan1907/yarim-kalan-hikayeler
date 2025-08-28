@@ -1,30 +1,26 @@
 [
   {
-    "id": 1,
+    "id": "1",
     "ad": "Ayşe",
-    "konum": "İstanbul",
-    "piBakiyesi": 3.14,
-    "profilFoto": "assets/ayse.jpg"
+    "yas": 26,
+    "foto": "assets/images/ayse.jpg",
+    "aciklama": "Mecidiyeköy - Söğütlüçeşme metrobüs hattında sık görülür.",
+    "ulassim": ["metrobüs", "metro"]
   },
   {
-    "id": 2,
+    "id": "2",
     "ad": "Mehmet",
-    "konum": "İstanbul",
-    "piBakiyesi": 2.71,
-    "profilFoto": "assets/mehmet.jpg"
+    "yas": 29,
+    "foto": "assets/images/mehmet.jpg",
+    "aciklama": "Avcılar - Beylikdüzü hattında akşamları.",
+    "ulassim": ["metrobüs", "otobüs"]
   },
   {
-    "id": 4,
-    "ad": "Tuğçe",
-    "konum": "Beyoğlu",
-    "aciklama": "Camilere gitmeyi seviyor.",
-    "profilFoto": "assets/tugce.png"
-  },
-  {
-    "id": 5,
-    "ad": "Yasemin",
-    "konum": "Şişli",
-    "aciklama": "Kayak yapmayı ve su sporlarıyla ilgileniyor.",
-    "profilFoto": "assets/yasemin.png"
+    "id": "3",
+    "ad": "Zeynep",
+    "yas": 24,
+    "foto": "assets/images/zeynep.jpg",
+    "aciklama": "M2 Yeşil metro hattı, Haliç civarı.",
+    "ulassim": ["metro", "tramvay"]
   }
 ]
