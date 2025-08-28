@@ -19,7 +19,8 @@
     .muted{opacity:.8}
     .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     .chip{border:1px solid #2a3663;border-radius:999px;padding:6px 10px;font-size:13px;background:#0f142b}
-    a.btn{display:inline-block;padding:10px 14px;border:1px solid #2a3663;border-radius:10px;text-decoration:none;color:#eef;background:#0f142b}
+    a.btn,button.nav{display:inline-block;padding:10px 14px;border:1px solid #2a3663;border-radius:10px;text-decoration:none;color:#eef;background:#0f142b;cursor:pointer}
+    .navrow{display:flex;gap:8px;margin-top:12px}
   </style>
 </head>
 <body>
@@ -28,11 +29,17 @@
   </header>
   <div class="wrap">
     <div id="profileCard" class="card">Yükleniyor…</div>
-    <p style="margin-top:12px"><a class="btn" href="login.html">← Başka kullanıcı seç</a></p>
+    <div class="navrow">
+      <button class="nav" id="prevBtn" type="button">← Önceki</button>
+      <a class="btn" href="login.html">Başka kullanıcı seç</a>
+      <button class="nav" id="nextBtn" type="button">Sonraki →</button>
+    </div>
   </div>
 
   <script>
     (function(){
+      var list = [];
+
       function getParam(name){
         var p = new URLSearchParams(window.location.search);
         return p.get(name);
@@ -59,6 +66,8 @@
         container.innerHTML = '';
 
         var img = el('img', {class:'ph', src:u.foto, alt:u.ad});
+        img.onerror = function(){ this.onerror=null; this.src='https://via.placeholder.com/180'; };
+
         var name = el('h2', null, [
           u.ad + ' ',
           el('span', {class:'muted'}, ['(' + u.yas + ')'])
@@ -80,6 +89,27 @@
         container.appendChild(grid);
       }
 
+      function goTo(id){
+        localStorage.setItem('ykh_selected_user_id', id);
+        window.location.href = 'profil.html?id=' + encodeURIComponent(id);
+      }
+
+      function wireNav(currentId){
+        var idx = list.findIndex(function(x){ return String(x.id)===String(currentId); });
+        var prevBtn = document.getElementById('prevBtn');
+        var nextBtn = document.getElementById('nextBtn');
+
+        prevBtn.disabled = (idx<=0);
+        nextBtn.disabled = (idx===-1 || idx>=list.length-1);
+
+        prevBtn.onclick = function(){
+          if (idx>0) goTo(list[idx-1].id);
+        };
+        nextBtn.onclick = function(){
+          if (idx<list.length-1) goTo(list[idx+1].id);
+        };
+      }
+
       function loadProfile(){
         var urlId = getParam('id');
         var storedId = localStorage.getItem('ykh_selected_user_id');
@@ -96,13 +126,15 @@
             if(!res.ok){ throw new Error('users.json yüklenemedi (' + res.status + ')'); }
             return res.json();
           })
-          .then(function(list){
+          .then(function(arr){
+            list = arr;
             var u = list.find(function(x){ return String(x.id) === String(userId); });
             if(!u){
               container.innerHTML = 'Kullanıcı bulunamadı. <a href="login.html">Geri dön</a>.';
               return;
             }
             renderUser(u);
+            wireNav(userId);
           })
           .catch(function(err){
             console.error(err);
