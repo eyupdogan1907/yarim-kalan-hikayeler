@@ -53,88 +53,61 @@
   </div>
 
   <script>
-    const state = { users: [], idx: 0 };
-
-    function el(id){ return document.getElementById(id) }
-    function getParam(name){
-      const u = new URL(window.location.href);
-      return u.searchParams.get(name);
-    }
+    var state = { users: [], idx: 0 };
+    function el(id){ return document.getElementById(id); }
+    function getParam(name){ var u = new URL(window.location.href); return u.searchParams.get(name); }
 
     async function load(){
       try{
-        const res = await fetch("./data/users.json?ts="+Date.now());
-        const json = await res.json();
+        var res = await fetch("data/users.json?ts=" + Date.now(), {cache:"no-store"});
+        if(!res.ok) throw new Error("HTTP " + res.status);
+        var json = await res.json();
         state.users = json.users || [];
         if(!state.users.length) throw new Error("Liste boş");
 
-        // id paramı > localStorage > 0
-        const qid = getParam("id");
-        let id = qid || localStorage.getItem("currentUserId");
-        if(!id){
-          // hiçbir şey yoksa login'e gönder
-          window.location.replace("./login.html");
-          return;
-        }
-        const i = state.users.findIndex(u => String(u.id)===String(id));
-        state.idx = i >= 0 ? i : 0;
+        var qid = getParam("id");
+        var id = qid || localStorage.getItem("currentUserId");
+        if(!id){ window.location.replace("./login.html"); return; }
+        var i = state.users.findIndex(function(u){ return String(u.id)===String(id); });
+        state.idx = (i>=0)? i : 0;
 
         render();
       }catch(err){
-        alert("Veriler yüklenemedi: "+err.message);
+        alert("Veriler yüklenemedi: " + err.message);
         console.error(err);
       }
     }
 
     function render(){
-      const u = state.users[state.idx];
-      if(!u) return;
+      var u = state.users[state.idx]; if(!u) return;
 
-      el("adsoyad").textContent = ${u.ad} ${u.soyad};
+      el("adsoyad").textContent = u.ad + " " + u.soyad;
       el("bio").textContent = u.bio || "• • •";
-      el("konum").textContent = (u.konum ? ("Konum: " + u.konum) : "");
-      const saat = u.karsilasmaSaatAraligi || "—";
+      el("konum").textContent = u.konum ? ("Konum: " + u.konum) : "";
+      var saat = u.karsilasmaSaatAraligi || "—";
       el("saat").textContent = "Karşılaşılan zaman aralığı: " + saat;
       el("saatBox").textContent = saat;
 
-      const ulasimArr = Array.isArray(u.ulasim) ? u.ulasim : (u.ulasim ? [u.ulasim] : []);
+      var ulasimArr = Array.isArray(u.ulasim) ? u.ulasim : (u.ulasim ? [u.ulasim] : []);
       el("ulasimBox").textContent = ulasimArr.length ? ulasimArr.join(", ") : "—";
 
-      const chips = el("ulasimChips");
-      chips.innerHTML = "";
-      ulasimArr.forEach(t=>{
-        const div = document.createElement("div");
-        div.className = "chip";
-        div.textContent = t;
-        chips.appendChild(div);
+      var chips = el("ulasimChips"); chips.innerHTML = "";
+      ulasimArr.forEach(function(t){
+        var div = document.createElement("div");
+        div.className = "chip"; div.textContent = t; chips.appendChild(div);
       });
 
-      const img = el("avatar");
+      var img = el("avatar");
+      img.onerror = function(){ img.onerror=null; img.src = "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#22263f'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8aa' font-family='Arial' font-size='14'>Fotoğraf yok</text></svg>"); };
       img.src = u.foto || "";
-      img.onerror = () => {
-        img.onerror = null;
-        img.src = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
-          `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>
-            <rect width='100%' height='100%' fill='#22263f'/>
-            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8aa' font-family='Arial' font-size='14'>Fotoğraf yok</text>
-          </svg>`
-        );
-      };
 
-      // Senkron için localStorage güncelle
       localStorage.setItem("currentUserId", String(u.id));
-      // URL'yi de senkronla (paylaşılabilir link)
-      const url = new URL(window.location.href);
-      url.searchParams.set("id", u.id);
-      history.replaceState(null, "", url.toString());
+      var url = new URL(window.location.href); url.searchParams.set("id", u.id); history.replaceState(null, "", url.toString());
     }
 
     function prev(){ state.idx = (state.idx - 1 + state.users.length) % state.users.length; render(); }
     function next(){ state.idx = (state.idx + 1) % state.users.length; render(); }
-    function back(){
-      localStorage.removeItem("currentUserId");
-      window.location.href = "./login.html";
-    }
+    function back(){ localStorage.removeItem("currentUserId"); window.location.href = "./login.html"; }
 
     el("prevBtn").addEventListener("click", prev);
     el("nextBtn").addEventListener("click", next);
