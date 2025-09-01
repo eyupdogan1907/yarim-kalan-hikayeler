@@ -10,14 +10,12 @@
     h1{margin:0;font-size:22px}
     .wrap{max-width:900px;margin:0 auto;padding:16px}
     .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:16px}
-    .row{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center;margin:10px 0}
-    select,button{width:100%;padding:10px;border-radius:10px;border:1px solid #2a3563;background:#0f1222;color:#eef}
-    button{cursor:pointer}
     .grid{display:grid;grid-template-columns:160px 1fr 160px;gap:12px;margin-top:12px}
     .ph{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
     .muted{opacity:.8;font-size:13px}
     .name{font-weight:700;font-size:18px}
-    .navbtns{display:flex;gap:10px}
+    select,button{width:100%;padding:10px;border-radius:10px;border:1px solid #2a3563;background:#0f1222;color:#eef}
+    button{cursor:pointer}
   </style>
 </head>
 <body>
@@ -29,7 +27,7 @@
         <div>
           <div class="name" id="name">—</div>
           <div class="muted" id="bio">—</div>
-          <div class="row" style="grid-template-columns:110px 1fr">
+          <div style="display:grid;grid-template-columns:130px 1fr;gap:10px;margin-top:8px">
             <label for="userSelect">Başka kullanıcı seç:</label>
             <select id="userSelect"></select>
           </div>
@@ -38,110 +36,98 @@
       </div>
 
       <div style="margin-top:14px;display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start">
-        <img id="avatar" class="ph" alt="Profil foto" />
+        <img id="avatar" class="ph" alt="Profil foto">
         <div class="muted" id="meta">—</div>
       </div>
 
-      <div class="navbtns" style="margin-top:16px">
+      <div style="margin-top:16px">
         <button id="loginBtn">Giriş Yap</button>
       </div>
-      <div class="muted" style="margin-top:10px">
-        İpucu: Seçim yapıp “Giriş Yap”a basınca profil açılır.
-      </div>
+      <div class="muted" style="margin-top:8px">İpucu: Seçim yapıp “Giriş Yap”a basınca profil açılır.</div>
     </div>
   </div>
 
   <script>
-    const state = { users: [], idx: 0 };
+  (function(){
+    var state = { users: [], idx: 0 };
 
-    function el(id){ return document.getElementById(id) }
+    function el(id){ return document.getElementById(id); }
 
-    async function loadUsers(){
-      try{
-        const res = await fetch("./data/users.json?ts="+Date.now());
-        const json = await res.json();
-        state.users = json.users || [];
-        if(!state.users.length) throw new Error("Kullanıcı listesi boş");
-        fillSelect();
-        // Eğer daha önce seçilmiş kullanıcı varsa onu getir
-        const saved = localStorage.getItem("currentUserId");
-        if(saved){
-          const foundIndex = state.users.findIndex(u => String(u.id) === String(saved));
-          state.idx = foundIndex >= 0 ? foundIndex : 0;
-        }
-        render();
-      }catch(err){
-        alert("Kullanıcılar yüklenemedi: " + err.message);
-        console.error(err);
-      }
-    }
-
-    function fillSelect(){
-      const sel = el("userSelect");
-      sel.innerHTML = "";
-      state.users.forEach(u=>{
-        const opt = document.createElement("option");
-        opt.value = u.id;
-        opt.textContent = ${u.ad} ${u.soyad};
-        sel.appendChild(opt);
-      });
-      sel.addEventListener("change", ()=>{
-        const v = sel.value;
-        const i = state.users.findIndex(u => String(u.id)===String(v));
-        state.idx = i >= 0 ? i : 0;
-        render();
-      });
+    function safePlaceholder(img){
+      var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#22263f'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8aa' font-family='Arial' font-size='14'>Fotoğraf yok</text></svg>";
+      img.src = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
     }
 
     function render(){
-      const u = state.users[state.idx];
-      if(!u) return;
-
-      // Dropdown senkron
+      var u = state.users[state.idx]; if(!u) return;
       el("userSelect").value = u.id;
-
-      // Metinler
-      el("name").textContent = ${u.ad} ${u.soyad};
-      const ulasim = Array.isArray(u.ulasim) ? u.ulasim.join(", ") : (u.ulasim || "—");
-      const saat = u.karsilasmaSaatAraligi || "—";
+      el("name").textContent = u.ad + " " + u.soyad;
       el("bio").textContent = u.bio || "• • •";
-      el("meta").innerHTML = `
-        <div><b>Ulaşım:</b> ${ulasim}</div>
-        <div><b>Karşılaşılan zaman aralığı:</b> ${saat}</div>
-        <div><b>Konum:</b> ${u.konum || "—"}</div>
-      `;
 
-      // Foto
-      const img = el("avatar");
+      var ulasim = (u.ulasim && u.ulasim.join) ? u.ulasim.join(", ") : (u.ulasim || "—");
+      var saat = u.karsilasmaSaatAraligi || "—";
+      el("meta").innerHTML = "<div><b>Ulaşım:</b> " + ulasim + "</div><div><b>Karşılaşılan zaman aralığı:</b> " + saat + "</div><div><b>Konum:</b> " + (u.konum||"—") + "</div>";
+
+      var img = el("avatar");
+      img.onerror = function(){ img.onerror=null; safePlaceholder(img); };
       img.src = u.foto || "";
-      img.onerror = () => {
-        img.onerror = null;
-        // Basit bir placeholder
-        img.src = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
-          `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>
-            <rect width='100%' height='100%' fill='#22263f'/>
-            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8aa' font-family='Arial' font-size='14'>Fotoğraf yok</text>
-          </svg>`
-        );
+    }
+
+    function fillSelect(){
+      var sel = el("userSelect"); sel.innerHTML = "";
+      state.users.forEach(function(u){
+        var opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = u.ad + " " + u.soyad;
+        sel.appendChild(opt);
+      });
+      sel.onchange = function(){
+        var v = sel.value;
+        var i = state.users.findIndex(function(u){ return String(u.id)===String(v); });
+        state.idx = (i>=0)? i : 0;
+        render();
       };
     }
 
     function prev(){ state.idx = (state.idx - 1 + state.users.length) % state.users.length; render(); }
     function next(){ state.idx = (state.idx + 1) % state.users.length; render(); }
-
     function login(){
-      const u = state.users[state.idx];
-      if(!u){ alert("Önce bir kullanıcı seç."); return; }
+      var u = state.users[state.idx]; if(!u){ alert("Önce bir kullanıcı seç."); return; }
       localStorage.setItem("currentUserId", String(u.id));
-      // Hem query param ile hem de localStorage ile çalışır
-      window.location.href = ./profil.html?id=${encodeURIComponent(u.id)};
+      window.location.href = "./profil.html?id=" + encodeURIComponent(u.id);
     }
 
-    el("prevBtn").addEventListener("click", prev);
-    el("nextBtn").addEventListener("click", next);
-    el("loginBtn").addEventListener("click", login);
+    // ---- KRİTİK: JSON'u çek ----
+    async function loadUsers(){
+      try{
+        // Bu yol senin public URL'ine göre doğru (root + data)
+        var res = await fetch("data/users.json?ts=" + Date.now(), {cache:"no-store"});
+        if(!res.ok){
+          throw new Error("HTTP " + res.status + " " + res.statusText);
+        }
+        var json = await res.json();               // burada '<' hatası olmamalı
+        state.users = (json && json.users) ? json.users : [];
+        if(!state.users.length){ throw new Error("Liste boş"); }
+        fillSelect();
+        // varsa önceki seçim
+        var saved = localStorage.getItem("currentUserId");
+        if(saved){
+          var i = state.users.findIndex(function(u){ return String(u.id)===String(saved); });
+          state.idx = (i>=0)? i : 0;
+        }
+        render();
+      }catch(err){
+        console.error("Kullanıcılar yüklenemedi:", err);
+        alert("Kullanıcılar yüklenemedi: " + err.message);
+      }
+    }
+
+    el("prevBtn").onclick = prev;
+    el("nextBtn").onclick = next;
+    el("loginBtn").onclick = login;
 
     loadUsers();
+  })();
   </script>
 </body>
 </html>
