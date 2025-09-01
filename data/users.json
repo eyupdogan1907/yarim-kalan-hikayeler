@@ -32,13 +32,33 @@
     },
     {
       "id": "4",
-      "ad": "Ali",
-      "soyad": "Aksoy",
-      "foto": "./assets/images/ali.jpg",
-      "bio": "Vapurda sahil manzarası eşliğinde…",
+      "ad": "Barış",
+      "soyad": "Çelik",
+      "foto": "./assets/images/baris.jpg",
+      "bio": "Beşiktaş – Kadıköy vapurunda denk geliyoruz.",
       "konum": "İstanbul",
-      "ulasim": ["Vapur", "Metro"],
+      "ulasim": ["Vapur", "Otobüs"],
       "karsilasmaSaatAraligi": "18:00-20:00"
+    },
+    {
+      "id": "5",
+      "ad": "Burcu",
+      "soyad": "Aydın",
+      "foto": "./assets/images/burcu.jpg",
+      "bio": "Sabahları metro kalabalığında hep aynı vagonda.",
+      "konum": "İstanbul",
+      "ulasim": ["Metro"],
+      "karsilasmaSaatAraligi": "07:30-08:30"
+    },
+    {
+      "id": "6",
+      "ad": "Ebru",
+      "soyad": "Şen",
+      "foto": "./assets/images/ebru.jpg",
+      "bio": "Hafta sonları Marmaray’da kitap okurken…",
+      "konum": "İstanbul",
+      "ulasim": ["Marmaray"],
+      "karsilasmaSaatAraligi": "15:00-17:00"
     }
   ]
 }
