@@ -1,110 +1,44 @@
-[
-  {
-    "id": "1",
-    "ad": "Ayşe",
-    "yas": 26,
-    "foto": "images/ayse.png",
-    "aciklama": "Mecidiyeköy - Söğütlüçeşme hattında sık görülür.",
-    "ulassim": ["metrobüs", "metro"],
-    "karsilasma": ["07:00-08:30", "18:30-19:30"]
-  },
-  {
-    "id": "2",
-    "ad": "Mehmet",
-    "yas": 29,
-    "foto": "images/mehmet.jpg",
-    "aciklama": "Avcılar - Beylikdüzü hattında akşamları.",
-    "ulassim": ["metrobüs", "otobüs"],
-    "karsilasma": ["18:00-20:00"]
-  },
-  {
-    "id": "3",
-    "ad": "Zeynep",
-    "yas": 24,
-    "foto": "images/zeynep.jpg",
-    "aciklama": "M2 metro hattı, Haliç civarı.",
-    "ulassim": ["metro", "tramvay"],
-    "karsilasma": ["08:00-09:00", "16:30-17:30"]
-  },
-  {
-    "id": "4",
-    "ad": "Ali",
-    "yas": 28,
-    "foto": "images/ali.jpg",
-    "aciklama": "34AS hattı, sabahları erken saatlerde.",
-    "ulassim": ["metrobüs"],
-    "karsilasma": ["06:30-08:00"]
-  },
-  {
-    "id": "5",
-    "ad": "Yasemin",
-    "yas": 27,
-    "foto": "images/yasemin.png",
-    "aciklama": "Kadıköy - Üsküdar vapurunda görülür.",
-    "ulassim": ["vapur", "metro"],
-    "karsilasma": ["07:30-09:00"]
-  },
-  {
-    "id": "6",
-    "ad": "Barış",
-    "yas": 31,
-    "foto": "images/baris.jpg",
-    "aciklama": "19SK otobüsü, sabah işe giderken.",
-    "ulassim": ["otobüs"],
-    "karsilasma": ["07:00-08:00"]
-  },
-  {
-    "id": "7",
-    "ad": "Burcu",
-    "yas": 25,
-    "foto": "images/burcu.jpg",
-    "aciklama": "Beşiktaş - Kabataş vapur hattı.",
-    "ulassim": ["vapur", "otobüs"],
-    "karsilasma": ["17:30-19:00"]
-  },
-  {
-    "id": "8",
-    "ad": "Ebru",
-    "yas": 30,
-    "foto": "images/ebru.jpg",
-    "aciklama": "M1 metro hattı, Aksaray durağında sık görülür.",
-    "ulassim": ["metro"],
-    "karsilasma": ["08:30-09:30"]
-  },
-  {
-    "id": "9",
-    "ad": "Feyza",
-    "yas": 22,
-    "foto": "images/feyza.jpg",
-    "aciklama": "Marmaray ile sık yolculuk yapar.",
-    "ulassim": ["marmaray", "metro"],
-    "karsilasma": ["18:00-19:00"]
-  },
-  {
-    "id": "10",
-    "ad": "Kerem",
-    "yas": 27,
-    "foto": "images/kerem.jpg",
-    "aciklama": "Otobüs 32M ile Eyüp - Mecidiyeköy arası.",
-    "ulassim": ["otobüs", "metro"],
-    "karsilasma": ["07:30-08:30", "20:00-21:00"]
-  },
-  {
-    "id": "11",
-    "ad": "Okan",
-    "yas": 33,
-    "foto": "images/okan.jpg",
-    "aciklama": "Avcılar - Zincirlikuyu metrobüsü.",
-    "ulassim": ["metrobüs"],
-    "karsilasma": ["17:00-18:30"]
-  },
-  {
-    "id": "12",
-    "ad": "Tuğçe",
-    "yas": 23,
-    "foto": "images/tugce.png",
-    "aciklama": "Kadıköy - Moda tramvayı civarında görülür.",
-    "ulassim": ["tramvay", "metro"],
-    "karsilasma": ["10:00-11:00", "15:30-16:30"]
-  }
-]
+{
+  "users": [
+    {
+      "id": "1",
+      "ad": "Ayşe",
+      "soyad": "Yılmaz",
+      "foto": "./assets/images/ayse.jpg",
+      "bio": "Mecidiyeköy - Söğütlüçeşme hattında karşılaşıyoruz.",
+      "konum": "İstanbul",
+      "ulasim": ["Metro", "Metrobüs", "Marmaray"],
+      "karsilasmaSaatAraligi": "07:00-09:00"
+    },
+    {
+      "id": "2",
+      "ad": "Mehmet",
+      "soyad": "Demir",
+      "foto": "./assets/images/mehmet.jpg",
+      "bio": "Avcılar yönü akşamüstü kalabalığında göz göze…",
+      "konum": "İstanbul",
+      "ulasim": ["Otobüs", "Metrobüs"],
+      "karsilasmaSaatAraligi": "17:30-19:00"
+    },
+    {
+      "id": "3",
+      "ad": "Zeynep",
+      "soyad": "Kara",
+      "foto": "./assets/images/zeynep.jpg",
+      "bio": "Tramvayda birkaç kez denk geldik.",
+      "konum": "İstanbul",
+      "ulasim": ["Tramvay", "Marmaray"],
+      "karsilasmaSaatAraligi": "08:30-09:30"
+    },
+    {
+      "id": "4",
+      "ad": "Ali",
+      "soyad": "Aksoy",
+      "foto": "./assets/images/ali.jpg",
+      "bio": "Vapurda sahil manzarası eşliğinde…",
+      "konum": "İstanbul",
+      "ulasim": ["Vapur", "Metro"],
+      "karsilasmaSaatAraligi": "18:00-20:00"
+    }
+  ]
+}
