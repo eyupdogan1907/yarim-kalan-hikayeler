@@ -3,179 +3,145 @@
 <head>
   <meta charset="utf-8" />
   <title>Yarım Kalan Hikayeler — Giriş</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="style.css?v=4">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
+    header{padding:20px;text-align:center}
+    h1{margin:0;font-size:22px}
+    .wrap{max-width:900px;margin:0 auto;padding:16px}
+    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:16px}
+    .row{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center;margin:10px 0}
+    select,button{width:100%;padding:10px;border-radius:10px;border:1px solid #2a3563;background:#0f1222;color:#eef}
+    button{cursor:pointer}
+    .grid{display:grid;grid-template-columns:160px 1fr 160px;gap:12px;margin-top:12px}
+    .ph{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
+    .muted{opacity:.8;font-size:13px}
+    .name{font-weight:700;font-size:18px}
+    .navbtns{display:flex;gap:10px}
+  </style>
 </head>
 <body>
+  <header><h1>Yarım Kalan Hikayeler — Giriş</h1></header>
   <div class="wrap">
-    <h1>Yarım Kalan Hikayeler — Giriş</h1>
     <div class="card">
-      <div class="filters" id="filters"></div>
-
-      <div class="row">
+      <div class="grid">
+        <button id="prevBtn">◀ Önceki</button>
         <div>
-          <label for="timeFilter">Karşılaşılan zaman aralığı:</label>
-          <select id="timeFilter">
-            <option value="all">Tümü</option>
-            <option value="morning">Sabah (05:00–10:59)</option>
-            <option value="noon">Öğlen (11:00–14:59)</option>
-            <option value="evening">Akşamüstü (15:00–18:59)</option>
-            <option value="night">Gece (19:00–23:59)</option>
-          </select>
+          <div class="name" id="name">—</div>
+          <div class="muted" id="bio">—</div>
+          <div class="row" style="grid-template-columns:110px 1fr">
+            <label for="userSelect">Başka kullanıcı seç:</label>
+            <select id="userSelect"></select>
+          </div>
         </div>
-        <div></div>
+        <button id="nextBtn">Sonraki ▶</button>
       </div>
 
-      <div class="row" style="margin-top:8px">
-        <div>
-          <label for="userSelect">Giriş için kullanıcı seç:</label>
-          <select id="userSelect">
-            <option value="">Seçiniz…</option>
-          </select>
-          <div id="count" class="muted"></div>
-          <div id="timesPreview" class="muted"></div>
-        </div>
-        <div>
-          <button id="loginBtn" type="button">Giriş Yap</button>
-        </div>
+      <div style="margin-top:14px;display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start">
+        <img id="avatar" class="ph" alt="Profil foto" />
+        <div class="muted" id="meta">—</div>
       </div>
 
-      <div class="muted">İpucu: Klavyeden <strong>Enter</strong> ile giriş yapabilirsin.</div>
+      <div class="navbtns" style="margin-top:16px">
+        <button id="loginBtn">Giriş Yap</button>
+      </div>
+      <div class="muted" style="margin-top:10px">
+        İpucu: Seçim yapıp “Giriş Yap”a basınca profil açılır.
+      </div>
     </div>
   </div>
 
   <script>
-    (function () {
-      var allUsers = [];
-      // 🔒 Filtreleri hatırla
-      var currentFilter = localStorage.getItem('ykh_filter_transport') || 'Tümü';
-      var currentTime   = localStorage.getItem('ykh_filter_time') || 'all';
+    const state = { users: [], idx: 0 };
 
-      function uniq(arr){ var m={}; arr.forEach(function(x){m[x]=true}); return Object.keys(m); }
-      function parseHM(s){ var p=s.split(':'); return (+p[0])*60 + (+p[1]); }
-      function overlapsAny(ranges, startM, endM){
-        if (!Array.isArray(ranges)) return false;
-        for (var i=0;i<ranges.length;i++){
-          var sp = ranges[i].split('-'); if (sp.length!==2) continue;
-          var a = parseHM(sp[0].trim()), b = parseHM(sp[1].trim());
-          if (Math.max(a,startM) <= Math.min(b,endM)) return true;
+    function el(id){ return document.getElementById(id) }
+
+    async function loadUsers(){
+      try{
+        const res = await fetch("./data/users.json?ts="+Date.now());
+        const json = await res.json();
+        state.users = json.users || [];
+        if(!state.users.length) throw new Error("Kullanıcı listesi boş");
+        fillSelect();
+        // Eğer daha önce seçilmiş kullanıcı varsa onu getir
+        const saved = localStorage.getItem("currentUserId");
+        if(saved){
+          const foundIndex = state.users.findIndex(u => String(u.id) === String(saved));
+          state.idx = foundIndex >= 0 ? foundIndex : 0;
         }
-        return false;
+        render();
+      }catch(err){
+        alert("Kullanıcılar yüklenemedi: " + err.message);
+        console.error(err);
       }
-      function timeWindowMinutes(key){
-        if (key==='morning')  return [5*60, 10*60+59];
-        if (key==='noon')     return [11*60,14*60+59];
-        if (key==='evening')  return [15*60,18*60+59];
-        if (key==='night')    return [19*60,23*60+59];
-        return null;
-      }
+    }
 
-      function buildFilters(){
-        var filtersEl = document.getElementById('filters');
-        filtersEl.innerHTML = '';
-        var tags = ['Tümü'];
-        allUsers.forEach(function(u){ (u.ulassim||[]).forEach(function(t){ tags.push(t); }); });
-        uniq(tags).forEach(function(t){
-          var chip = document.createElement('button');
-          chip.type='button';
-          chip.className='chip'+(t===currentFilter?' active':'');
-          chip.textContent=t;
-          chip.onclick=function(){
-            currentFilter=t;
-            localStorage.setItem('ykh_filter_transport', currentFilter);
-            buildFilters(); fillSelect();
-          };
-          filtersEl.appendChild(chip);
-        });
-      }
-
-      function matchesTime(u){
-        if (currentTime==='all') return true;
-        var win = timeWindowMinutes(currentTime);
-        if (!win) return true;
-        return overlapsAny(u.karsilasma, win[0], win[1]);
-      }
-
-      function renderTimesPreview(id){
-        var box = document.getElementById('timesPreview');
-        if (!id) { box.textContent = ''; return; }
-        var u = allUsers.find(function(x){ return String(x.id)===String(id); });
-        if (!u || !u.karsilasma || !u.karsilasma.length) { box.textContent = ''; return; }
-        box.textContent = 'Karşılaşma saatleri: ' + u.karsilasma.join(' • ');
-      }
-
-      function fillSelect(){
-        var sel = document.getElementById('userSelect');
-        var savedId = localStorage.getItem('ykh_selected_user_id');
-
-        var filtered = allUsers.filter(function(u){
-          var passTransport = (currentFilter==='Tümü') ? true :
-             Array.isArray(u.ulassim) && u.ulassim.indexOf(currentFilter)!==-1;
-          var passTime = matchesTime(u);
-          return passTransport && passTime;
-        });
-
-        sel.innerHTML = '';
-        var def = document.createElement('option'); def.value=''; def.textContent='Seçiniz…';
-        sel.appendChild(def);
-
-        filtered.forEach(function(u){
-          var opt=document.createElement('option');
-          opt.value=String(u.id);
-          opt.textContent=u.ad+' ('+u.yas+')';
-          sel.appendChild(opt);
-        });
-
-        if (savedId && filtered.some(function(u){return String(u.id)===String(savedId)})){
-          sel.value = savedId;
-        }
-
-        var fName = (currentFilter!=='Tümü' ? ' • Ulaşım: '+currentFilter : '');
-        var tMap = {all:'', morning:' • Zaman: Sabah', noon:' • Zaman: Öğlen', evening:' • Zaman: Akşamüstü', night:' • Zaman: Gece'};
-        document.getElementById('count').textContent = filtered.length + ' kişi bulundu' + fName + (tMap[currentTime]||'');
-
-        renderTimesPreview(sel.value);
-      }
-
-      function loadUsers() {
-        fetch('data/users.json?v=' + Date.now())
-          .then(function(res){ if(!res.ok) throw new Error('users.json bulunamadı'); return res.json(); })
-          .then(function(users){ allUsers=users; buildFilters(); fillSelect(); })
-          .catch(function(e){ console.error(e); alert('Kullanıcılar yüklenemedi: '+e.message); });
-      }
-
-      function goProfile() {
-        var id = document.getElementById('userSelect').value;
-        if (!id) return alert('Lütfen bir kullanıcı seç.');
-        // Seçimleri hatırla
-        localStorage.setItem('ykh_filter_transport', currentFilter);
-        localStorage.setItem('ykh_filter_time', currentTime);
-        localStorage.setItem('ykh_selected_user_id', id);
-        window.location.href = 'profil.html?id=' + encodeURIComponent(id);
-      }
-
-      document.addEventListener('DOMContentLoaded', function(){
-        // dropdown'u hatırlanan değere getir
-        document.getElementById('timeFilter').value = currentTime;
-
-        document.getElementById('loginBtn').onclick = goProfile;
-        document.getElementById('userSelect').addEventListener('change', function(e){
-          renderTimesPreview(e.target.value);
-        });
-        document.getElementById('userSelect').addEventListener('keydown', function(e){
-          if (e.key==='Enter') goProfile();
-        });
-        document.getElementById('timeFilter').onchange = function(){
-          currentTime = this.value;
-          localStorage.setItem('ykh_filter_time', currentTime);
-          fillSelect();
-        };
-        loadUsers();
+    function fillSelect(){
+      const sel = el("userSelect");
+      sel.innerHTML = "";
+      state.users.forEach(u=>{
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.textContent = ${u.ad} ${u.soyad};
+        sel.appendChild(opt);
       });
-    })();
+      sel.addEventListener("change", ()=>{
+        const v = sel.value;
+        const i = state.users.findIndex(u => String(u.id)===String(v));
+        state.idx = i >= 0 ? i : 0;
+        render();
+      });
+    }
+
+    function render(){
+      const u = state.users[state.idx];
+      if(!u) return;
+
+      // Dropdown senkron
+      el("userSelect").value = u.id;
+
+      // Metinler
+      el("name").textContent = ${u.ad} ${u.soyad};
+      const ulasim = Array.isArray(u.ulasim) ? u.ulasim.join(", ") : (u.ulasim || "—");
+      const saat = u.karsilasmaSaatAraligi || "—";
+      el("bio").textContent = u.bio || "• • •";
+      el("meta").innerHTML = `
+        <div><b>Ulaşım:</b> ${ulasim}</div>
+        <div><b>Karşılaşılan zaman aralığı:</b> ${saat}</div>
+        <div><b>Konum:</b> ${u.konum || "—"}</div>
+      `;
+
+      // Foto
+      const img = el("avatar");
+      img.src = u.foto || "";
+      img.onerror = () => {
+        img.onerror = null;
+        // Basit bir placeholder
+        img.src = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
+          `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>
+            <rect width='100%' height='100%' fill='#22263f'/>
+            <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8aa' font-family='Arial' font-size='14'>Fotoğraf yok</text>
+          </svg>`
+        );
+      };
+    }
+
+    function prev(){ state.idx = (state.idx - 1 + state.users.length) % state.users.length; render(); }
+    function next(){ state.idx = (state.idx + 1) % state.users.length; render(); }
+
+    function login(){
+      const u = state.users[state.idx];
+      if(!u){ alert("Önce bir kullanıcı seç."); return; }
+      localStorage.setItem("currentUserId", String(u.id));
+      // Hem query param ile hem de localStorage ile çalışır
+      window.location.href = ./profil.html?id=${encodeURIComponent(u.id)};
+    }
+
+    el("prevBtn").addEventListener("click", prev);
+    el("nextBtn").addEventListener("click", next);
+    el("loginBtn").addEventListener("click", login);
+
+    loadUsers();
   </script>
 </body>
 </html>
