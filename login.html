@@ -1,131 +1,43 @@
-[11:21, 01.09.2025] Eyup: <!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <title>Yarım Kalan Hikayeler — Giriş</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
-    header{padding:20px;text-align:center}
-    h1{margin:0;font-size:22px}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
-    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:16px}
-    .grid{display:grid;grid-template-columns:160px 1fr 160px;gap:12px;margin-top:12px}
-    .ph{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
-    .…
-[11:27, 01.09.2025] Eyup: <!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Yarım Kalan Hikayeler — Giriş</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0f1222;color:#eef}
-    header{padding:20px;text-align:center}
-    h1{margin:0;font-size:22px}
-    .wrap{max-width:900px;margin:0 auto;padding:16px}
-    .card{background:#171a2e;border:1px solid #263056;border-radius:12px;padding:16px}
-    .grid{display:grid;grid-template-columns:160px 1fr 160px;gap:12px;margin-top:12px}
-    .ph{width:160px;height:160px;border-radius:14px;object-fit:cover;background:#22263f;border:1px solid #263056}
-    .muted{opacity:.8;font-size:13px}
-    .name{font-weight:700;font-size:18px}
-    select,button{width:100%;padding:10px;border-radius:10px;border:1px solid #2a3563;background:#0f1222;color:#eef}
-    button{cursor:pointer}
-  </style>
+  <meta charset="UTF-8">
+  <title>Yarım Kalan Hikayeler - Giriş</title>
 </head>
 <body>
-  <header><h1>Yarım Kalan Hikayeler — Giriş</h1></header>
-  <div class="wrap">
-    <div class="card">
-      <div class="grid">
-        <button id="prevBtn">◀ Önceki</button>
-        <div>
-          <div class="name" id="name">—</div>
-          <div class="muted" id="bio">—</div>
-          <div style="display:grid;grid-template-columns:130px 1fr;gap:10px;margin-top:8px">
-            <label for="userSelect">Başka kullanıcı seç:</label>
-            <select id="userSelect"></select>
-          </div>
-        </div>
-        <button id="nextBtn">Sonraki ▶</button>
-      </div>
-
-      <div style="margin-top:14px;display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:start">
-        <img id="avatar" class="ph" alt="Profil foto">
-        <div class="muted" id="meta">—</div>
-      </div>
-
-      <div style="margin-top:16px">
-        <button id="loginBtn">Giriş Yap</button>
-      </div>
-      <div class="muted" style="margin-top:8px">İpucu: Seçim yapıp “Giriş Yap”a basınca profil açılır.</div>
-    </div>
-  </div>
+  <h1>Yarım Kalan Hikayeler</h1>
+  <p>Kullanıcı seçin:</p>
+  <select id="userSelect"></select>
+  <button onclick="login()">Giriş</button>
 
   <script>
-  (function(){
-    var state = { users: [], idx: 0 };
-    function el(id){ return document.getElementById(id); }
-    function safePlaceholder(img){
-      var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#22263f'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#8aa' font-family='Arial' font-size='14'>Fotoğraf yok</text></svg>";
-      img.src = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
-    }
-    function render(){
-      var u = state.users[state.idx]; if(!u) return;
-      el("userSelect").value = u.id;
-      el("name").textContent = u.ad + " " + u.soyad;
-      el("bio").textContent = u.bio || "• • •";
-      var ulasim = (u.ulasim && u.ulasim.join) ? u.ulasim.join(", ") : (u.ulasim || "—");
-      var saat = u.karsilasmaSaatAraligi || "—";
-      el("meta").innerHTML = "<div><b>Ulaşım:</b> " + ulasim + "</div><div><b>Karşılaşılan zaman aralığı:</b> " + saat + "</div><div><b>Konum:</b> " + (u.konum||"—") + "</div>";
-      var img = el("avatar");
-      img.onerror = function(){ img.onerror=null; safePlaceholder(img); };
-      img.src = u.foto || "";
-    }
-    function fillSelect(){
-      var sel = el("userSelect"); sel.innerHTML = "";
-      state.users.forEach(function(u){
-        var opt = document.createElement("option");
-        opt.value = u.id; opt.textContent = u.ad + " " + u.soyad;
-        sel.appendChild(opt);
+  async function loadUsers() {
+    try {
+      const response = await fetch("users.json");
+      const data = await response.json();
+      const select = document.getElementById("userSelect");
+
+      data.users.forEach(user => {
+        const option = document.createElement("option");
+        option.value = user.id;
+        option.textContent = user.ad;
+        select.appendChild(option);
       });
-      sel.onchange = function(){
-        var v = sel.value;
-        var i = state.users.findIndex(function(u){ return String(u.id)===String(v); });
-        state.idx = (i>=0)? i : 0; render();
-      };
+    } catch (err) {
+      console.error("Kullanıcılar yüklenemedi:", err);
     }
-    function prev(){ state.idx = (state.idx - 1 + state.users.length) % state.users.length; render(); }
-    function next(){ state.idx = (state.idx + 1) % state.users.length; render(); }
-    function login(){
-      var u = state.users[state.idx]; if(!u){ alert("Önce bir kullanıcı seç."); return; }
-      localStorage.setItem("currentUserId", String(u.id));
-      window.location.href = "./profil.html?id=" + encodeURIComponent(u.id);
+  }
+
+  function login() {
+    const id = document.getElementById("userSelect").value;
+    if (id) {
+      window.location.href = profil.html?id=${id};
+    } else {
+      alert("Lütfen bir kullanıcı seçin.");
     }
-    async function loadUsers(){
-      try{
-        var res = await fetch("data/users.json?ts=" + Date.now(), {cache:"no-store"});
-        if(!res.ok){ throw new Error("HTTP " + res.status + " " + res.statusText); }
-        var json = await res.json();
-        state.users = (json && json.users) ? json.users : [];
-        if(!state.users.length){ throw new Error("Liste boş"); }
-        fillSelect();
-        var saved = localStorage.getItem("currentUserId");
-        if(saved){
-          var i = state.users.findIndex(function(u){ return String(u.id)===String(saved); });
-          state.idx = (i>=0)? i : 0;
-        }
-        render();
-      }catch(err){
-        console.error("Kullanıcılar yüklenemedi:", err);
-        alert("Kullanıcılar yüklenemedi: " + err.message);
-      }
-    }
-    el("prevBtn").onclick = prev;
-    el("nextBtn").onclick = next;
-    el("loginBtn").onclick = login;
-    loadUsers();
-  })();
+  }
+
+  loadUsers();
   </script>
 </body>
 </html>
