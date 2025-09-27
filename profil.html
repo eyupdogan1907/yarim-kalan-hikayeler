@@ -1,45 +1,109 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Yarım Kalan Hikayeler - Profil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- style.css dosyan kökte olmalı -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <h1>Yarım Kalan Hikayeler</h1>
+
   <div id="profil">
-    <img id="foto" alt="Profil Fotoğrafı" width="150"><br>
+    <img id="foto" alt="Profil Fotoğrafı" width="150" height="150" />
     <h2 id="ad"></h2>
+
     <p><strong>Yaş:</strong> <span id="yas"></span></p>
     <p><strong>Hakkında:</strong> <span id="bio"></span></p>
     <p><strong>Hatlar:</strong> <span id="hatlar"></span></p>
     <p><strong>Zaman Aralığı:</strong> <span id="zaman"></span></p>
+
+    <div style="margin-top:16px">
+      <button id="prevBtn">Önceki</button>
+      <button id="nextBtn">Sonraki</button>
+      <button id="backBtn">Başka kullanıcı seç</button>
+    </div>
   </div>
 
   <script>
-  async function loadProfile() {
+    // URL'den ?id=... parametresini al
     const params = new URLSearchParams(window.location.search);
-    const userId = params.get("id");
+    let currentId = params.get("id");
 
-    try {
-      const response = await fetch("users.json");
-      const data = await response.json();
-      const user = data.users.find(u => u.id === userId);
+    let users = [];
 
-      if (user) {
-        document.getElementById("ad").textContent = user.ad;
-        document.getElementById("yas").textContent = user.yas;
-        document.getElementById("bio").textContent = user.bio;
-        document.getElementById("foto").src = user.foto;
-        document.getElementById("hatlar").textContent = user.hatlar.join(", ");
-        document.getElementById("zaman").textContent = user.zaman_araligi;
-      } else {
-        document.getElementById("profil").innerHTML = "<p>Kullanıcı bulunamadı.</p>";
+    async function loadProfile() {
+      try {
+        const res = await fetch("users.json");
+        const data = await res.json();
+        users = data.users || [];
+
+        // Eğer id yoksa ilk kullanıcıyı aç
+        if (!currentId && users.length) {
+          currentId = users[0].id;
+          history.replaceState(null, "", "profil.html?id=" + currentId);
+        }
+
+        render(currentId);
+        wireNavButtons();
+      } catch (err) {
+        console.error("Profil yüklenemedi:", err);
+        document.getElementById("profil").innerHTML =
+          "<p>Profil verileri yüklenemedi.</p>";
       }
-    } catch (err) {
-      console.error("Profil yüklenemedi:", err);
     }
-  }
 
-  loadProfile();
+    function render(userId) {
+      const u = users.find(x => x.id === userId);
+      if (!u) {
+        document.getElementById("profil").innerHTML = "<p>Kullanıcı bulunamadı.</p>";
+        return;
+      }
+      document.getElementById("ad").textContent = u.ad || "";
+      document.getElementById("yas").textContent = u.yas ?? "";
+      document.getElementById("bio").textContent = u.bio || "";
+      document.getElementById("foto").src = u.foto || "";
+      document.getElementById("hatlar").textContent = (u.hatlar || []).join(", ");
+      document.getElementById("zaman").textContent = u.zaman_araligi || "";
+    }
+
+    function wireNavButtons() {
+      const idx = users.findIndex(x => x.id === currentId);
+
+      document.getElementById("prevBtn").onclick = () => {
+        if (!users.length) return;
+        const prev = (idx - 1 + users.length) % users.length;
+        goTo(users[prev].id);
+      };
+
+      document.getElementById("nextBtn").onclick = () => {
+        if (!users.length) return;
+        const next = (idx + 1) % users.length;
+        goTo(users[next].id);
+      };
+
+      document.getElementById("backBtn").onclick = () => {
+        window.location.href = "login.html";
+      };
+    }
+
+    function goTo(id) {
+      currentId = id;
+      history.pushState(null, "", "profil.html?id=" + id);
+      render(id);
+      wireNavButtons();
+    }
+
+    // Geri/ileri tuşlarıyla id değişirse yeniden çiz
+    window.addEventListener("popstate", () => {
+      const p = new URLSearchParams(window.location.search);
+      currentId = p.get("id");
+      render(currentId);
+      wireNavButtons();
+    });
+
+    loadProfile();
   </script>
 </body>
 </html>
