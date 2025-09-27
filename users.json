@@ -1,4 +1,3 @@
-
 {
   "users": [
     {
@@ -6,7 +5,7 @@
       "ad": "Ayşe Yılmaz",
       "yas": 25,
       "cinsiyet": "kadin",
-      "foto": "assets/ayse.jpg",
+      "foto": "images/ayse.jpg",
       "bio": "Mecidiyeköy ↔️ Söğütlüçeşme arasında her sabah aynı vagondayız.",
       "hatlar": ["Metrobüs 34AS", "Marmaray"],
       "duraklar": ["Mecidiyeköy", "Söğütlüçeşme"],
@@ -20,7 +19,7 @@
       "ad": "Mehmet Demir",
       "yas": 29,
       "cinsiyet": "erkek",
-      "foto": "assets/mehmet.jpg",
+      "foto": "images/mehmet.jpg",
       "bio": "Avcılar’dan Beylikdüzü’ne akşam metrobüsünde sık görülür.",
       "hatlar": ["Metrobüs 34BZ"],
       "duraklar": ["Avcılar", "Beylikdüzü"],
@@ -34,7 +33,7 @@
       "ad": "Zeynep Aksoy",
       "yas": 27,
       "cinsiyet": "kadin",
-      "foto": "assets/zeynep.jpg",
+      "foto": "images/zeynep.jpg",
       "bio": "Kadıköy’den Kartal’a M4 ile gidip gelir; çizim yapmayı sever.",
       "hatlar": ["Metro M4"],
       "duraklar": ["Kadıköy", "Kartal"],
@@ -62,7 +61,7 @@
       "ad": "Eda Şahin",
       "yas": 24,
       "cinsiyet": "kadin",
-      "foto": "images/ebru.jpg",
+      "foto": "images/eda.jpg",
       "bio": "Tramvay T1 ile Gülhane civarında sık görülür; müze gezmeyi sever.",
       "hatlar": ["Tramvay T1"],
       "duraklar": ["Bağcılar", "Gülhane"],
