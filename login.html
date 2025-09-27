@@ -17,8 +17,8 @@
       const data = await response.json();
       const select = document.getElementById("userSelect");
 
-      data.users.forEach(user => {
-        const option = document.createElement("option");
+      data.users.forEach(function(user) {
+        var option = document.createElement("option");
         option.value = user.id;
         option.textContent = user.ad;
         select.appendChild(option);
@@ -29,9 +29,10 @@
   }
 
   function login() {
-    const id = document.getElementById("userSelect").value;
+    var id = document.getElementById("userSelect").value;
     if (id) {
-      window.location.href = profil.html?id=${id}; <!-- ✅ burası düzeltildi -->
+      // backtick yok; güvenli birleştirme
+      window.location.href = 'profil.html?id=' + id;
     } else {
       alert("Lütfen bir kullanıcı seçin.");
     }
