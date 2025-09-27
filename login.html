@@ -31,8 +31,8 @@
   function login() {
     var id = document.getElementById("userSelect").value;
     if (id) {
-      // backtick yok; güvenli birleştirme
-      window.location.href = 'profil.html?id=' + id;
+      // ✅ Artık güvenli: string birleştirme ile
+      window.location.href = "profil.html?id=" + id;
     } else {
       alert("Lütfen bir kullanıcı seçin.");
     }
