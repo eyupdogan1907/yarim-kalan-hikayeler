@@ -1,44 +1,52 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Yarım Kalan Hikayeler - Giriş</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Giriş • YKH</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>Yarım Kalan Hikayeler</h1>
-  <p>Kullanıcı seçin:</p>
-  <select id="userSelect"></select>
-  <button onclick="login()">Giriş</button>
+  <header class="topbar">
+    <a class="back" href="index.html">←</a>
+    <h1>Giriş</h1>
+  </header>
 
+  <main class="container">
+    <div class="card">
+      <h2>Kullanıcı Seç</h2>
+      <p>Demo için listeden bir kullanıcı seçip giriş yapabilirsin.</p>
+      <form id="loginForm">
+        <label for="userSelect">Kullanıcı</label>
+        <select id="userSelect" required>
+          <option value="" selected disabled>Seç...</option>
+        </select>
+        <button type="submit" class="btn">Giriş Yap</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
   <script>
-  async function loadUsers() {
-    try {
-      const response = await fetch("users.json");
-      const data = await response.json();
-      const select = document.getElementById("userSelect");
-
-      data.users.forEach(function(user) {
-        var option = document.createElement("option");
-        option.value = user.id;
-        option.textContent = user.ad;
-        select.appendChild(option);
+    // sayfa açıldığında kullanıcı listesini doldur
+    (async () => {
+      const data = await fetchJSON('data/users.json');
+      const sel = document.getElementById('userSelect');
+      data.users.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id;
+        opt.textContent = `${u.name} (${u.routes.join(', ')})`;
+        sel.appendChild(opt);
       });
-    } catch (err) {
-      console.error("Kullanıcılar yüklenemedi:", err);
-    }
-  }
+    })();
 
-  function login() {
-    var id = document.getElementById("userSelect").value;
-    if (id) {
-      // ✅ Artık güvenli: string birleştirme ile
-      window.location.href = "profil.html?id=" + id;
-    } else {
-      alert("Lütfen bir kullanıcı seçin.");
-    }
-  }
-
-  loadUsers();
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const uid = document.getElementById('userSelect').value;
+      if (!uid) return;
+      setCurrentUserId(uid);
+      window.location.href = 'profile.html';
+    });
   </script>
 </body>
 </html>

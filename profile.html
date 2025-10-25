@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profil • YKH</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="index.html">←</a>
+    <h1>Profil</h1>
+    <nav>
+      <button id="switchBtn" class="btn ghost">Kullanıcı Değiştir</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <article id="profileCard" class="card profile">
+      <div class="profile-left">
+        <img id="pPhoto" alt="profil foto">
+      </div>
+      <div class="profile-right">
+        <h2 id="pName"></h2>
+        <p id="pMeta" class="muted"></p>
+        <p id="pBio"></p>
+
+        <div class="chips" id="pTags"></div>
+
+        <h3>Güzergâh & Saatler</h3>
+        <ul id="pCommute" class="list"></ul>
+
+        <h3>Hatlar</h3>
+        <div class="chips" id="pRoutes"></div>
+
+        <div class="nav-row">
+          <button id="prevBtn" class="btn ghost">← Önceki</button>
+          <button id="nextBtn" class="btn ghost">Sonraki →</button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">© 2025 YKH • Demo</footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let users = [];
+    let currentIndex = 0;
+
+    (async function init() {
+      const data = await fetchJSON('data/users.json');
+      users = data.users;
+
+      // id paramı ya da localStorage
+      const paramId = getParam('id');
+      const storedId = getCurrentUserId();
+      const uid = paramId || storedId;
+
+      if (!uid) {
+        // hiçbiri yoksa login'e yönlendir
+        window.location.href = 'login.html';
+        return;
+      }
+
+      currentIndex = Math.max(0, users.findIndex(u => u.id === uid));
+      if (currentIndex === -1) currentIndex = 0;
+      setCurrentUserId(users[currentIndex].id); // normalize et
+      renderProfile(users[currentIndex]);
+    })();
+
+    function renderProfile(u) {
+      // başlıklar
+      document.getElementById('pPhoto').src = u.photo;
+      document.getElementById('pPhoto').alt = u.name;
+      document.getElementById('pName').textContent = u.name;
+      document.getElementById('pMeta').textContent = `${u.age} • ${u.gender === 'female' ? 'Kadın' : 'Erkek'}`;
+      document.getElementById('pBio').textContent = u.bio || '';
+
+      // etiketler
+      const tags = document.getElementById('pTags');
+      tags.innerHTML = '';
+      (u.tags || []).forEach(t => {
+        const s = document.createElement('span');
+        s.className = 'chip';
+        s.textContent = t;
+        tags.appendChild(s);
+      });
+
+      // hatlar
+      const routes = document.getElementById('pRoutes');
+      routes.innerHTML = '';
+      (u.routes || []).forEach(r => {
+        const s = document.createElement('span');
+        s.className = 'chip';
+        s.textContent = r;
+        routes.appendChild(s);
+      });
+
+      // commute list
+      const list = document.getElementById('pCommute');
+      list.innerHTML = '';
+      (u.commute || []).forEach(c => {
+        const li = document.createElement('li');
+        const days = (c.days || []).join(', ');
+        li.textContent = `${c.from} → ${c.to} • ${days} • ${c.time}`;
+        list.appendChild(li);
+      });
+    }
+
+    // butonlar
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + users.length) % users.length;
+      setCurrentUserId(users[currentIndex].id);
+      renderProfile(users[currentIndex]);
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % users.length;
+      setCurrentUserId(users[currentIndex].id);
+      renderProfile(users[currentIndex]);
+    });
+    document.getElementById('switchBtn').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>
