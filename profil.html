@@ -13,10 +13,12 @@
   .tags{color:#666}
   .nav{margin-top:14px;display:flex;gap:8px}
   .btn{padding:10px 14px;border:1px solid #ddd;border-radius:10px;background:#fff;cursor:pointer}
+  .err{margin:12px 16px;padding:10px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;display:none;white-space:pre-wrap}
 </style>
 <header>
   <a href="index.html">← Anasayfa</a>
 </header>
+<div class="err" id="err"></div>
 <div class="wrap">
   <div class="hero"><img id="avatar" alt="Profil foto"></div>
   <div class="name" id="name">Yükleniyor…</div>
@@ -27,35 +29,58 @@
   </div>
 </div>
 <script>
-const q = new URLSearchParams(location.search);
-let curId = Number(q.get("id")) || 1;
+const E = (id)=>document.getElementById(id);
+const errBox = E("err");
+
+function showError(msg){
+  errBox.textContent = msg;
+  errBox.style.display = "block";
+  console.error(msg);
+}
+
 let users = [];
+let curId = Number(new URLSearchParams(location.search).get("id")) || 1;
 
 function show(id){
-  const u = users.find(x=>Number(x.id)===Number(id)) || users[0];
+  const u = users.find(x => Number(x.id) === Number(id)) || users[0];
+  if(!u){ showError("Kullanıcı bulunamadı."); return; }
+
   curId = u.id;
-  const img=document.getElementById("avatar");
-  img.src = assets/${u.photo}?v=${Date.now()};
-  img.onerror = ()=>{ img.src="assets/ali.jpg"; }; // basit yedek
-  document.getElementById("name").textContent = u.name;
-  document.getElementById("tags").textContent = (u.tags||[]).join(" • ");
-  history.replaceState(null,"",?id=${encodeURIComponent(u.id)});
+
+  // İsim & etiketler
+  E("name").textContent = u.name || "(isimsiz)";
+  E("tags").textContent = (u.tags || []).join(" • ");
+
+  // Görsel
+  const img = E("avatar");
+  img.src = "assets/" + (u.photo || "");
+  img.onerror = () => { showError("Görsel bulunamadı: " + img.src); };
+
+  // URL'yi güncelle
+  history.replaceState(null, "", "?id=" + encodeURIComponent(u.id));
 }
 
 fetch("data/users.json?v="+Date.now())
-  .then(r=>r.json())
-  .then(list=>{
+  .then(r => {
+    if(!r.ok) throw new Error("users.json yüklenemedi: HTTP " + r.status);
+    return r.json();
+  })
+  .then(list => {
+    if(!Array.isArray(list)) throw new Error("users.json bir liste ([]) değil.");
     users = list;
     show(curId);
-    document.getElementById("prev").onclick = ()=>{
-      const i = users.findIndex(u=>u.id==curId);
-      const ni = (i-1+users.length)%users.length;
+
+    // İleri/geri
+    E("prev").onclick = ()=>{
+      const i = users.findIndex(u=>Number(u.id)===Number(curId));
+      const ni = (i-1+users.length) % users.length;
       show(users[ni].id);
     };
-    document.getElementById("next").onclick = ()=>{
-      const i = users.findIndex(u=>u.id==curId);
-      const ni = (i+1)%users.length;
+    E("next").onclick = ()=>{
+      const i = users.findIndex(u=>Number(u.id)===Number(curId));
+      const ni = (i+1) % users.length;
       show(users[ni].id);
     };
-  });
+  })
+  .catch(e => showError("Hata: " + e.message));
 </script>
