@@ -29,7 +29,7 @@
 
 <script>
 const grid=document.getElementById("grid");
-const err =document.getElementById("err");
+const err=document.getElementById("err");
 
 function render(list){
   grid.innerHTML="";
@@ -53,10 +53,7 @@ fetch("data/users.json?v="+Date.now())
     if(!Array.isArray(list)) throw new Error("users.json bir liste ([]) değil.");
     render(list);
   })
-  .catch(e=>{
-    err.textContent="Hata: "+e.message;
-    err.style.display="block";
-  });
+  .catch(e=>{ err.textContent="Hata: "+e.message; err.style.display="block"; });
 </script>
 </body>
 </html>
