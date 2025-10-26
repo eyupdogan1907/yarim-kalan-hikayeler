@@ -16,22 +16,16 @@
   .err{margin-top:10px;color:#c00;font-size:14px;display:none;white-space:pre-wrap}
   .ok{margin-top:8px;color:#0a6}
 </style>
-
-<!-- Pi SDK -->
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<!-- YKH Pi yardımcıları -->
 <script src="js/pi.js"></script>
 </head>
-
 <body>
 <div class="box">
   <h1>Giriş</h1>
 
-  <!-- Pi ile giriş -->
   <button id="piLogin" class="pi" style="display:none">Pi ile giriş yap</button>
   <div id="hello" class="ok" style="display:none"></div>
 
-  <!-- Normal kullanıcı seçimi -->
   <select id="sel" aria-label="Kullanıcı seç">
     <option value="" selected disabled>Bir kullanıcı seçin…</option>
   </select>
@@ -43,61 +37,42 @@
 
 <script>
 const $ = (id)=>document.getElementById(id);
-const sel = $("sel"), go = $("go"), err = $("err");
-const piBtn = $("piLogin"), hello = $("hello");
-const LAST_KEY = "ykh:lastUserId";
+const sel=$("sel"), go=$("go"), err=$("err");
+const piBtn=$("piLogin"), hello=$("hello");
+const LAST_KEY="ykh:lastUserId";
 
-/* ---- Pi butonunu göster/çalıştır ---- */
 (function(){
   const piUser = localStorage.getItem("ykh:piUser");
-  if (piUser){
-    hello.textContent = "Merhaba @" + piUser + " (Pi)";
-    hello.style.display = "block";
-  }
+  if (piUser){ hello.textContent = "Merhaba @" + piUser + " (Pi)"; hello.style.display="block"; }
   if (window.YKH && YKH.isPiBrowser()){
-    piBtn.style.display = "block";
-    piBtn.onclick = async () => {
-      err.style.display = "none";
-      piBtn.disabled = true;
-      piBtn.textContent = "Pi ile bağlanılıyor…";
-      const res = await YKH.initPi();
-      if (res.user){
-        hello.textContent = "Merhaba @" + (res.user.username || "pi-kullanıcısı");
-        hello.style.display = "block";
-        location.href = "index.html";
-      } else {
-        err.textContent = "Pi girişi başarısız: " + (res.error?.message || "Bilinmeyen hata");
-        err.style.display = "block";
-        piBtn.textContent = "Pi ile giriş yap";
-        piBtn.disabled = false;
-      }
+    piBtn.style.display="block";
+    piBtn.onclick=async()=>{
+      err.style.display="none"; piBtn.disabled=true; piBtn.textContent="Pi ile bağlanılıyor…";
+      const res=await YKH.initPi();
+      if(res.user){ hello.textContent="Merhaba @"+(res.user.username||"pi-kullanıcısı"); hello.style.display="block"; location.href="index.html"; }
+      else{ err.textContent="Pi girişi başarısız: "+(res.error?.message||"Bilinmeyen hata"); err.style.display="block"; piBtn.textContent="Pi ile giriş yap"; piBtn.disabled=false; }
     };
   }
 })();
 
-/* ---- Normal (misafir) giriş akışı ---- */
 let users=[];
 fetch("data/users.json?v="+Date.now())
   .then(r=>{ if(!r.ok) throw new Error("users.json yüklenemedi ("+r.status+")"); return r.json(); })
   .then(list=>{
     users=list;
-    list.forEach(u=>{
-      const o=document.createElement("option");
-      o.value=u.id; o.textContent=u.name;
-      sel.appendChild(o);
-    });
-    const last = localStorage.getItem(LAST_KEY);
-    if(last && list.some(u=>String(u.id)===String(last))){ sel.value = last; }
-    go.disabled = !sel.value;
-    sel.addEventListener("change", ()=>{ go.disabled = !sel.value; err.style.display="none"; });
+    list.forEach(u=>{ const o=document.createElement("option"); o.value=u.id; o.textContent=u.name; sel.appendChild(o); });
+    const last=localStorage.getItem(LAST_KEY);
+    if(last && list.some(u=>String(u.id)===String(last))){ sel.value=last; }
+    go.disabled=!sel.value;
+    sel.addEventListener("change", ()=>{ go.disabled=!sel.value; err.style.display="none"; });
   })
-  .catch(e=>{ err.textContent = "Liste yüklenemedi: " + e.message; err.style.display = "block"; });
+  .catch(e=>{ err.textContent="Liste yüklenemedi: "+e.message; err.style.display="block"; });
 
-go.onclick = ()=>{
-  const id = sel.value;
-  if(!id){ err.textContent = "Lütfen bir kullanıcı seçin."; err.style.display="block"; return; }
-  localStorage.setItem(LAST_KEY, String(id));
-  location.href = "profil.html?id=" + encodeURIComponent(id);
+go.onclick=()=>{
+  const id=sel.value;
+  if(!id){ err.textContent="Lütfen bir kullanıcı seçin."; err.style.display="block"; return; }
+  localStorage.setItem(LAST_KEY,String(id));
+  location.href="profil.html?id="+encodeURIComponent(id);
 };
 </script>
 </body>
