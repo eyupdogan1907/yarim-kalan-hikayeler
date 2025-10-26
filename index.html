@@ -9,61 +9,54 @@
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fafafa}
   header{background:#fff;padding:14px 16px;border-bottom:1px solid #eee;font-weight:700;font-size:18px;text-align:center}
   .wrap{max-width:960px;margin:0 auto;padding:18px}
-  .err{display:none;margin:10px 0;padding:10px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;white-space:pre-wrap}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
   .card{background:#fff;border:1px solid #eee;border-radius:12px;overflow:hidden;text-decoration:none;color:#000;box-shadow:0 2px 4px rgba(0,0,0,.05)}
   .card img{width:100%;height:200px;object-fit:cover;display:block}
   .info{padding:10px 12px}
   .name{font-weight:600;font-size:16px}
   .tags{font-size:13px;color:#666;margin-top:4px}
+  .toplinks{margin-bottom:12px}
+  .toplinks a{color:#0a66ff;text-decoration:none}
 </style>
 </head>
 <body>
 <header>Yarım Kalan Hikayeler</header>
 <div class="wrap">
-  <div id="err" class="err"></div>
+  <div class="toplinks"><a href="login.html">Giriş</a></div>
+  <div id="err" style="display:none;color:#842029;background:#f8d7da;border:1px solid #f5c2c7;padding:10px;border-radius:8px;margin-bottom:10px"></div>
   <div id="grid" class="grid" aria-live="polite"></div>
 </div>
 
 <script>
-(function(){
-  const grid = document.getElementById("grid");
-  const err  = document.getElementById("err");
+const grid=document.getElementById("grid");
+const err =document.getElementById("err");
 
-  function showError(msg){
-    err.textContent = msg;
-    err.style.display = "block";
-    console.error(msg);
-  }
+function render(list){
+  grid.innerHTML="";
+  list.forEach(u=>{
+    const a=document.createElement("a");
+    a.className="card";
+    a.href="profil.html?id="+encodeURIComponent(u.id);
+    a.innerHTML=`
+      <img src="assets/${u.photo}?v=${Date.now()}" alt="${u.name}">
+      <div class="info">
+        <div class="name">${u.name}</div>
+        <div class="tags">${(u.tags||[]).join(" • ")}</div>
+      </div>`;
+    grid.appendChild(a);
+  });
+}
 
-  function render(list){
-    grid.innerHTML = "";
-    list.forEach(u=>{
-      const a = document.createElement("a");
-      a.className = "card";
-      a.href = "profil.html?id=" + encodeURIComponent(u.id);
-      a.innerHTML = `
-        <img src="assets/${u.photo}?v=${Date.now()}" alt="${u.name}">
-        <div class="info">
-          <div class="name">${u.name}</div>
-          <div class="tags">${(u.tags||[]).join(" • ")}</div>
-        </div>`;
-      grid.appendChild(a);
-    });
-  }
-
-  // Güvenli fetch (URL mutlak ve göreli test)
-  const url = "data/users.json?v=" + Date.now();
-  fetch(url).then(r=>{
-    if(!r.ok) throw new Error("users.json yüklenemedi (HTTP "+r.status+")");
-    return r.json();
-  }).then(list=>{
+fetch("data/users.json?v="+Date.now())
+  .then(r=>{ if(!r.ok) throw new Error("users.json yüklenemedi (HTTP "+r.status+")"); return r.json(); })
+  .then(list=>{
     if(!Array.isArray(list)) throw new Error("users.json bir liste ([]) değil.");
     render(list);
-  }).catch(e=>{
-    showError("Hata: " + e.message + "\n\nKontrol listesi:\n- index.html kök dizinde mi?\n- data/users.json mevcut mu?\n- assets klasöründe fotoğraflar var mı?");
+  })
+  .catch(e=>{
+    err.textContent="Hata: "+e.message;
+    err.style.display="block";
   });
-})();
 </script>
 </body>
 </html>
