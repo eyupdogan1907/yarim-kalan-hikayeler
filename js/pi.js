@@ -1,19 +1,16 @@
 /* YKH • Pi SDK yardımcıları + ödeme (demo destekli) */
 
-// Namespace
 window.YKH = window.YKH || {};
 
-// Pi Browser algılama
 YKH.isPiBrowser = function(){
   return !!window.Pi || /PiBrowser/i.test(navigator.userAgent);
 };
 
-// Pi init + authenticate (username yeterli)
 YKH.initPi = async function(){
-  if (!window.Pi) return { mode: "web" };   // Pi Browser değil
+  if (!window.Pi) return { mode: "web" };
   try {
     Pi.init({ version: "2.0" });
-    const scopes = ["username"];            // Demo için yeterli
+    const scopes = ["username"];
     const auth = await Pi.authenticate(scopes, YKH.onIncompletePaymentFound);
     const username = auth?.user?.username || "";
     if (username) localStorage.setItem("ykh:piUser", username);
@@ -24,16 +21,13 @@ YKH.initPi = async function(){
   }
 };
 
-// Tam akışta kullanılacak callback (demoda sadece log)
 YKH.onIncompletePaymentFound = function(payment){
   console.log("incomplete payment (demo):", payment);
 };
 
-// Demo premium flag
 YKH.unlockDemoPremium = function(){ localStorage.setItem("ykh:premium","1"); };
 YKH.isPremium        = function(){ return localStorage.getItem("ykh:premium")==="1"; };
 
-// ---- YKH: Pi ödeme başlat (demo destekli) ----
 window.startPayment = function(amountPi){
   if (window.Pi && Pi.openPayment){
     Pi.openPayment(
@@ -54,7 +48,6 @@ window.startPayment = function(amountPi){
       }
     );
   } else {
-    // Web/dış tarayıcı: demo
     alert("Demo (web): " + amountPi + " Pi ödendi varsayıldı ✅");
     localStorage.setItem("ykh:premium","1");
   }
