@@ -17,7 +17,7 @@
   .ok{margin-top:8px;color:#0a6}
 </style>
 
-<!-- Pi SDK (Pi Browser içinde otomatik yüklenir) -->
+<!-- Pi SDK -->
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 <!-- YKH Pi yardımcıları -->
 <script src="js/pi.js"></script>
@@ -49,15 +49,12 @@ const LAST_KEY = "ykh:lastUserId";
 
 /* ---- Pi butonunu göster/çalıştır ---- */
 (function(){
-  // Daha önce Pi ile giriş yapıldıysa selamla
   const piUser = localStorage.getItem("ykh:piUser");
   if (piUser){
     hello.textContent = "Merhaba @" + piUser + " (Pi)";
     hello.style.display = "block";
   }
-
-  // Pi Browser algılanırsa butonu aç
-  if (YKH && YKH.isPiBrowser()){
+  if (window.YKH && YKH.isPiBrowser()){
     piBtn.style.display = "block";
     piBtn.onclick = async () => {
       err.style.display = "none";
@@ -67,7 +64,6 @@ const LAST_KEY = "ykh:lastUserId";
       if (res.user){
         hello.textContent = "Merhaba @" + (res.user.username || "pi-kullanıcısı");
         hello.style.display = "block";
-        // Başarılı girişte index'e git
         location.href = "index.html";
       } else {
         err.textContent = "Pi girişi başarısız: " + (res.error?.message || "Bilinmeyen hata");
