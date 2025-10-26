@@ -1,52 +1,32 @@
 <!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Giriş • YKH</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <header class="topbar">
-    <a class="back" href="index.html">←</a>
-    <h1>Giriş</h1>
-  </header>
-
-  <main class="container">
-    <div class="card">
-      <h2>Kullanıcı Seç</h2>
-      <p>Demo için listeden bir kullanıcı seçip giriş yapabilirsin.</p>
-      <form id="loginForm">
-        <label for="userSelect">Kullanıcı</label>
-        <select id="userSelect" required>
-          <option value="" selected disabled>Seç...</option>
-        </select>
-        <button type="submit" class="btn">Giriş Yap</button>
-      </form>
-    </div>
-  </main>
-
-  <script src="js/app.js"></script>
-  <script>
-    // sayfa açıldığında kullanıcı listesini doldur
-    (async () => {
-      const data = await fetchJSON('data/users.json');
-      const sel = document.getElementById('userSelect');
-      data.users.forEach(u => {
-        const opt = document.createElement('option');
-        opt.value = u.id;
-        opt.textContent = `${u.name} (${u.routes.join(', ')})`;
-        sel.appendChild(opt);
-      });
-    })();
-
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const uid = document.getElementById('userSelect').value;
-      if (!uid) return;
-      setCurrentUserId(uid);
-      window.location.href = 'profile.html';
-    });
-  </script>
-</body>
-</html>
+<meta charset="utf-8">
+<title>Giriş • YKH</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:grid;place-items:center;height:100dvh;margin:0;background:#f6f7fb}
+  .box{width:min(440px,92vw);background:#fff;border:1px solid #eee;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.05)}
+  h1{font-size:20px;margin:0 0 12px}
+  select,button{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px}
+  button{margin-top:10px;background:#0a66ff;color:#fff;border-color:#0a66ff;cursor:pointer}
+</style>
+<div class="box">
+  <h1>Giriş</h1>
+  <select id="sel"></select>
+  <button id="go">Devam</button>
+</div>
+<script>
+let users=[];
+fetch("data/users.json?v="+Date.now()).then(r=>r.json()).then(list=>{
+  users=list;
+  const sel=document.getElementById("sel");
+  list.forEach(u=>{
+    const o=document.createElement("option");
+    o.value=u.id; o.textContent=u.name;
+    sel.appendChild(o);
+  });
+});
+document.getElementById("go").onclick=()=>{
+  const id=document.getElementById("sel").value;
+  location.href="profil.html?id="+encodeURIComponent(id);
+};
+</script>
