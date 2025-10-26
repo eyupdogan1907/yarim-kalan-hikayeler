@@ -1,26 +1,6 @@
 [
-  {
-    "id": 1,
-    "name": "Ayşe",
-    "photo": "ayse.jpg",
-    "tags": ["kitap", "kahve", "metro"]
-  },
-  {
-    "id": 2,
-    "name": "Mehmet",
-    "photo": "mehmet.jpg",
-    "tags": ["müzik", "spor", "metrobüs"]
-  },
-  {
-    "id": 3,
-    "name": "Zeynep",
-    "photo": "zeynep.jpg",
-    "tags": ["kedi", "film", "Marmaray"]
-  },
-  {
-    "id": 4,
-    "name": "Ali",
-    "photo": "ali.jpg",
-    "tags": ["kahve", "seyahat", "kitap"]
-  }
+  { "id": 1, "name": "Ayşe",   "photo": "ayse.jpg",   "tags": ["kitap","kahve","metro"],    "gender": "female" },
+  { "id": 2, "name": "Mehmet", "photo": "mehmet.jpg", "tags": ["müzik","spor","metrobüs"],  "gender": "male"   },
+  { "id": 3, "name": "Zeynep", "photo": "zeynep.jpg", "tags": ["kedi","film","Marmaray"],   "gender": "female" },
+  { "id": 4, "name": "Ali",    "photo": "ali.jpg",    "tags": ["kahve","seyahat","kitap"],  "gender": "male"   }
 ]
