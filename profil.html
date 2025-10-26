@@ -1,109 +1,61 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Yarım Kalan Hikayeler - Profil</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- style.css dosyan kökte olmalı -->
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>Yarım Kalan Hikayeler</h1>
-
-  <div id="profil">
-    <img id="foto" alt="Profil Fotoğrafı" width="150" height="150" />
-    <h2 id="ad"></h2>
-
-    <p><strong>Yaş:</strong> <span id="yas"></span></p>
-    <p><strong>Hakkında:</strong> <span id="bio"></span></p>
-    <p><strong>Hatlar:</strong> <span id="hatlar"></span></p>
-    <p><strong>Zaman Aralığı:</strong> <span id="zaman"></span></p>
-
-    <div style="margin-top:16px">
-      <button id="prevBtn">Önceki</button>
-      <button id="nextBtn">Sonraki</button>
-      <button id="backBtn">Başka kullanıcı seç</button>
-    </div>
+<!doctype html>
+<meta charset="utf-8">
+<title>Profil • YKH</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#fafafa}
+  header{display:flex;gap:8px;align-items:center;padding:12px 16px;border-bottom:1px solid #eee;background:#fff}
+  header a{font-size:14px;color:#06f;text-decoration:none}
+  .wrap{max-width:840px;margin:16px auto;padding:0 16px}
+  .hero{aspect-ratio:16/9;background:#eee;border-radius:12px;overflow:hidden}
+  .hero img{width:100%;height:100%;object-fit:cover;display:block}
+  .name{font-size:26px;font-weight:700;margin:14px 0 4px}
+  .tags{color:#666}
+  .nav{margin-top:14px;display:flex;gap:8px}
+  .btn{padding:10px 14px;border:1px solid #ddd;border-radius:10px;background:#fff;cursor:pointer}
+</style>
+<header>
+  <a href="index.html">← Anasayfa</a>
+</header>
+<div class="wrap">
+  <div class="hero"><img id="avatar" alt="Profil foto"></div>
+  <div class="name" id="name">Yükleniyor…</div>
+  <div class="tags" id="tags"></div>
+  <div class="nav">
+    <button class="btn" id="prev">⟵ Önceki</button>
+    <button class="btn" id="next">Sonraki ⟶</button>
   </div>
+</div>
+<script>
+const q = new URLSearchParams(location.search);
+let curId = Number(q.get("id")) || 1;
+let users = [];
 
-  <script>
-    // URL'den ?id=... parametresini al
-    const params = new URLSearchParams(window.location.search);
-    let currentId = params.get("id");
+function show(id){
+  const u = users.find(x=>Number(x.id)===Number(id)) || users[0];
+  curId = u.id;
+  const img=document.getElementById("avatar");
+  img.src = assets/${u.photo}?v=${Date.now()};
+  img.onerror = ()=>{ img.src="assets/ali.jpg"; }; // basit yedek
+  document.getElementById("name").textContent = u.name;
+  document.getElementById("tags").textContent = (u.tags||[]).join(" • ");
+  history.replaceState(null,"",?id=${encodeURIComponent(u.id)});
+}
 
-    let users = [];
-
-    async function loadProfile() {
-      try {
-        const res = await fetch("users.json");
-        const data = await res.json();
-        users = data.users || [];
-
-        // Eğer id yoksa ilk kullanıcıyı aç
-        if (!currentId && users.length) {
-          currentId = users[0].id;
-          history.replaceState(null, "", "profil.html?id=" + currentId);
-        }
-
-        render(currentId);
-        wireNavButtons();
-      } catch (err) {
-        console.error("Profil yüklenemedi:", err);
-        document.getElementById("profil").innerHTML =
-          "<p>Profil verileri yüklenemedi.</p>";
-      }
-    }
-
-    function render(userId) {
-      const u = users.find(x => x.id === userId);
-      if (!u) {
-        document.getElementById("profil").innerHTML = "<p>Kullanıcı bulunamadı.</p>";
-        return;
-      }
-      document.getElementById("ad").textContent = u.ad || "";
-      document.getElementById("yas").textContent = u.yas ?? "";
-      document.getElementById("bio").textContent = u.bio || "";
-      document.getElementById("foto").src = u.foto || "";
-      document.getElementById("hatlar").textContent = (u.hatlar || []).join(", ");
-      document.getElementById("zaman").textContent = u.zaman_araligi || "";
-    }
-
-    function wireNavButtons() {
-      const idx = users.findIndex(x => x.id === currentId);
-
-      document.getElementById("prevBtn").onclick = () => {
-        if (!users.length) return;
-        const prev = (idx - 1 + users.length) % users.length;
-        goTo(users[prev].id);
-      };
-
-      document.getElementById("nextBtn").onclick = () => {
-        if (!users.length) return;
-        const next = (idx + 1) % users.length;
-        goTo(users[next].id);
-      };
-
-      document.getElementById("backBtn").onclick = () => {
-        window.location.href = "login.html";
-      };
-    }
-
-    function goTo(id) {
-      currentId = id;
-      history.pushState(null, "", "profil.html?id=" + id);
-      render(id);
-      wireNavButtons();
-    }
-
-    // Geri/ileri tuşlarıyla id değişirse yeniden çiz
-    window.addEventListener("popstate", () => {
-      const p = new URLSearchParams(window.location.search);
-      currentId = p.get("id");
-      render(currentId);
-      wireNavButtons();
-    });
-
-    loadProfile();
-  </script>
-</body>
-</html>
+fetch("data/users.json?v="+Date.now())
+  .then(r=>r.json())
+  .then(list=>{
+    users = list;
+    show(curId);
+    document.getElementById("prev").onclick = ()=>{
+      const i = users.findIndex(u=>u.id==curId);
+      const ni = (i-1+users.length)%users.length;
+      show(users[ni].id);
+    };
+    document.getElementById("next").onclick = ()=>{
+      const i = users.findIndex(u=>u.id==curId);
+      const ni = (i+1)%users.length;
+      show(users[ni].id);
+    };
+  });
+</script>
