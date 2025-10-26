@@ -1,73 +1,108 @@
 <!doctype html>
+<html lang="tr">
+<head>
 <meta charset="utf-8">
 <title>Giriş • YKH</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:grid;place-items:center;height:100dvh;margin:0;background:#f6f7fb}
-  .box{width:min(440px,92vw);background:#fff;border:1px solid #eee;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.05)}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:grid;place-items:center;min-height:100dvh;margin:0;background:#f6f7fb}
+  .box{width:min(460px,92vw);background:#fff;border:1px solid #eee;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.05)}
   h1{font-size:20px;margin:0 0 12px}
   select,button{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px}
-  button{margin-top:10px;background:#0a66ff;color:#fff;border-color:#0a66ff;cursor:pointer}
-  button[disabled]{opacity:.5;cursor:not-allowed}
-  .err{margin-top:10px;color:#c00;font-size:14px;display:none}
+  button{cursor:pointer}
+  .go{margin-top:10px;background:#0a66ff;color:#fff;border-color:#0a66ff}
+  .pi{margin-top:10px;background:#6a3df0;color:#fff;border-color:#6a3df0}
+  .muted{color:#666;font-size:12px;margin-top:8px}
+  .err{margin-top:10px;color:#c00;font-size:14px;display:none;white-space:pre-wrap}
+  .ok{margin-top:8px;color:#0a6}
 </style>
+
+<!-- Pi SDK (Pi Browser içinde otomatik yüklenir) -->
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<!-- YKH Pi yardımcıları -->
+<script src="js/pi.js"></script>
+</head>
+
+<body>
 <div class="box">
   <h1>Giriş</h1>
+
+  <!-- Pi ile giriş -->
+  <button id="piLogin" class="pi" style="display:none">Pi ile giriş yap</button>
+  <div id="hello" class="ok" style="display:none"></div>
+
+  <!-- Normal kullanıcı seçimi -->
   <select id="sel" aria-label="Kullanıcı seç">
     <option value="" selected disabled>Bir kullanıcı seçin…</option>
   </select>
-  <button id="go" disabled>Devam</button>
+  <button id="go" class="go" disabled>Devam</button>
+
+  <div class="muted">Pi Browser dışından da misafir girişi yapabilirsin.</div>
   <div class="err" id="err"></div>
 </div>
-<script>
-const sel = document.getElementById("sel");
-const go  = document.getElementById("go");
-const err = document.getElementById("err");
 
-// Son kullanıcıyı hatırlama
+<script>
+const $ = (id)=>document.getElementById(id);
+const sel = $("sel"), go = $("go"), err = $("err");
+const piBtn = $("piLogin"), hello = $("hello");
 const LAST_KEY = "ykh:lastUserId";
 
-function navigate(id){
-  if(!id){ err.textContent = "Lütfen bir kullanıcı seçin."; err.style.display="block"; return; }
-  localStorage.setItem(LAST_KEY, String(id));
-  location.href = "profil.html?id=" + encodeURIComponent(id);
-}
+/* ---- Pi butonunu göster/çalıştır ---- */
+(function(){
+  // Daha önce Pi ile giriş yapıldıysa selamla
+  const piUser = localStorage.getItem("ykh:piUser");
+  if (piUser){
+    hello.textContent = "Merhaba @" + piUser + " (Pi)";
+    hello.style.display = "block";
+  }
 
-// Enter ile devam
-document.addEventListener("keydown", (e)=>{
-  if(e.key === "Enter" && !go.disabled) navigate(sel.value);
-});
+  // Pi Browser algılanırsa butonu aç
+  if (YKH && YKH.isPiBrowser()){
+    piBtn.style.display = "block";
+    piBtn.onclick = async () => {
+      err.style.display = "none";
+      piBtn.disabled = true;
+      piBtn.textContent = "Pi ile bağlanılıyor…";
+      const res = await YKH.initPi();
+      if (res.user){
+        hello.textContent = "Merhaba @" + (res.user.username || "pi-kullanıcısı");
+        hello.style.display = "block";
+        // Başarılı girişte index'e git
+        location.href = "index.html";
+      } else {
+        err.textContent = "Pi girişi başarısız: " + (res.error?.message || "Bilinmeyen hata");
+        err.style.display = "block";
+        piBtn.textContent = "Pi ile giriş yap";
+        piBtn.disabled = false;
+      }
+    };
+  }
+})();
 
-go.onclick = () => navigate(sel.value);
-
-// JSON'u yükle
+/* ---- Normal (misafir) giriş akışı ---- */
+let users=[];
 fetch("data/users.json?v="+Date.now())
-  .then(r => {
-    if(!r.ok) throw new Error("users.json yüklenemedi ("+r.status+")");
-    return r.json();
-  })
-  .then(list => {
-    // Dropdown doldur
+  .then(r=>{ if(!r.ok) throw new Error("users.json yüklenemedi ("+r.status+")"); return r.json(); })
+  .then(list=>{
+    users=list;
     list.forEach(u=>{
       const o=document.createElement("option");
       o.value=u.id; o.textContent=u.name;
       sel.appendChild(o);
     });
-
-    // Son seçilen kullanıcıyı ön-seç
     const last = localStorage.getItem(LAST_KEY);
-    if(last && list.some(u=>String(u.id)===String(last))){
-      sel.value = last;
-    }
-
-    // Seçim yapınca butonu aç
-    sel.addEventListener("change", ()=>{ go.disabled = !sel.value; err.style.display="none"; });
-    // İlk durumda seçiliyse butonu aç
+    if(last && list.some(u=>String(u.id)===String(last))){ sel.value = last; }
     go.disabled = !sel.value;
+    sel.addEventListener("change", ()=>{ go.disabled = !sel.value; err.style.display="none"; });
   })
-  .catch(e=>{
-    err.textContent = "Liste yüklenemedi: " + e.message;
-    err.style.display = "block";
-    go.disabled = true;
-  });
+  .catch(e=>{ err.textContent = "Liste yüklenemedi: " + e.message; err.style.display = "block"; });
+
+go.onclick = ()=>{
+  const id = sel.value;
+  if(!id){ err.textContent = "Lütfen bir kullanıcı seçin."; err.style.display="block"; return; }
+  localStorage.setItem(LAST_KEY, String(id));
+  location.href = "profil.html?id=" + encodeURIComponent(id);
+};
 </script>
+</body>
+</html>
