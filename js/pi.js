@@ -1,4 +1,3 @@
-<script>
 /* YKH • Pi SDK yardımcıları + ödeme (demo destekli) */
 
 // Namespace
@@ -60,4 +59,3 @@ window.startPayment = function(amountPi){
     localStorage.setItem("ykh:premium","1");
   }
 };
-</script>
