@@ -8,25 +8,66 @@
   h1{font-size:20px;margin:0 0 12px}
   select,button{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px}
   button{margin-top:10px;background:#0a66ff;color:#fff;border-color:#0a66ff;cursor:pointer}
+  button[disabled]{opacity:.5;cursor:not-allowed}
+  .err{margin-top:10px;color:#c00;font-size:14px;display:none}
 </style>
 <div class="box">
   <h1>Giriş</h1>
-  <select id="sel"></select>
-  <button id="go">Devam</button>
+  <select id="sel" aria-label="Kullanıcı seç">
+    <option value="" selected disabled>Bir kullanıcı seçin…</option>
+  </select>
+  <button id="go" disabled>Devam</button>
+  <div class="err" id="err"></div>
 </div>
 <script>
-let users=[];
-fetch("data/users.json?v="+Date.now()).then(r=>r.json()).then(list=>{
-  users=list;
-  const sel=document.getElementById("sel");
-  list.forEach(u=>{
-    const o=document.createElement("option");
-    o.value=u.id; o.textContent=u.name;
-    sel.appendChild(o);
-  });
+const sel = document.getElementById("sel");
+const go  = document.getElementById("go");
+const err = document.getElementById("err");
+
+// Son kullanıcıyı hatırlama
+const LAST_KEY = "ykh:lastUserId";
+
+function navigate(id){
+  if(!id){ err.textContent = "Lütfen bir kullanıcı seçin."; err.style.display="block"; return; }
+  localStorage.setItem(LAST_KEY, String(id));
+  location.href = "profil.html?id=" + encodeURIComponent(id);
+}
+
+// Enter ile devam
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter" && !go.disabled) navigate(sel.value);
 });
-document.getElementById("go").onclick=()=>{
-  const id=document.getElementById("sel").value;
-  location.href="profil.html?id="+encodeURIComponent(id);
-};
+
+go.onclick = () => navigate(sel.value);
+
+// JSON'u yükle
+fetch("data/users.json?v="+Date.now())
+  .then(r => {
+    if(!r.ok) throw new Error("users.json yüklenemedi ("+r.status+")");
+    return r.json();
+  })
+  .then(list => {
+    // Dropdown doldur
+    list.forEach(u=>{
+      const o=document.createElement("option");
+      o.value=u.id; o.textContent=u.name;
+      sel.appendChild(o);
+    });
+
+    // Son seçilen kullanıcıyı ön-seç
+    const last = localStorage.getItem(LAST_KEY);
+    if(last && list.some(u=>String(u.id)===String(last))){
+      sel.value = last;
+    }
+
+    // Seçim yapınca butonu aç
+    sel.addEventListener("change", ()=>{ go.disabled = !sel.value; err.style.display="none"; });
+    // İlk durumda seçiliyse butonu aç
+    go.disabled = !sel.value;
+  })
+  .catch(e=>{
+    err.textContent = "Liste yüklenemedi: " + e.message;
+    err.style.display = "block";
+    go.disabled = true;
+  });
 </script>
