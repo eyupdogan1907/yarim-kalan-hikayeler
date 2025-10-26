@@ -11,7 +11,6 @@
   header a{font-size:14px;color:#0a66ff;text-decoration:none}
   .wrap{max-width:860px;margin:20px auto;padding:0 16px}
 
-  /* Görsel alanı: kırpmasız, merkezde */
   .hero{background:#eee;border-radius:12px;overflow:hidden;display:flex;justify-content:center;align-items:center;min-height:300px}
   .hero img{width:auto;height:auto;max-width:100%;max-height:80vh;object-fit:contain;display:block}
 
@@ -23,7 +22,6 @@
 
   .err{display:none;margin:12px 0;padding:10px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;white-space:pre-wrap}
 
-  /* Abonelik */
   .sub{margin-top:16px}
   .btn.pay{background:#6a3df0;color:#fff;border:1px solid #6a3df0}
   .btn.pay:hover{filter:brightness(1.05)}
@@ -31,11 +29,8 @@
   .muted{color:#666;font-size:12px;margin-top:6px}
 </style>
 </head>
-
 <body>
-<header>
-  <a href="index.html">← Anasayfa</a>
-</header>
+<header><a href="index.html">← Anasayfa</a></header>
 
 <div class="wrap">
   <div id="err" class="err"></div>
@@ -53,46 +48,44 @@
   <div class="sub" id="sub"></div>
 </div>
 
-<!-- Pi yardımcıları + ödeme -->
 <script src="js/pi.js"></script>
 <script>
-const E = id => document.getElementById(id);
-const errBox = E("err");
-const PRICE_PI = 0.000015; // 200 TL/ay (1 USD=41.95 TL, 1 Pi=314,159 USD)
+const E=id=>document.getElementById(id);
+const errBox=E("err");
+const PRICE_PI=0.000015; // 200 TL/ay (1 USD=41.95 TL, 1 Pi=314,159 USD)
 
-function showError(msg){ errBox.textContent = msg; errBox.style.display = "block"; console.error(msg); }
+function showError(msg){ errBox.textContent=msg; errBox.style.display="block"; console.error(msg); }
 
-let users = [];
-let curId = Number(new URLSearchParams(location.search).get("id")) || 1;
+let users=[];
+let curId=Number(new URLSearchParams(location.search).get("id"))||1;
 
 function renderSubscription(u){
-  const el = E("sub");
-  if(!el) return;
-  if (String(u.gender).toLowerCase() === "male"){
-    el.innerHTML = `
+  const el=E("sub"); if(!el) return;
+  if(String(u.gender).toLowerCase()==="male"){
+    el.innerHTML=`
       <button class="btn pay" id="payBtn">Abone Ol (${PRICE_PI.toFixed(6)} Pi / ay)</button>
       <div class="muted">Hesap: 200 TL/ay • 1 USD = 41.95 TL • 1 Pi = 314,159 USD</div>
     `;
-    E("payBtn").onclick = ()=> startPayment(PRICE_PI);
+    E("payBtn").onclick=()=>startPayment(PRICE_PI);
   } else {
-    el.innerHTML = <div class="free">Kadın kullanıcılar için ücretsiz 🎉</div>;
+    el.innerHTML=<div class="free">Kadın kullanıcılar için ücretsiz 🎉</div>;
   }
 }
 
 function show(id){
-  const u = users.find(x => Number(x.id) === Number(id)) || users[0];
+  const u=users.find(x=>Number(x.id)===Number(id))||users[0];
   if(!u){ showError("Kullanıcı bulunamadı."); return; }
-  curId = u.id;
+  curId=u.id;
 
-  E("name").textContent = u.name || "(isimsiz)";
-  E("tags").textContent = (u.tags || []).join(" • ");
+  E("name").textContent=u.name||"(isimsiz)";
+  E("tags").textContent=(u.tags||[]).join(" • ");
 
-  const img = E("avatar");
-  img.src = "assets/" + (u.photo || "");
-  img.alt = u.name;
-  img.onerror = () => { img.src=""; showError("Görsel bulunamadı: " + u.photo); };
+  const img=E("avatar");
+  img.src="assets/"+(u.photo||"");     // ← FOTOĞRAF YOLU
+  img.alt=u.name;
+  img.onerror=()=>{ img.src=""; showError("Görsel bulunamadı: "+u.photo); };
 
-  history.replaceState(null, "", "?id=" + encodeURIComponent(u.id));
+  history.replaceState(null,"","?id="+encodeURIComponent(u.id));
   renderSubscription(u);
 }
 
@@ -100,20 +93,11 @@ fetch("data/users.json?v="+Date.now())
   .then(r=>{ if(!r.ok) throw new Error("users.json yüklenemedi (HTTP "+r.status+")"); return r.json(); })
   .then(list=>{
     if(!Array.isArray(list)) throw new Error("users.json bir liste ([]) değil.");
-    users = list;
-    show(curId);
-    E("prev").onclick = ()=>{
-      const i = users.findIndex(u=>Number(u.id)===Number(curId));
-      const ni = (i-1+users.length)%users.length;
-      show(users[ni].id);
-    };
-    E("next").onclick = ()=>{
-      const i = users.findIndex(u=>Number(u.id)===Number(curId));
-      const ni = (i+1)%users.length;
-      show(users[ni].id);
-    };
+    users=list; show(curId);
+    E("prev").onclick=()=>{ const i=users.findIndex(u=>Number(u.id)===Number(curId)); const ni=(i-1+users.length)%users.length; show(users[ni].id); };
+    E("next").onclick=()=>{ const i=users.findIndex(u=>Number(u.id)===Number(curId)); const ni=(i+1)%users.length; show(users[ni].id); };
   })
-  .catch(e=> showError("Hata: " + e.message));
+  .catch(e=>showError("Hata: "+e.message));
 </script>
 </body>
 </html>
