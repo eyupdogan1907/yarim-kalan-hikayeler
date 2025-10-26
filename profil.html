@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<title>Profil • Yarım Kalan Hikayeler (Teşhis)</title>
+<title>Profil • Yarım Kalan Hikayeler</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   *{box-sizing:border-box}
@@ -21,8 +21,12 @@
   .btn:hover{background:#f5f5f5}
 
   .err{display:none;margin:12px 0;padding:10px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;white-space:pre-wrap}
-  .info{margin-top:10px;padding:10px;background:#fff;border:1px dashed #ccc;border-radius:10px;font-size:13px;color:#333}
-  .info code{background:#f3f3f3;padding:2px 6px;border-radius:6px}
+
+  .sub{margin-top:16px}
+  .btn.pay{background:#6a3df0;color:#fff;border:1px solid #6a3df0}
+  .btn.pay:hover{filter:brightness(1.05)}
+  .free{padding:10px 12px;border:1px dashed #9ad29a;background:#f3fff3;border-radius:10px;color:#1e6b1e}
+  .muted{color:#666;font-size:12px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -41,81 +45,59 @@
     <button class="btn" id="next">Sonraki ⟶</button>
   </div>
 
-  <div class="info" id="diag" style="display:none"></div>
+  <div class="sub" id="sub"></div>
 </div>
 
-<!-- Pi yardımcıları (gerekliyse) -->
 <script src="js/pi.js"></script>
 <script>
-const E = id => document.getElementById(id);
-const errBox = E("err");
-const diagBox = E("diag");
+const E=id=>document.getElementById(id);
+const errBox=E("err");
+const PRICE_PI=0.000015; // 200 TL/ay (1 USD=41.95 TL, 1 Pi=314,159 USD)
 
-function showError(msg){
-  errBox.textContent = msg;
-  errBox.style.display = "block";
-  console.error(msg);
+function showError(msg){ errBox.textContent=msg; errBox.style.display="block"; console.error(msg); }
+
+let users=[];
+let curId=Number(new URLSearchParams(location.search).get("id"))||1;
+
+function renderSubscription(u){
+  const el=E("sub"); if(!el) return;
+  if(String(u.gender).toLowerCase()==="male"){
+    el.innerHTML=`
+      <button class="btn pay" id="payBtn">Abone Ol (${PRICE_PI.toFixed(6)} Pi / ay)</button>
+      <div class="muted">Hesap: 200 TL/ay • 1 USD = 41.95 TL • 1 Pi = 314,159 USD</div>
+    `;
+    E("payBtn").onclick=()=>startPayment(PRICE_PI);
+  } else {
+    el.innerHTML=<div class="free">Kadın kullanıcılar için ücretsiz 🎉</div>;
+  }
 }
-function info(html){
-  diagBox.innerHTML = html;
-  diagBox.style.display = "block";
-}
-
-/* Global JS hata yakalayıcıları (ekranda görünsün) */
-window.addEventListener("error", e=>{
-  showError("JS Error: " + (e.message || e.error?.message || String(e)));
-});
-window.addEventListener("unhandledrejection", e=>{
-  showError("Promise Error: " + (e.reason?.message || String(e.reason)));
-});
-
-let users = [];
-let curId = Number(new URLSearchParams(location.search).get("id")) || 1;
 
 function show(id){
-  const u = users.find(x => Number(x.id) === Number(id)) || users[0];
+  const u=users.find(x=>Number(x.id)===Number(id))||users[0];
   if(!u){ showError("Kullanıcı bulunamadı."); return; }
-  curId = u.id;
+  curId=u.id;
 
-  E("name").textContent = u.name || "(isimsiz)";
-  E("tags").textContent = (u.tags || []).join(" • ");
+  E("name").textContent=u.name||"(isimsiz)";
+  E("tags").textContent=(u.tags||[]).join(" • ");
 
-  const img = E("avatar");
-  const src = "assets/" + (u.photo || "");
-  img.src = src;
-  img.alt = u.name;
-  img.onerror = () => { showError("Görsel yüklenemedi: " + src); };
+  const img=E("avatar");
+  img.src="assets/"+(u.photo||"")+"?v="+Date.now();   // ✅ cache-busting eklendi
+  img.alt=u.name;
+  img.onerror=()=>{ img.src=""; showError("Görsel bulunamadı: "+u.photo); };
 
-  history.replaceState(null, "", "?id=" + encodeURIComponent(u.id));
-
-  // TEŞHİS: görüntülenen URL'leri ve durumları yaz
-  info(
-    "JSON kaynağı: <code>data/users.json</code><br>" +
-    "Seçilen id: <code>" + curId + "</code><br>" +
-    "Fotoğraf dosyası adı: <code>" + (u.photo || "(boş)") + "</code><br>" +
-    "Beklenen resim URL'i: <a href='" + src + "' target='_blank'><code>" + src + "</code></a>"
-  );
+  history.replaceState(null,"","?id="+encodeURIComponent(u.id));
+  renderSubscription(u);
 }
 
 fetch("data/users.json?v="+Date.now())
   .then(r=>{ if(!r.ok) throw new Error("users.json yüklenemedi (HTTP "+r.status+")"); return r.json(); })
   .then(list=>{
     if(!Array.isArray(list)) throw new Error("users.json bir liste ([]) değil.");
-    users = list;
-    show(curId);
-
-    E("prev").onclick = ()=>{
-      const i = users.findIndex(u=>Number(u.id)===Number(curId));
-      const ni = (i-1+users.length)%users.length;
-      show(users[ni].id);
-    };
-    E("next").onclick = ()=>{
-      const i = users.findIndex(u=>Number(u.id)===Number(curId));
-      const ni = (i+1)%users.length;
-      show(users[ni].id);
-    };
+    users=list; show(curId);
+    E("prev").onclick=()=>{ const i=users.findIndex(u=>Number(u.id)===Number(curId)); const ni=(i-1+users.length)%users.length; show(users[ni].id); };
+    E("next").onclick=()=>{ const i=users.findIndex(u=>Number(u.id)===Number(curId)); const ni=(i+1)%users.length; show(users[ni].id); };
   })
-  .catch(e=> showError("Hata: " + e.message));
+  .catch(e=>showError("Hata: "+e.message));
 </script>
 </body>
 </html>
