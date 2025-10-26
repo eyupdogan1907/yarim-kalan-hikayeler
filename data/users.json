@@ -1,126 +1,26 @@
-{
-  "users": [
-    {
-      "id": "ayse",
-      "name": "Ayşe",
-      "age": 24,
-      "gender": "female",
-      "photo": "assets/images/ayse.jpg",
-      "routes": [
-        "M2",
-        "Marmaray"
-      ],
-      "commute": [
-        {
-          "from": "Mecidiyeköy",
-          "to": "Söğütlüçeşme",
-          "days": [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri"
-          ],
-          "time": "17:00-19:00"
-        }
-      ],
-      "tags": [
-        "kahve",
-        "kitap",
-        "kedi"
-      ],
-      "bio": "Kitap okumayı ve üçüncü dalga kahve dükkânlarını keşfetmeyi seviyor."
-    },
-    {
-      "id": "mehmet",
-      "name": "Mehmet",
-      "age": 27,
-      "gender": "male",
-      "photo": "assets/images/mehmet.jpg",
-      "routes": [
-        "34AS",
-        "M1A"
-      ],
-      "commute": [
-        {
-          "from": "Avcılar",
-          "to": "Zincirlikuyu",
-          "days": [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri"
-          ],
-          "time": "07:30-09:00"
-        }
-      ],
-      "tags": [
-        "fitness",
-        "teknoloji",
-        "satranç"
-      ],
-      "bio": "Hafta içi spor salonu, hafta sonu ise satranç turnuvaları."
-    },
-    {
-      "id": "zeynep",
-      "name": "Zeynep",
-      "age": 23,
-      "gender": "female",
-      "photo": "assets/images/zeynep.jpg",
-      "routes": [
-        "M4"
-      ],
-      "commute": [
-        {
-          "from": "Kadıköy",
-          "to": "Kartal",
-          "days": [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri"
-          ],
-          "time": "08:00-09:00"
-        }
-      ],
-      "tags": [
-        "resim",
-        "kedi",
-        "bitki"
-      ],
-      "bio": "Suluboya ve iç mekân bitkilerine meraklı."
-    },
-    {
-      "id": "ali",
-      "name": "Ali",
-      "age": 29,
-      "gender": "male",
-      "photo": "assets/images/ali.jpg",
-      "routes": [
-        "34BZ",
-        "M7"
-      ],
-      "commute": [
-        {
-          "from": "Beylikdüzü",
-          "to": "Mecidiyeköy",
-          "days": [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu"
-          ],
-          "time": "18:00-19:30"
-        }
-      ],
-      "tags": [
-        "kahve",
-        "sinema",
-        "koşu"
-      ],
-      "bio": "Koşu gruplarına katılıyor, vizyon filmlerini kaçırmıyor."
-    }
-  ]
-}
+[
+  {
+    "id": 1,
+    "name": "Ayşe",
+    "photo": "ayse.jpg",
+    "tags": ["kitap", "kahve", "metro"]
+  },
+  {
+    "id": 2,
+    "name": "Mehmet",
+    "photo": "mehmet.jpg",
+    "tags": ["müzik", "spor", "metrobüs"]
+  },
+  {
+    "id": 3,
+    "name": "Zeynep",
+    "photo": "zeynep.jpg",
+    "tags": ["kedi", "film", "Marmaray"]
+  },
+  {
+    "id": 4,
+    "name": "Ali",
+    "photo": "ali.jpg",
+    "tags": ["kahve", "seyahat", "kitap"]
+  }
+]
