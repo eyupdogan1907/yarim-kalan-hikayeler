@@ -16,35 +16,34 @@
     <label for="userSelect" class="label">Kullanıcı Seç</label>
     <select id="userSelect" class="input"></select>
     <button id="loginBtn" class="btn primary" style="margin-top:12px;">Devam Et</button>
-
-    <p class="muted" style="margin-top:18px;">
-      Not: Erkek kullanıcılar için abonelik uyarısı (simülasyon) gösterilecektir.
-    </p>
+    <p class="muted" style="margin-top:18px;">Erkek kullanıcılar için abonelik uyarısı (simülasyon) gösterilecektir.</p>
   </main>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=4" defer></script>
   <script>
-    let usersCache = [];
-    App.loadUsers().then(users => {
-      usersCache = users;
-      const sel = document.getElementById('userSelect');
-      sel.innerHTML = users.map(u => <option value="${u.id}">${u.name}</option>).join('');
-    });
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const sel = document.getElementById('userSelect');
-      const id = sel.value;
-      const user = usersCache.find(u => u.id === id);
-      if (!user) return;
-
-      // Basit abonelik simülasyonu (erkeklerde uyarı)
-      if (user.gender === 'male') {
-        alert(
-          'Abonelik (Simülasyon): Erkek kullanıcılar için aylık 200 TL (1 Pi = 314.159 USD varsayımıyla).\n' +
-          'Bu bir demo uyarısıdır. Ödeme entegrasyonu yok.'
-        );
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const users = await App.loadUsers();
+        const sel = document.getElementById('userSelect');
+        sel.innerHTML = '';
+        users.forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u.id; opt.textContent = u.name;
+          sel.appendChild(opt);
+        });
+        document.getElementById('loginBtn').addEventListener('click', () => {
+          const id = sel.value;
+          const user = users.find(u => u.id === id);
+          if (!user) return;
+          if (user.gender === 'male') {
+            alert('Abonelik (Simülasyon): Erkek kullanıcılar için aylık 200 TL. Bu bir demo uyarısıdır.');
+          }
+          location.href = profil.html?id=${encodeURIComponent(id)};
+        });
+      } catch (e) {
+        console.error(e);
+        alert('Kullanıcılar yüklenemedi.');
       }
-      location.href = profil.html?id=${encodeURIComponent(id)};
     });
   </script>
 </body>
