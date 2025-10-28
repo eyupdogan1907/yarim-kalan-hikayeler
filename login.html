@@ -1,79 +1,51 @@
 <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<title>Giriş • YKH</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:grid;place-items:center;min-height:100dvh;margin:0;background:#f6f7fb}
-  .box{width:min(460px,92vw);background:#fff;border:1px solid #eee;border-radius:14px;padding:18px 16px;box-shadow:0 10px 30px rgba(0,0,0,.05)}
-  h1{font-size:20px;margin:0 0 12px}
-  select,button{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px}
-  button{cursor:pointer}
-  .go{margin-top:10px;background:#0a66ff;color:#fff;border-color:#0a66ff}
-  .pi{margin-top:10px;background:#6a3df0;color:#fff;border-color:#6a3df0}
-  .muted{color:#666;font-size:12px;margin-top:8px}
-  .err{margin-top:10px;color:#c00;font-size:14px;display:none;white-space:pre-wrap}
-  .ok{margin-top:8px;color:#0a6}
-</style>
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<script src="js/pi.js"></script>
+  <meta charset="utf-8">
+  <title>Giriş – YKH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-<div class="box">
-  <h1>Giriş</h1>
+  <header class="topbar">
+    <a class="link" href="index.html">← Geri</a>
+    <h1>Giriş Yap</h1>
+  </header>
 
-  <button id="piLogin" class="pi" style="display:none">Pi ile giriş yap</button>
-  <div id="hello" class="ok" style="display:none"></div>
+  <main class="container narrow">
+    <label for="userSelect" class="label">Kullanıcı Seç</label>
+    <select id="userSelect" class="input"></select>
+    <button id="loginBtn" class="btn primary" style="margin-top:12px;">Devam Et</button>
 
-  <select id="sel" aria-label="Kullanıcı seç">
-    <option value="" selected disabled>Bir kullanıcı seçin…</option>
-  </select>
-  <button id="go" class="go" disabled>Devam</button>
+    <p class="muted" style="margin-top:18px;">
+      Not: Erkek kullanıcılar için abonelik uyarısı (simülasyon) gösterilecektir.
+    </p>
+  </main>
 
-  <div class="muted">Pi Browser dışından da misafir girişi yapabilirsin.</div>
-  <div class="err" id="err"></div>
-</div>
+  <script src="js/app.js"></script>
+  <script>
+    let usersCache = [];
+    App.loadUsers().then(users => {
+      usersCache = users;
+      const sel = document.getElementById('userSelect');
+      sel.innerHTML = users.map(u => <option value="${u.id}">${u.name}</option>).join('');
+    });
 
-<script>
-const $ = (id)=>document.getElementById(id);
-const sel=$("sel"), go=$("go"), err=$("err");
-const piBtn=$("piLogin"), hello=$("hello");
-const LAST_KEY="ykh:lastUserId";
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const sel = document.getElementById('userSelect');
+      const id = sel.value;
+      const user = usersCache.find(u => u.id === id);
+      if (!user) return;
 
-(function(){
-  const piUser = localStorage.getItem("ykh:piUser");
-  if (piUser){ hello.textContent = "Merhaba @" + piUser + " (Pi)"; hello.style.display="block"; }
-  if (window.YKH && YKH.isPiBrowser()){
-    piBtn.style.display="block";
-    piBtn.onclick=async()=>{
-      err.style.display="none"; piBtn.disabled=true; piBtn.textContent="Pi ile bağlanılıyor…";
-      const res=await YKH.initPi();
-      if(res.user){ hello.textContent="Merhaba @"+(res.user.username||"pi-kullanıcısı"); hello.style.display="block"; location.href="index.html"; }
-      else{ err.textContent="Pi girişi başarısız: "+(res.error?.message||"Bilinmeyen hata"); err.style.display="block"; piBtn.textContent="Pi ile giriş yap"; piBtn.disabled=false; }
-    };
-  }
-})();
-
-let users=[];
-fetch("data/users.json?v="+Date.now())
-  .then(r=>{ if(!r.ok) throw new Error("users.json yüklenemedi ("+r.status+")"); return r.json(); })
-  .then(list=>{
-    users=list;
-    list.forEach(u=>{ const o=document.createElement("option"); o.value=u.id; o.textContent=u.name; sel.appendChild(o); });
-    const last=localStorage.getItem(LAST_KEY);
-    if(last && list.some(u=>String(u.id)===String(last))){ sel.value=last; }
-    go.disabled=!sel.value;
-    sel.addEventListener("change", ()=>{ go.disabled=!sel.value; err.style.display="none"; });
-  })
-  .catch(e=>{ err.textContent="Liste yüklenemedi: "+e.message; err.style.display="block"; });
-
-go.onclick=()=>{
-  const id=sel.value;
-  if(!id){ err.textContent="Lütfen bir kullanıcı seçin."; err.style.display="block"; return; }
-  localStorage.setItem(LAST_KEY,String(id));
-  location.href="profil.html?id="+encodeURIComponent(id);
-};
-</script>
+      // Basit abonelik simülasyonu (erkeklerde uyarı)
+      if (user.gender === 'male') {
+        alert(
+          'Abonelik (Simülasyon): Erkek kullanıcılar için aylık 200 TL (1 Pi = 314.159 USD varsayımıyla).\n' +
+          'Bu bir demo uyarısıdır. Ödeme entegrasyonu yok.'
+        );
+      }
+      location.href = profil.html?id=${encodeURIComponent(id)};
+    });
+  </script>
 </body>
 </html>
