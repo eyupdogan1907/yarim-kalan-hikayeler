@@ -20,19 +20,14 @@ const App = (() => {
     return Array.isArray(json.users) ? json.users : [];
   }
 
-  function getParam(key) {
-    try { return new URL(location.href).searchParams.get(key); }
-    catch { return null; }
-  }
-
   function el(tag, props = {}, children = []) {
     const e = document.createElement(tag);
-    Object.entries(props).forEach(([k, v]) => {
+    for (const [k, v] of Object.entries(props)) {
       if (k === 'class') e.className = v;
       else if (k === 'text') e.textContent = v;
       else if (k.startsWith('on') && typeof v === 'function') e[k] = v;
       else e.setAttribute(k, v);
-    });
+    }
     children.forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
     return e;
   }
@@ -53,20 +48,16 @@ const App = (() => {
     users.forEach(u => {
       const a = el('a', { class: 'card linkcard', href: profil.html?id=${encodeURIComponent(u.id)} });
 
-      const img = el('img', {
-        class: 'avatar',
-        src: u.avatar || '',
-        alt: u.name || ''
-      });
+      const img = el('img', { class: 'avatar', src: u.avatar || '', alt: u.name || '' });
       img.onerror = function(){ this.onerror=null; this.src = SVG_PLACEHOLDER; };
       a.appendChild(img);
 
       const body = el('div', { class: 'card-body' });
+
       const h3 = el('h3');
       h3.appendChild(document.createTextNode(u.name || ''));
-      const ageSmall = el('small', { class: 'muted' }, [` • ${u.age ?? ''}`]);
       h3.appendChild(document.createTextNode(' '));
-      h3.appendChild(ageSmall);
+      h3.appendChild(el('small', { class: 'muted' }, [• ${u.age ?? ''}]));
       body.appendChild(h3);
 
       body.appendChild(el('p', { class: 'muted', text: u.bio || '' }));
@@ -85,20 +76,16 @@ const App = (() => {
 
     const wrap = el('div', { class: 'profile' });
 
-    const img = el('img', {
-      class: 'avatar lg',
-      src: u.avatar || '',
-      alt: u.name || ''
-    });
+    const img = el('img', { class: 'avatar lg', src: u.avatar || '', alt: u.name || '' });
     img.onerror = function(){ this.onerror=null; this.src = SVG_PLACEHOLDER; };
     wrap.appendChild(img);
 
     const right = el('div');
+
     const h2 = el('h2');
     h2.appendChild(document.createTextNode(u.name || ''));
-    const small = el('small', { class: 'muted' }, [` • ${u.age ?? ''}`]);
     h2.appendChild(document.createTextNode(' '));
-    h2.appendChild(small);
+    h2.appendChild(el('small', { class: 'muted' }, [• ${u.age ?? ''}]));
     right.appendChild(h2);
 
     right.appendChild(el('p', { text: u.bio || '' }));
@@ -117,21 +104,9 @@ const App = (() => {
     container.appendChild(wrap);
   }
 
-  return { loadUsers, getParam, renderUserGrid, renderProfile };
+  return { loadUsers, renderUserGrid, renderProfile };
 })();
 
-// DOM hazır olunca ana sayfa grid'ini çiz
+// Ana sayfa grid'i
 window.addEventListener('DOMContentLoaded', async () => {
-  const grid = document.getElementById('userGrid');
-  const status = document.getElementById('status');
-  if (!grid) return; // profil/login sayfasında çalışmasın
-
-  try {
-    const users = await App.loadUsers();
-    App.renderUserGrid(users, grid);
-    if (status) status.textContent = '';
-  } catch (err) {
-    console.error(err);
-    if (status) status.textContent = 'Liste yüklenemedi.';
-  }
-});
+  const grid = document.getElementById…
