@@ -4,8 +4,11 @@
   <meta charset="utf-8">
   <title>Yarım Kalan Hikayeler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS dosyasını doğru bağla -->
   <link href="css/style.css" rel="stylesheet">
 </head>
+
 <body>
   <header class="topbar">
     <h1>Yarım Kalan Hikayeler</h1>
@@ -14,14 +17,16 @@
 
   <main class="container">
     <section>
-      <h2>Yakın Hikâyeler</h2>
+      <h2>Yakın Hikayeler</h2>
       <div id="userGrid" class="grid"></div>
     </section>
   </main>
 
+  <!-- JS dosyasını doğru bağla -->
   <script src="js/app.js"></script>
+
   <script>
-    // Anasayfada kart grid'i göster
+    // Anasayfadaki kullanıcı kartlarını getir
     App.loadUsers().then(users => App.renderUserGrid(users, document.getElementById('userGrid')));
   </script>
 </body>
