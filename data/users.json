@@ -1,6 +1,56 @@
-[
-  { "id": 1, "name": "Ayşe",   "photo": "ayse.jpg",   "tags": ["kitap","kahve","metro"],    "gender": "female" },
-  { "id": 2, "name": "Mehmet", "photo": "mehmet.jpg", "tags": ["müzik","spor","metrobüs"],  "gender": "male"   },
-  { "id": 3, "name": "Zeynep", "photo": "zeynep.jpg", "tags": ["kedi","film","Marmaray"],   "gender": "female" },
-  { "id": 4, "name": "Ali",    "photo": "ali.jpg",    "tags": ["kahve","seyahat","kitap"],  "gender": "male"   }
-]
+{
+  "users": [
+    {
+      "id": "ayse",
+      "name": "Ayşe",
+      "gender": "female",
+      "age": 24,
+      "bio": "Kitap, kahve ve kısa metro yolculukları.",
+      "routes": [
+        { "from": "Mecidiyeköy", "to": "Söğütlüçeşme", "line": "Metro + Marmaray" }
+      ],
+      "times": "07:30-09:00 / 17:30-19:00",
+      "interests": ["kahve", "kitap", "kedi"],
+      "avatar": "assets/images/ayse.jpg"
+    },
+    {
+      "id": "zeynep",
+      "name": "Zeynep",
+      "gender": "female",
+      "age": 22,
+      "bio": "Fotoğraf ve yürüyüş. Metrobüs hattı uzmanı :)",
+      "routes": [
+        { "from": "Avcılar", "to": "Zincirlikuyu", "line": "Metrobüs 34AS" }
+      ],
+      "times": "08:00-09:30 / 18:00-19:30",
+      "interests": ["fotoğraf", "yürüyüş", "müzik"],
+      "avatar": "assets/images/zeynep.jpg"
+    },
+    {
+      "id": "ali",
+      "name": "Ali",
+      "gender": "male",
+      "age": 27,
+      "bio": "Kod, kahve ve satranç. Metrobüs + metro kombinlerim sağlam.",
+      "routes": [
+        { "from": "Beylikdüzü", "to": "Levent", "line": "34BZ + M2" }
+      ],
+      "times": "07:00-08:30 / 18:00-19:30",
+      "interests": ["satranç", "kodlama", "oyun"],
+      "avatar": "assets/images/ali.jpg"
+    },
+    {
+      "id": "mehmet",
+      "name": "Mehmet",
+      "gender": "male",
+      "age": 29,
+      "bio": "Podcast ve koşu. Kadıköy-Kartal hattını ezbere bilirim.",
+      "routes": [
+        { "from": "Kadıköy", "to": "Kartal", "line": "M4" }
+      ],
+      "times": "08:15-09:15 / 17:45-18:45",
+      "interests": ["koşu", "podcast", "teknoloji"],
+      "avatar": "assets/images/mehmet.jpg"
+    }
+  ]
+}
