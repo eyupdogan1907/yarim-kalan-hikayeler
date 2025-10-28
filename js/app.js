@@ -1,6 +1,6 @@
 // js/app.js
 const App = (() => {
-  const DATA_URL = 'data/users.json'; // başında / yok!
+  const DATA_URL = 'data/users.json';
 
   const SVG_PLACEHOLDER =
     'data:image/svg+xml;utf8,' +
@@ -21,10 +21,8 @@ const App = (() => {
   }
 
   function getParam(key) {
-    try {
-      const u = new URL(location.href);
-      return u.searchParams.get(key);
-    } catch { return null; }
+    try { return new URL(location.href).searchParams.get(key); }
+    catch { return null; }
   }
 
   function routeBadge(r) {
@@ -77,3 +75,19 @@ const App = (() => {
 
   return { loadUsers, getParam, renderUserGrid, renderProfile };
 })();
+
+// DOM yüklendiğinde ana sayfadaki grid'i oluştur
+window.addEventListener('DOMContentLoaded', async () => {
+  const grid = document.getElementById('userGrid');
+  const status = document.getElementById('status');
+  if (!grid) return; // profil/login sayfasında çalışmasın
+
+  try {
+    const users = await App.loadUsers();
+    App.renderUserGrid(users, grid);
+    if (status) status.textContent = '';
+  } catch (err) {
+    console.error(err);
+    if (status) status.textContent = 'Liste yüklenemedi.';
+  }
+});
