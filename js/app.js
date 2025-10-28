@@ -1,6 +1,7 @@
-// Basit yardımcılar
+// js/app.js
 const App = (() => {
-  const DATA_URL = 'data/users.json';
+  const DATA_URL = 'data/users.json'; // başında / yok!
+
   const SVG_PLACEHOLDER =
     'data:image/svg+xml;utf8,' +
     encodeURIComponent(`
@@ -14,14 +15,16 @@ const App = (() => {
 
   async function loadUsers() {
     const res = await fetch(DATA_URL, { cache: 'no-store' });
-    if (!res.ok) throw new Error('users.json yüklenemedi');
+    if (!res.ok) throw new Error('users.json yüklenemedi: ' + res.status);
     const json = await res.json();
     return json.users || [];
   }
 
   function getParam(key) {
-    const u = new URL(location.href);
-    return u.searchParams.get(key);
+    try {
+      const u = new URL(location.href);
+      return u.searchParams.get(key);
+    } catch { return null; }
   }
 
   function routeBadge(r) {
