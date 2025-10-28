@@ -17,7 +17,7 @@ const App = (() => {
     const res = await fetch(DATA_URL, { cache: 'no-store' });
     if (!res.ok) throw new Error('users.json yüklenemedi: ' + res.status);
     const json = await res.json();
-    return json.users || [];
+    return Array.isArray(json.users) ? json.users : [];
   }
 
   function getParam(key) {
@@ -25,58 +25,102 @@ const App = (() => {
     catch { return null; }
   }
 
+  function el(tag, props = {}, children = []) {
+    const e = document.createElement(tag);
+    Object.entries(props).forEach(([k, v]) => {
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.startsWith('on') && typeof v === 'function') e[k] = v;
+      else e.setAttribute(k, v);
+    });
+    children.forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+    return e;
+  }
+
+  function chip(text, outline=false) {
+    return el('span', { class: 'chip' + (outline ? ' outline' : '') }, [text]);
+  }
+
   function routeBadge(r) {
-    return `
-      <div class="route">
-        <span class="chip">${r.from} → ${r.to}</span>
-        <span class="chip outline">${r.line}</span>
-      </div>`;
+    const wrap = el('div', { class: 'route' });
+    wrap.appendChild(chip(${r.from} → ${r.to}));
+    wrap.appendChild(chip(r.line, true));
+    return wrap;
   }
 
-  function renderUserGrid(users, el) {
-    el.innerHTML = users.map(u => `
-      <a class="card linkcard" href="profil.html?id=${encodeURIComponent(u.id)}">
-        <img class="avatar"
-             src="${u.avatar}"
-             alt="${u.name}"
-             onerror="this.onerror=null;this.src='${SVG_PLACEHOLDER}'">
-        <div class="card-body">
-          <h3>${u.name} <small class="muted">• ${u.age}</small></h3>
-          <p class="muted">${u.bio || ''}</p>
-          <div class="chips">
-            ${(u.interests||[]).slice(0,3).map(i => <span class="chip">${i}</span>).join('')}
-          </div>
-        </div>
-      </a>
-    `).join('');
+  function renderUserGrid(users, container) {
+    container.innerHTML = '';
+    users.forEach(u => {
+      const a = el('a', { class: 'card linkcard', href: profil.html?id=${encodeURIComponent(u.id)} });
+
+      const img = el('img', {
+        class: 'avatar',
+        src: u.avatar || '',
+        alt: u.name || ''
+      });
+      img.onerror = function(){ this.onerror=null; this.src = SVG_PLACEHOLDER; };
+      a.appendChild(img);
+
+      const body = el('div', { class: 'card-body' });
+      const h3 = el('h3');
+      h3.appendChild(document.createTextNode(u.name || ''));
+      const ageSmall = el('small', { class: 'muted' }, [` • ${u.age ?? ''}`]);
+      h3.appendChild(document.createTextNode(' '));
+      h3.appendChild(ageSmall);
+      body.appendChild(h3);
+
+      body.appendChild(el('p', { class: 'muted', text: u.bio || '' }));
+
+      const chipsWrap = el('div', { class: 'chips' });
+      (u.interests || []).slice(0,3).forEach(i => chipsWrap.appendChild(chip(i)));
+      body.appendChild(chipsWrap);
+
+      a.appendChild(body);
+      container.appendChild(a);
+    });
   }
 
-  function renderProfile(u, el) {
-    el.innerHTML = `
-      <div class="profile">
-        <img class="avatar lg"
-             src="${u.avatar}"
-             alt="${u.name}"
-             onerror="this.onerror=null;this.src='${SVG_PLACEHOLDER}'">
-        <div>
-          <h2>${u.name} <small class="muted">• ${u.age}</small></h2>
-          <p>${u.bio || ''}</p>
-          <div class="chips">
-            ${(u.interests||[]).map(i => <span class="chip">${i}</span>).join('')}
-          </div>
-          <div class="routes">
-            ${(u.routes||[]).map(routeBadge).join('')}
-          </div>
-          <p class="muted clock">Saatler: ${u.times || '-'}</p>
-        </div>
-      </div>
-    `;
+  function renderProfile(u, container) {
+    container.innerHTML = '';
+
+    const wrap = el('div', { class: 'profile' });
+
+    const img = el('img', {
+      class: 'avatar lg',
+      src: u.avatar || '',
+      alt: u.name || ''
+    });
+    img.onerror = function(){ this.onerror=null; this.src = SVG_PLACEHOLDER; };
+    wrap.appendChild(img);
+
+    const right = el('div');
+    const h2 = el('h2');
+    h2.appendChild(document.createTextNode(u.name || ''));
+    const small = el('small', { class: 'muted' }, [` • ${u.age ?? ''}`]);
+    h2.appendChild(document.createTextNode(' '));
+    h2.appendChild(small);
+    right.appendChild(h2);
+
+    right.appendChild(el('p', { text: u.bio || '' }));
+
+    const chipsWrap = el('div', { class: 'chips' });
+    (u.interests || []).forEach(i => chipsWrap.appendChild(chip(i)));
+    right.appendChild(chipsWrap);
+
+    const routesWrap = el('div', { class: 'routes' });
+    (u.routes || []).forEach(r => routesWrap.appendChild(routeBadge(r)));
+    right.appendChild(routesWrap);
+
+    right.appendChild(el('p', { class: 'muted clock', text: Saatler: ${u.times || '-'} }));
+
+    wrap.appendChild(right);
+    container.appendChild(wrap);
   }
 
   return { loadUsers, getParam, renderUserGrid, renderProfile };
 })();
 
-// DOM yüklendiğinde ana sayfadaki grid'i oluştur
+// DOM hazır olunca ana sayfa grid'ini çiz
 window.addEventListener('DOMContentLoaded', async () => {
   const grid = document.getElementById('userGrid');
   const status = document.getElementById('status');
