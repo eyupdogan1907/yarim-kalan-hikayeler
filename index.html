@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Yarım Kalan Hikayeler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
@@ -20,50 +21,7 @@
     </section>
   </main>
 
-  <!-- JS: cache-busting için ?v=2 ekliyoruz -->
-  <script src="js/app.js?v=2"></script>
-
-  <script>
-    // Güvenli başlatıcı: App varsa onu kullan, yoksa fallback ile direkt fetch yap.
-    (async () => {
-      const grid = document.getElementById('userGrid');
-      const status = document.getElementById('status');
-
-      function renderFallback(users){
-        // çok hafif bir kart çizimi (App yoksa)
-        grid.innerHTML = users.map(u => `
-          <a class="card linkcard" href="profil.html?id=${encodeURIComponent(u.id)}">
-            <img class="avatar" src="${u.avatar}" alt="${u.name}"
-                 onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;600&quot; height=&quot;400&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;#eee&quot;/><text x=&quot;50%&quot; y=&quot;50%&quot; dominant-baseline=&quot;middle&quot; text-anchor=&quot;middle&quot; fill=&quot;#999&quot; font-size=&quot;24&quot; font-family=&quot;Arial&quot;>Fotoğraf hazır değil</text></svg>')}';">
-            <div class="card-body">
-              <h3>${u.name} <small class="muted">• ${u.age}</small></h3>
-              <p class="muted">${u.bio || ''}</p>
-              <div class="chips">
-                ${(u.interests||[]).slice(0,3).map(i=><span class="chip">${i}</span>).join('')}
-              </div>
-            </div>
-          </a>
-        `).join('');
-      }
-
-      try {
-        if (window.App && App.loadUsers && App.renderUserGrid) {
-          const users = await App.loadUsers();
-          App.renderUserGrid(users, grid);
-          status.textContent = '';
-        } else {
-          // Fallback: app.js yüklenmediyse bile veriyi çek
-          const res = await fetch('data/users.json', { cache: 'no-store' });
-          if (!res.ok) throw new Error('users.json yüklenemedi: ' + res.status);
-          const json = await res.json();
-          renderFallback(json.users || []);
-          status.textContent = '';
-        }
-      } catch (err) {
-        console.error(err);
-        status.textContent = 'Liste yüklenemedi. (Detay için konsolu kontrol et)';
-      }
-    })();
-  </script>
+  <!-- Sadece tek bir script dosyası, defer ile -->
+  <script src="js/app.js?v=3" defer></script>
 </body>
 </html>
