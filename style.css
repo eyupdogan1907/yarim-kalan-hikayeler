@@ -1,0 +1,87 @@
+/* ---- Genel ---- */
+* { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f5f6fa;
+  margin: 0;
+  color: #222;
+}
+a { color: inherit; }
+
+/* ---- Profil ---- */
+.profile-container {
+  max-width: 420px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.profile-photo {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #6c63ff;
+  margin: 0 auto 16px;
+  display: block;
+}
+h1 { margin: 8px 0 12px; font-size: 22px; color: #333; }
+.hat-info, .guzergah-info, .saat-info { font-size: 15px; color: #444; margin: 4px 0; }
+.about { margin-top: 14px; font-style: italic; color: #555; }
+.back-btn {
+  display: inline-block;
+  margin-top: 20px;
+  text-decoration: none;
+  color: #fff;
+  background: #6c63ff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  transition: .2s;
+}
+.back-btn:hover { background: #5548d4; }
+.back-btn.alt { background:#888; }
+.back-btn.alt:hover { background:#666; }
+
+/* ---- Hatlar sayfası / liste & kartlar ---- */
+.wrap { max-width: 920px; margin: 24px auto; padding: 0 16px; }
+.page-head { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:16px; }
+.page-head h1 { margin:0; font-size:24px; color:#333; }
+.hat-search { flex:1; min-width:220px; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px; background:#fff; }
+
+.hats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(120px,1fr));
+  gap: 12px;
+}
+.hat-badge {
+  display:block; text-align:center;
+  padding:12px 10px;
+  background:#f0f2ff; color:#3633ff;
+  border:1px solid #e3e6ff; border-radius:10px;
+  text-decoration:none; font-weight:600;
+  transition: transform .08s ease, background .12s ease;
+}
+.hat-badge:hover { transform: translateY(-1px); background:#e9ebff; }
+
+.section-title { margin: 6px 0 12px; color:#333; font-size:20px; }
+
+.user-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+}
+.user-card {
+  display:flex; gap:12px; align-items:center;
+  padding:12px; background:#fff; border:1px solid #eee; border-radius:12px;
+  text-decoration:none; color:#222;
+  transition: box-shadow .12s ease, transform .08s ease;
+}
+.user-card:hover { box-shadow:0 6px 16px rgba(0,0,0,.08); transform: translateY(-1px); }
+.user-card .avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid #6c63ff; }
+.user-card .meta .name { font-weight:700; margin-bottom:4px; }
+.user-card .meta .sub { font-size:13px; color:#555; }
+
+.nav-actions { display:flex; gap:8px; margin-top:16px; }
+.empty { color:#777; padding:12px 0; }
