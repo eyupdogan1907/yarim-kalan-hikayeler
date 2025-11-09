@@ -53,7 +53,9 @@
 
   function renderUsersForHat(hat) {
     usersSection.innerHTML = "";
-    const list = users.filter(u => (u.hat || "").trim().toLowerCase() === hat.toLowerCase());
+    const list = users.filter(
+      (u) => (u.hat || "").trim().toLowerCase() === hat.toLowerCase()
+    );
 
     const title = document.createElement("h2");
     title.className = "section-title";
@@ -81,7 +83,7 @@
     }
   }
 
-  // EKRAN KARARI: parametre varsa kullanıcıları göster; yoksa hatları
+  // Ekran kararı
   if (selectedHat) {
     hatsSection.hidden = true;
     usersSection.hidden = false;
