@@ -1,29 +1,46 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f5f6fa;
+  margin: 0;
+  padding: 0;
+}
+
 .profile-container {
-  max-width: 400px;
+  max-width: 420px;
   margin: 40px auto;
-  text-align: center;
   background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .profile-photo {
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
+  width: 180px;
+  height: 180px;
   object-fit: cover;
-  margin-bottom: 15px;
+  border-radius: 50%;   /* daire */
+  border: 3px solid #6c63ff;
+  margin: 0 auto 16px;
+  display: block;
 }
 
-.hat-info, .guzergah-info, .saat-info {
-  font-size: 15px;
-  margin: 5px 0;
+h1 {
+  margin: 8px 0 12px;
+  font-size: 22px;
   color: #333;
 }
 
+.hat-info,
+.guzergah-info,
+.saat-info {
+  font-size: 15px;
+  color: #444;
+  margin: 4px 0;
+}
+
 .about {
-  margin-top: 15px;
+  margin-top: 14px;
   font-style: italic;
   color: #555;
 }
