@@ -1,56 +1,40 @@
 {
   "users": [
     {
-      "id": "ayse",
-      "name": "Ayşe",
-      "gender": "female",
-      "age": 24,
-      "bio": "Kitap, kahve ve kısa metro yolculukları.",
-      "routes": [
-        { "from": "Mecidiyeköy", "to": "Söğütlüçeşme", "line": "Metro + Marmaray" }
-      ],
-      "times": "07:30-09:00 / 17:30-19:00",
-      "interests": ["kahve", "kitap", "kedi"],
-      "avatar": "assets/images/ayse.jpg"
+      "id": 1,
+      "isim": "Ayşe",
+      "foto": "assets/ayse.jpg",
+      "hat": "34AS",
+      "guzergah": ["Söğütlüçeşme", "Zincirlikuyu", "Mecidiyeköy"],
+      "saatAraligi": "07:30 - 08:00",
+      "hakkinda": "Her sabah metrobüste aynı saatteyim, kahvemi almadan yola çıkmam ☕️"
     },
     {
-      "id": "zeynep",
-      "name": "Zeynep",
-      "gender": "female",
-      "age": 22,
-      "bio": "Fotoğraf ve yürüyüş. Metrobüs hattı uzmanı :)",
-      "routes": [
-        { "from": "Avcılar", "to": "Zincirlikuyu", "line": "Metrobüs 34AS" }
-      ],
-      "times": "08:00-09:30 / 18:00-19:30",
-      "interests": ["fotoğraf", "yürüyüş", "müzik"],
-      "avatar": "assets/images/zeynep.jpg"
+      "id": 2,
+      "isim": "Mehmet",
+      "foto": "assets/mehmet.jpg",
+      "hat": "M4",
+      "guzergah": ["Kadıköy", "Kozyatağı", "Tavşantepe"],
+      "saatAraligi": "18:00 - 18:30",
+      "hakkinda": "Akşam dönüş yolunda genelde müzik dinlerim 🎧"
     },
     {
-      "id": "ali",
-      "name": "Ali",
-      "gender": "male",
-      "age": 27,
-      "bio": "Kod, kahve ve satranç. Metrobüs + metro kombinlerim sağlam.",
-      "routes": [
-        { "from": "Beylikdüzü", "to": "Levent", "line": "34BZ + M2" }
-      ],
-      "times": "07:00-08:30 / 18:00-19:30",
-      "interests": ["satranç", "kodlama", "oyun"],
-      "avatar": "assets/images/ali.jpg"
+      "id": 3,
+      "isim": "Zeynep",
+      "foto": "assets/zeynep.jpg",
+      "hat": "14BK",
+      "guzergah": ["Beykoz", "Ümraniye", "Kadıköy"],
+      "saatAraligi": "08:00 - 08:30",
+      "hakkinda": "Otobüste kitap okumayı severim 📖"
     },
     {
-      "id": "mehmet",
-      "name": "Mehmet",
-      "gender": "male",
-      "age": 29,
-      "bio": "Podcast ve koşu. Kadıköy-Kartal hattını ezbere bilirim.",
-      "routes": [
-        { "from": "Kadıköy", "to": "Kartal", "line": "M4" }
-      ],
-      "times": "08:15-09:15 / 17:45-18:45",
-      "interests": ["koşu", "podcast", "teknoloji"],
-      "avatar": "assets/images/mehmet.jpg"
+      "id": 4,
+      "isim": "Ali",
+      "foto": "assets/ali.jpg",
+      "hat": "Marmaray",
+      "guzergah": ["Söğütlüçeşme", "Yenikapı", "Halkalı"],
+      "saatAraligi": "07:45 - 08:15",
+      "hakkinda": "Her sabah Marmaray’da aynı yüzleri görüyorum ama hiç konuşmadım..."
     }
   ]
 }
