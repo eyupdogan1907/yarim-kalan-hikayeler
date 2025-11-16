@@ -2,24 +2,189 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil – Yarım Kalan Hikayeler</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Profil | Yarım Kalan Hikayeler</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f7f7f9;
+      color: #222;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    header {
+      margin-bottom: 16px;
+    }
+
+    header a.home-link {
+      font-size: 14px;
+      text-decoration: none;
+      color: #555;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 8px 0 4px;
+    }
+
+    #backLink {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 13px;
+      color: #0072ff;
+      text-decoration: none;
+    }
+
+    .card {
+      margin-top: 12px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #e2e2e2;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .name-age {
+      font-size: 20px;
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-premium {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #ffdf80;
+    }
+
+    .section-title {
+      font-size: 13px;
+      color: #777;
+      margin: 10px 0 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .text {
+      font-size: 14px;
+      margin: 0 0 6px;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      border: 1px solid #d0d7ff;
+    }
+
+    .info-row {
+      font-size: 13px;
+      color: #555;
+      margin: 2px 0;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="profile-container">
-    <img id="foto" class="profile-photo" src="" alt="Profil Fotoğrafı" loading="lazy" />
-    <h1 id="isim"></h1>
+  <header>
+    <a href="index.html" class="home-link">Yarım Kalan Hikayeler</a>
+    <h1>Profil</h1>
+    <a id="backLink" href="hatlar.html">← Hatlara geri dön</a>
+  </header>
 
-    <p class="hat-info">🚏 Hattı: <span id="hat"></span></p>
-    <p class="guzergah-info">🗺️ Güzergah: <span id="guzergah"></span></p>
-    <p class="saat-info">⏰ Saat Aralığı: <span id="saatAraligi"></span></p>
+  <main id="content">
+    <!-- Profil içeriği JS ile gelecek -->
+  </main>
 
-    <p id="hakkinda" class="about"></p>
+  <script>
+    (async () => {
+      const content = document.getElementById("content");
 
-    <a href="index.html" class="back-btn">← Geri dön</a>
-  </div>
+      // URL'den user parametresini al
+      const params = new URLSearchParams(location.search);
+      const userId = (params.get("user") || "").trim();
 
-  <script src="js/profil.js"></script>
+      if (!userId) {
+        content.innerHTML = "<p>Profil bulunamadı. Hatlardan birini seçerek tekrar dene.</p>";
+        return;
+      }
+
+      // users.json'u çek
+      let users = [];
+      try {
+        const res = await fetch("data/users.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("users.json yüklenemedi: " + res.status);
+        const json = await res.json();
+        users = Array.isArray(json.users) ? json.users : [];
+      } catch (e) {
+        content.innerHTML =
+          '<p style="color:#c00;">Hata: ' + e.message + "</p>";
+        return;
+      }
+
+      const user = users.find(u => u.id === userId);
+
+      if (!user) {
+        content.innerHTML = "<p>Bu kullanıcı bulunamadı. Belki silinmiş ya da hat değişmiştir.</p>";
+        return;
+      }
+
+      const premiumBadge = user.premium
+        ? '<span class="badge-premium">⭐ Premium</span>'
+        : "";
+
+      const linesText = (user.lines || []).join(", ");
+      const routeText = user.route ? " · " + user.route : "";
+      const tags = Array.isArray(user.tags) ? user.tags : [];
+
+      content.innerHTML = `
+        <section class="card">
+          <h2 class="name-age">${user.name}, ${user.age} ${premiumBadge}</h2>
+
+          <div class="section-title">HAT & GÜZERGÂH</div>
+          <p class="text">${linesText}${routeText}</p>
+
+          <div class="section-title">HİKAYE</div>
+          <p class="text">${user.bio}</p>
+
+          <div class="section-title">DETAYLAR</div>
+          <p class="info-row">En son görüldüğü tarih: <strong>${user.lastSeen}</strong></p>
+          <p class="info-row">Cinsiyet: <strong>${user.gender === "F" ? "Kadın" : "Erkek"}</strong></p>
+
+          ${
+            tags.length
+              ? `
+              <div class="section-title">ETİKETLER</div>
+              <div class="tag-list">
+                ${tags.map(t => <span class="tag">${t}</span>).join("")}
+              </div>
+            `
+              : ""
+          }
+        </section>
+      `;
+    })();
+  </script>
 </body>
 </html>
