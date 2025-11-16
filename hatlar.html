@@ -20,6 +20,7 @@
 
     header {
       margin-bottom: 16px;
+      text-align: left;
     }
 
     header a.home-link {
@@ -31,25 +32,43 @@
     h1 {
       font-size: 22px;
       margin: 8px 0 4px;
+      text-align: left;
     }
 
     p.intro {
       font-size: 14px;
-      margin: 0 0 16px;
+      margin: 0 0 8px;
       color: #555;
     }
 
     #example {
       font-size: 13px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       color: #777;
+    }
+
+    #selectedHatLabel {
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #444;
+    }
+
+    #backAll {
+      display: none;
+      margin-bottom: 16px;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      cursor: pointer;
+      color: #0072ff;
+      padding: 0;
     }
 
     #hatsSection {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .hat-btn {
@@ -63,22 +82,6 @@
 
     .hat-btn:hover {
       background: #eee;
-    }
-
-    #backAll {
-      display: none;
-      margin-bottom: 16px;
-      border: none;
-      background: transparent;
-      font-size: 13px;
-      cursor: pointer;
-      color: #0072ff;
-    }
-
-    #selectedHatLabel {
-      font-size: 13px;
-      margin-bottom: 6px;
-      color: #444;
     }
 
     #usersSection {
@@ -156,119 +159,146 @@
   <button id="backAll">← Tüm hatlar</button>
 
   <section id="hatsSection">
-    <!-- Hat butonları JS ile gelecek -->
+    <!-- Hat butonları buraya gelecek -->
   </section>
 
   <section id="usersSection">
-    <!-- Kullanıcı kartları JS ile gelecek -->
+    <!-- Kullanıcı kartları buraya gelecek -->
   </section>
 
   <script>
-    (async () => {
-      const hatsSection = document.getElementById("hatsSection");
-      const usersSection = document.getElementById("usersSection");
-      const backAll = document.getElementById("backAll");
-      const selectedHatLabel = document.getElementById("selectedHatLabel");
+    // Çok basit ve hatasız JS, fetch + then zinciri
+    const hatsSection = document.getElementById("hatsSection");
+    const usersSection = document.getElementById("usersSection");
+    const backAll = document.getElementById("backAll");
+    const selectedHatLabel = document.getElementById("selectedHatLabel");
 
-      // URL parametreleri
-      const params = new URLSearchParams(location.search);
-      const selectedHat = (params.get("hat") || "").trim();
+    // URL parametrelerinden hat bilgisi al
+    const urlParams = new URLSearchParams(location.search);
+    const selectedHat = (urlParams.get("hat") || "").trim();
 
-      // users.json'u çek
-      let users = [];
-      try {
-        const res = await fetch("data/users.json", { cache: "no-store" });
-        if (!res.ok) throw new Error("users.json yüklenemedi: " + res.status);
-        const json = await res.json();
-        users = Array.isArray(json.users) ? json.users : [];
-      } catch (e) {
-        document.body.innerHTML =
-          '<p style="padding:24px;color:#c00;">Hata: ' + e.message + "</p>";
+    // users.json'u çek
+    fetch("data/users.json?cachebuster=" + Date.now())
+      .then(function (res) {
+        if (!res.ok) {
+          throw new Error("users.json yüklenemedi: " + res.status);
+        }
+        return res.json();
+      })
+      .then(function (json) {
+        const users = Array.isArray(json.users) ? json.users : [];
+
+        // Hat sayıları
+        const hatCounts = {};
+        users.forEach(function (u) {
+          (u.lines || []).forEach(function (h) {
+            hatCounts[h] = (hatCounts[h] || 0) + 1;
+          });
+        });
+
+        // Hat butonlarını çiz
+        const hatNames = Object.keys(hatCounts).sort(function (a, b) {
+          return a.localeCompare(b, "tr");
+        });
+
+        hatsSection.innerHTML = hatNames
+          .map(function (hat) {
+            return (
+              '<button class="hat-btn" data-hat="' +
+              hat +
+              '">' +
+              hat +
+              " (" +
+              hatCounts[hat] +
+              ")</button>"
+            );
+          })
+          .join("");
+
+        // Butonlara tıklama
+        var buttons = hatsSection.querySelectorAll(".hat-btn");
+        buttons.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var hat = btn.getAttribute("data-hat");
+            var newUrl = new URL(location.href);
+            newUrl.searchParams.set("hat", hat);
+            location.href = newUrl.toString();
+          });
+        });
+
+        // Kullanıcıları çiz
+        renderUsers(users, selectedHat);
+      })
+      .catch(function (e) {
+        usersSection.innerHTML =
+          '<p style="color:#c00;">Hata: ' + e.message + "</p>";
+      });
+
+    // Seçili hatta göre kullanıcıları çiz
+    function renderUsers(users, hat) {
+      if (!hat) {
+        selectedHatLabel.textContent = "";
+        backAll.style.display = "none";
+        usersSection.innerHTML = "<p>Bir hat seçerek başla.</p>";
         return;
       }
 
-      // Tüm hatların sayıları
-      const hatCounts = users.reduce((acc, u) => {
-        (u.lines || []).forEach(h => {
-          acc[h] = (acc[h] || 0) + 1;
-        });
-        return acc;
-      }, {});
+      selectedHatLabel.textContent = "Seçilen hat: " + hat;
+      backAll.style.display = "inline-block";
 
-      // Hat butonlarını çiz
-      const hatEntries = Object.entries(hatCounts).sort(
-        (a, b) => a[0].localeCompare(b[0], "tr")
-      );
-
-      hatsSection.innerHTML = hatEntries
-        .map(
-          ([hat, count]) =>
-            <button class="hat-btn" data-hat="${hat}">${hat} (${count})</button>
-        )
-        .join("");
-
-      hatsSection.querySelectorAll(".hat-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const hat = btn.dataset.hat;
-          const url = new URL(location.href);
-          url.searchParams.set("hat", hat);
-          location.href = url.toString();
-        });
+      const filtered = users.filter(function (u) {
+        return (u.lines || []).indexOf(hat) !== -1;
       });
 
-      // Seçili hatta göre kullanıcıları filtrele ve göster
-      function renderUsers(hat) {
-        const filtered = hat
-          ? users.filter(u => (u.lines || []).includes(hat))
-          : [];
-
-        if (hat) {
-          selectedHatLabel.textContent = "Seçilen hat: " + hat;
-          backAll.style.display = "inline-block";
-        } else {
-          selectedHatLabel.textContent = "";
-          backAll.style.display = "none";
-        }
-
-        if (!filtered.length) {
-          usersSection.innerHTML = hat
-            ? "<p>Bu hatta henüz kimse yok.</p>"
-            : "<p>Bir hat seçerek başla.</p>";
-          return;
-        }
-
-        usersSection.innerHTML = filtered
-          .map(u => {
-            const premiumBadge = u.premium
-              ? '<span class="badge-premium">⭐ Premium</span>'
-              : "";
-            const routeText = (u.lines || []).join(", ") +
-              (u.route ? " · " + u.route : "");
-            const tags = Array.isArray(u.tags) && u.tags.length
-              ? " · " + u.tags.join(", ")
-              : "";
-            return `
-              <a class="user-card" href="profil.html?user=${encodeURIComponent(
-                u.id
-              )}">
-                <h3>${u.name}, ${u.age} ${premiumBadge}</h3>
-                <p class="user-route">${routeText}</p>
-                <p class="user-bio">${u.bio}</p>
-                <p class="user-meta">En son: ${u.lastSeen}${tags}</p>
-              </a>
-            `;
-          })
-          .join("");
+      if (!filtered.length) {
+        usersSection.innerHTML = "<p>Bu hatta henüz kimse yok.</p>";
+        return;
       }
 
-      // Geri dön butonu
-      backAll.addEventListener("click", () => {
-        location.href = "hatlar.html";
-      });
+      const cards = filtered
+        .map(function (u) {
+          const premiumBadge = u.premium
+            ? '<span class="badge-premium">⭐ Premium</span>'
+            : "";
+          const routeText =
+            (u.lines || []).join(", ") + (u.route ? " · " + u.route : "");
+          const tags =
+            Array.isArray(u.tags) && u.tags.length
+              ? " · " + u.tags.join(", ")
+              : "";
+          return (
+            '<a class="user-card" href="profil.html?user=' +
+            encodeURIComponent(u.id) +
+            '">' +
+            "<h3>" +
+            u.name +
+            ", " +
+            u.age +
+            " " +
+            premiumBadge +
+            "</h3>" +
+            '<p class="user-route">' +
+            routeText +
+            "</p>" +
+            '<p class="user-bio">' +
+            u.bio +
+            "</p>" +
+            '<p class="user-meta">En son: ' +
+            u.lastSeen +
+            tags +
+            "</p>" +
+            "</a>"
+          );
+        })
+        .join("");
 
-      // İlk çizim
-      renderUsers(selectedHat);
-    })();
+      usersSection.innerHTML = cards;
+    }
+
+    // Geri dön butonu
+    backAll.addEventListener("click", function () {
+      location.href = "hatlar.html";
+    });
   </script>
 </body>
 </html>
