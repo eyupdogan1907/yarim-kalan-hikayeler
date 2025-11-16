@@ -1,103 +1,128 @@
+// js/hatlar.js
 (async () => {
   const $ = (sel) => document.querySelector(sel);
+
   const hatsSection = $("#hatsSection");
   const usersSection = $("#usersSection");
   const backAll = $("#backAll");
   const search = $("#hatSearch");
 
-  // URL parametreleri
-  const params = new URLSearchParams(location.search);
-  const selectedHat = (params.get("hat") || "").trim();
+  let allUsers = [];
+  let hatCounts = {};
 
-  // users.json'u çek
-  let users = [];
+  // 1) users.json'u çek
   try {
     const res = await fetch("data/users.json", { cache: "no-store" });
     if (!res.ok) throw new Error("users.json yüklenemedi: " + res.status);
     const json = await res.json();
-    users = Array.isArray(json.users) ? json.users : [];
+    allUsers = Array.isArray(json.users) ? json.users : [];
   } catch (e) {
-    document.body.innerHTML = <p style="padding:24px;color:#c00;">Hata: ${e.message}</p>;
+    document.body.innerHTML = `<p style="padding:24px;color:#c00;">
+      Hata: ${e.message}
+    </p>`;
     return;
   }
 
-  // Tüm hatların set'i + sayıları
-  const hatCounts = users.reduce((acc, u) => {
-    const h = (u.hat || "").trim();
-    if (!h) return acc;
-    acc[h] = (acc[h] || 0) + 1;
+  // 2) Tüm hatları (line) sayılarıyla çıkart
+  hatCounts = allUsers.reduce((acc, user) => {
+    if (!Array.isArray(user.lines)) return acc;
+    user.lines.forEach((line) => {
+      if (!line) return;
+      acc[line] = (acc[line] || 0) + 1;
+    });
     return acc;
   }, {});
 
+  // 3) Hat listesini ekrana bas
   function renderHatList(filterText = "") {
-    const q = filterText.toLowerCase();
     hatsSection.innerHTML = "";
+    usersSection.style.display = "none";
+    backAll.style.display = "none";
 
-    const entries = Object.entries(hatCounts)
-      .filter(([hat]) => hat.toLowerCase().includes(q))
-      .sort((a, b) => a[0].localeCompare(b[0], "tr"));
-
-    if (!entries.length) {
-      hatsSection.innerHTML = <p class="empty">Sonuç bulunamadı.</p>;
-      return;
-    }
-
-    for (const [hat, count] of entries) {
-      const a = document.createElement("a");
-      a.className = "hat-badge";
-      a.href = hatlar.html?hat=${encodeURIComponent(hat)};
-      a.textContent = ${hat} • ${count};
-      hatsSection.appendChild(a);
-    }
-  }
-
-  function renderUsersForHat(hat) {
-    usersSection.innerHTML = "";
-    const list = users.filter(
-      (u) => (u.hat || "").trim().toLowerCase() === hat.toLowerCase()
+    const entries = Object.entries(hatCounts).sort((a, b) =>
+      a[0].localeCompare(b[0], "tr")
     );
 
-    const title = document.createElement("h2");
-    title.className = "section-title";
-    title.textContent = Hattı: ${hat};
-    usersSection.appendChild(title);
+    const filtered = entries.filter(([line]) =>
+      line.toLowerCase().includes(filterText.toLowerCase())
+    );
 
-    if (!list.length) {
-      usersSection.innerHTML += <p class="empty">Bu hatta kullanıcı yok.</p>;
+    if (!filtered.length) {
+      hatsSection.innerHTML =
+        <p>Bu aramaya uygun hat bulunamadı.</p>;
       return;
     }
 
-    for (const u of list) {
-      const card = document.createElement("a");
-      card.className = "user-card";
-      card.href = profil.html?id=${encodeURIComponent(u.id)};
-      card.innerHTML = `
-        <img class="avatar" src="${(u.foto || "").trim() || "assets/placeholder.jpg"}" alt="${u.isim || "Kullanıcı"}" loading="lazy">
-        <div class="meta">
-          <div class="name">${u.isim || ""}</div>
-          <div class="sub">🗺️ ${(u.guzergah || []).join(" → ")}</div>
-          <div class="sub">⏰ ${u.saatAraligi || ""}</div>
-        </div>
-      `;
-      usersSection.appendChild(card);
+    filtered.forEach(([line, count]) => {
+      const btn = document.createElement("button");
+      btn.className = "hat-item";
+      btn.textContent = ${line} (${count});
+      btn.addEventListener("click", () => openHat(line));
+      hatsSection.appendChild(btn);
+    });
+  }
+
+  // 4) Bir hatta tıklanınca kullanıcıları göster
+  function openHat(line) {
+    hatsSection.innerHTML = "";
+    usersSection.innerHTML = "";
+    usersSection.style.display = "grid";
+    backAll.style.display = "inline-block";
+
+    backAll.onclick = () => {
+      renderHatList(search.value.trim());
+    };
+
+    const list = allUsers.filter(
+      (u) => Array.isArray(u.lines) && u.lines.includes(line)
+    );
+
+    if (!list.length) {
+      usersSection.innerHTML = <p>Bu hatta henüz kimse yok.</p>;
+      return;
     }
+
+    list.forEach((user) => {
+      const card = document.createElement("article");
+      card.className = "user-card";
+      card.addEventListener("click", () => {
+        // profil sayfasına id ile yönlendir
+        location.href = profil.html?id=${encodeURIComponent(user.id)};
+      });
+
+      const premiumBadge = user.isPremium
+        ? <span class="badge badge-premium">⭐ Premium</span>
+        : "";
+
+      card.innerHTML = `
+        <div class="user-card-header">
+          <div>
+            <h2>${user.name}, ${user.age}</h2>
+            <p>${line} • ${user.from || "?"} → ${user.to || "?"}</p>
+          </div>
+          ${premiumBadge}
+        </div>
+        <p class="user-story">${user.story || ""}</p>
+        <p class="user-vibe">
+          ${(user.vibe || [])
+            .map((tag) => <span class="chip">${tag}</span>)
+            .join(" ")}
+        </p>
+        <p class="user-last-seen">En son: ${user.lastSeen || "-"}</p>
+      `;
+
+      usersSection.appendChild(card);
+    });
   }
 
-  // Ekran kararı
-  if (selectedHat) {
-    hatsSection.hidden = true;
-    usersSection.hidden = false;
-    backAll.hidden = false;
-    renderUsersForHat(selectedHat);
-  } else {
-    hatsSection.hidden = false;
-    usersSection.hidden = true;
-    backAll.hidden = true;
-    renderHatList("");
+  // 5) Arama kutusu
+  if (search) {
+    search.addEventListener("input", (e) => {
+      const value = e.target.value.trim();
+      renderHatList(value);
+    });
   }
 
-  // Arama
-  search.addEventListener("input", (e) => {
-    if (!selectedHat) renderHatList(e.target.value);
-  });
+  // İlk yüklemede tüm hatları göster
+  renderHatList();
 })();
