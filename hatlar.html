@@ -2,26 +2,43 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hatlar – Yarım Kalan Hikayeler</title>
+  <title>Hatlar | Yarım Kalan Hikayeler</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="wrap">
-    <header class="page-head">
-      <h1>🚏 Hatlar</h1>
-      <input id="hatSearch" class="hat-search" type="search" placeholder="Hat ara (örn: 34AS, M4, Marmaray)">
-    </header>
+  <header class="ykh-header">
+    <a href="index.html" class="logo">Yarım Kalan Hikayeler</a>
+  </header>
 
-    <section id="hatsSection" class="hats-grid" hidden></section>
-    <section id="usersSection" class="user-grid" hidden></section>
+  <main class="ykh-container">
+    <h1>Hattını Seç</h1>
+    <p class="ykh-subtitle">
+      Metrobüs / metro / otobüs hattını seç, o hatta gördüğün insanları bul.
+    </p>
 
-    <div class="nav-actions">
-      <a id="backAll" href="hatlar.html" class="back-btn" hidden>← Tüm hatlara dön</a>
-      <a href="index.html" class="back-btn alt">← Ana sayfa</a>
+    <div class="hat-search-wrapper">
+      <input
+        id="hatSearch"
+        type="text"
+        placeholder="Örn: 34AS, M4, Marmaray..."
+        autocomplete="off"
+      />
     </div>
-  </div>
 
-  <script src="js/hatlar.js"></script>
+    <section id="hatsSection" class="hats-grid">
+      <!-- Hat listesi JS ile doldurulacak -->
+    </section>
+
+    <button id="backAll" class="back-button" style="display:none;">
+      ← Tüm hatlar
+    </button>
+
+    <section id="usersSection" class="users-grid" style="display:none;">
+      <!-- Seçilen hatta ait kullanıcı kartları JS ile gelecek -->
+    </section>
+  </main>
+
+  <script src="hatlar.js" defer></script>
 </body>
 </html>
