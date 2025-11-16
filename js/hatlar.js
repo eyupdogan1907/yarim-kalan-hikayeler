@@ -1,63 +1,101 @@
 // js/hatlar.js
-(async () => {
-  const $ = (sel) => document.querySelector(sel);
+(function () {
+  var $ = function (sel) {
+    return document.querySelector(sel);
+  };
 
-  const hatsSection = $("#hatsSection");
-  const usersSection = $("#usersSection");
-  const backAll = $("#backAll");
-  const search = $("#hatSearch");
+  var hatsSection = $("#hatsSection");
+  var usersSection = $("#usersSection");
+  var backAll = $("#backAll");
+  var search = $("#hatSearch");
 
-  let allUsers = [];
-  let hatCounts = {};
+  var allUsers = [];
+  var hatCounts = {};
 
   // 1) users.json'u çek
-  try {
-    const res = await fetch("data/users.json", { cache: "no-store" });
-    if (!res.ok) throw new Error("users.json yüklenemedi: " + res.status);
-    const json = await res.json();
-    allUsers = Array.isArray(json.users) ? json.users : [];
-  } catch (e) {
-    document.body.innerHTML = `<p style="padding:24px;color:#c00;">
-      Hata: ${e.message}
-    </p>`;
-    return;
+  fetch("data/users.json", { cache: "no-store" })
+    .then(function (res) {
+      if (!res.ok) {
+        throw new Error("users.json yüklenemedi: " + res.status);
+      }
+      return res.json();
+    })
+    .then(function (json) {
+      if (json && Array.isArray(json.users)) {
+        allUsers = json.users;
+      } else {
+        allUsers = [];
+      }
+      hazirla();
+    })
+    .catch(function (e) {
+      document.body.innerHTML =
+        '<p style="padding:24px;color:#c00;">Hata: ' +
+        e.message +
+        "</p>";
+    });
+
+  function hazirla() {
+    // 2) Tüm hatları (line) sayılarıyla çıkart
+    hatCounts = allUsers.reduce(function (acc, user) {
+      if (!user || !Array.isArray(user.lines)) return acc;
+      user.lines.forEach(function (line) {
+        if (!line) return;
+        if (!acc[line]) acc[line] = 0;
+        acc[line] += 1;
+      });
+      return acc;
+    }, {});
+
+    // 3) İlk yüklemede tüm hatları göster
+    renderHatList("");
+
+    // 5) Arama kutusu
+    if (search) {
+      search.addEventListener("input", function (e) {
+        var value = (e.target.value || "").trim();
+        renderHatList(value);
+      });
+    }
   }
 
-  // 2) Tüm hatları (line) sayılarıyla çıkart
-  hatCounts = allUsers.reduce((acc, user) => {
-    if (!Array.isArray(user.lines)) return acc;
-    user.lines.forEach((line) => {
-      if (!line) return;
-      acc[line] = (acc[line] || 0) + 1;
-    });
-    return acc;
-  }, {});
-
   // 3) Hat listesini ekrana bas
-  function renderHatList(filterText = "") {
+  function renderHatList(filterText) {
+    if (!filterText) filterText = "";
+
     hatsSection.innerHTML = "";
     usersSection.style.display = "none";
     backAll.style.display = "none";
 
-    const entries = Object.entries(hatCounts).sort((a, b) =>
-      a[0].localeCompare(b[0], "tr")
-    );
+    var entries = Object.keys(hatCounts)
+      .sort(function (a, b) {
+        return a.localeCompare(b, "tr");
+      })
+      .map(function (key) {
+        return [key, hatCounts[key]];
+      });
 
-    const filtered = entries.filter(([line]) =>
-      line.toLowerCase().includes(filterText.toLowerCase())
-    );
+    var filtered = entries.filter(function (pair) {
+      var line = pair[0];
+      return line.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+    });
 
     if (!filtered.length) {
       hatsSection.innerHTML =
-        <p>Bu aramaya uygun hat bulunamadı.</p>;
+        '<p>Bu aramaya uygun hat bulunamadı.</p>';
       return;
     }
 
-    filtered.forEach(([line, count]) => {
-      const btn = document.createElement("button");
+    filtered.forEach(function (pair) {
+      var line = pair[0];
+      var count = pair[1];
+
+      var btn = document.createElement("button");
       btn.className = "hat-item";
-      btn.textContent = ${line} (${count});
-      btn.addEventListener("click", () => openHat(line));
+      btn.textContent = line + " (" + count + ")";
+      btn.addEventListener("click", function () {
+        openHat(line);
+      });
       hatsSection.appendChild(btn);
     });
   }
@@ -69,60 +107,78 @@
     usersSection.style.display = "grid";
     backAll.style.display = "inline-block";
 
-    backAll.onclick = () => {
-      renderHatList(search.value.trim());
+    backAll.onclick = function () {
+      renderHatList((search.value || "").trim());
     };
 
-    const list = allUsers.filter(
-      (u) => Array.isArray(u.lines) && u.lines.includes(line)
-    );
+    var list = allUsers.filter(function (u) {
+      return u && Array.isArray(u.lines) && u.lines.indexOf(line) !== -1;
+    });
 
     if (!list.length) {
-      usersSection.innerHTML = <p>Bu hatta henüz kimse yok.</p>;
+      usersSection.innerHTML =
+        '<p>Bu hatta henüz kimse yok.</p>';
       return;
     }
 
-    list.forEach((user) => {
-      const card = document.createElement("article");
+    list.forEach(function (user) {
+      var card = document.createElement("article");
       card.className = "user-card";
-      card.addEventListener("click", () => {
+      card.addEventListener("click", function () {
         // profil sayfasına id ile yönlendir
-        location.href = profil.html?id=${encodeURIComponent(user.id)};
+        location.href =
+          "profil.html?id=" + encodeURIComponent(user.id);
       });
 
-      const premiumBadge = user.isPremium
-        ? <span class="badge badge-premium">⭐ Premium</span>
-        : "";
+      var premiumBadge = "";
+      if (user.isPremium) {
+        premiumBadge =
+          '<span class="badge badge-premium">⭐ Premium</span>';
+      }
 
-      card.innerHTML = `
-        <div class="user-card-header">
-          <div>
-            <h2>${user.name}, ${user.age}</h2>
-            <p>${line} • ${user.from || "?"} → ${user.to || "?"}</p>
-          </div>
-          ${premiumBadge}
-        </div>
-        <p class="user-story">${user.story || ""}</p>
-        <p class="user-vibe">
-          ${(user.vibe || [])
-            .map((tag) => <span class="chip">${tag}</span>)
-            .join(" ")}
-        </p>
-        <p class="user-last-seen">En son: ${user.lastSeen || "-"}</p>
-      `;
+      var vibeHtml = "";
+      if (user.vibe && user.vibe.length) {
+        vibeHtml = user.vibe
+          .map(function (tag) {
+            return '<span class="chip">' + tag + "</span>";
+          })
+          .join(" ");
+      }
+
+      var fromText = user.from || "?";
+      var toText = user.to || "?";
+      var lastSeen = user.lastSeen || "-";
+      var story = user.story || "";
+      var ageText = user.age != null ? user.age : "";
+
+      card.innerHTML =
+        '<div class="user-card-header">' +
+        '<div>' +
+        "<h2>" +
+        user.name +
+        (ageText ? ", " + ageText : "") +
+        "</h2>" +
+        "<p>" +
+        line +
+        " • " +
+        fromText +
+        " → " +
+        toText +
+        "</p>" +
+        "</div>" +
+        premiumBadge +
+        "</div>" +
+        '<p class="user-story">' +
+        story +
+        "</p>" +
+        '<p class="user-vibe">' +
+        vibeHtml +
+        "</p>" +
+        '<p class="user-last-seen">En son: ' +
+        lastSeen +
+        "</p>";
 
       usersSection.appendChild(card);
     });
   }
-
-  // 5) Arama kutusu
-  if (search) {
-    search.addEventListener("input", (e) => {
-      const value = e.target.value.trim();
-      renderHatList(value);
-    });
-  }
-
-  // İlk yüklemede tüm hatları göster
-  renderHatList();
 })();
